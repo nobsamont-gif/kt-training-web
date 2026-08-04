@@ -215,7 +215,7 @@ const App=(()=>{
     <button class="btn btn-red" style="width:100%;justify-content:center" onclick="App.register()">ส่งคำขอลงทะเบียน</button>
     <p style="margin-top:14px;text-align:center"><span class="authlink" onclick="App.gotoLogin()">← กลับไปเข้าสู่ระบบ</span></p>`);}
 
-  function saveApi(){const u=document.getElementById('cfgUrl').value.trim();if(!u){toast('กรอก URL');return}state.apiBase=u;localStorage.setItem(API_KEY,u);renderAuth();}
+  function saveApi(){let u=document.getElementById('cfgUrl').value.trim();if(!u){toast('กรอก URL');return}if(!/^https?:\/\//i.test(u))u='https://'+u;state.apiBase=u;localStorage.setItem(API_KEY,u);renderAuth();}
   function pickType(t){authStep.type=t;authStep.role=null;renderAuth();}
   function pickRole(r){authStep.role=r;if(authStep.type==='Others'){const g=document.getElementById('authGenpo');authStep.genpo=g?g.value:'TH';}renderAuth();}
   function resetAuth(){authStep={type:null,role:null,genpo:null,mode:'login'};renderAuth();}
