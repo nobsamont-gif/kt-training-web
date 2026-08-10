@@ -171,6 +171,17 @@ async function api(method,ep,body){
 }
 const scopeGenpos=()=>state.profile.allAccess?[...GENPOS]:[state.profile.genpo];
 
+/* ================= SharePoint link-out (เก็บชื่อคน+เอกสาร PDF ไว้นอกระบบ) =================
+   ต้องมีโฟลเดอร์ย่อยชื่อตรงกับ Training Code อยู่ใต้โฟลเดอร์ของแต่ละ Genpo เช่น .../8.HRST/HRST-001 */
+const SP_SITE='aoash457';
+const SP_PATH_PREFIX='06. Training and Engagement/00.Training Plan and Activities';
+const SP_GENPO_FOLDER={TH:'7.TH', HRST:'8.HRST', EGAS:'9.EGAS'};
+function spLink(g,code){
+  const seg=SP_GENPO_FOLDER[g]||g;
+  const path=`/sites/${SP_SITE}/Shared Documents/${SP_PATH_PREFIX}/${seg}/${code}`;
+  return `https://globalhonda.sharepoint.com/sites/${SP_SITE}/Shared%20Documents/Forms/AllItems.aspx?id=${encodeURIComponent(path)}`;
+}
+
 /* ================= App: auth, shell, data layer ================= */
 const App=(()=>{
   let authStep={type:null,role:null,genpo:null,mode:'login'};
@@ -328,7 +339,6 @@ const Training=(()=>{
   const STEPS=[{k:'vendor',nm:'เปิด Vendor',who:'Purchasing'},{k:'register',nm:'สมัครอบรม',who:'Training Co'},
     {k:'hbi',nm:'อนุมัติใน HBI',who:'Training Co'},{k:'pr',nm:'เปิด PR',who:'Training Co'},
     {k:'email',nm:'ส่งอีเมลยืนยัน',who:'Training Co'},{k:'payment',nm:'ทำจ่าย',who:'Accounting'},{k:'dsd',nm:'ยื่น DSD',who:'DSD Cont'}];
-  const DOCS=[{k:'invoice',nm:'Invoice'},{k:'app',nm:'ใบสมัคร'},{k:'detail',nm:'รายละเอียดหลักสูตร (DSD)'},{k:'payproof',nm:'หลักฐานการชำระเงิน'},{k:'receipt',nm:'ใบเสร็จรับเงิน'}];
   const SIG=`Ms. Nobsamon Thadtapong (Oy) | นบศมน ถัดทะพงษ์ (ออย)
 People Center Department
 HR Service Excellent (HRSX)
@@ -352,7 +362,7 @@ E-Mail : nobsatha@honda.th.com`;
   function nextCutoff(day){const now=new Date();now.setHours(0,0,0,0);let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);return d;}
   const fmtDM=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
   const daysTo=d=>Math.round((d-new Date().setHours(0,0,0,0))/864e5);
-  function payMissing(c){const m=[];if((c.pr||'none')==='wait')m.push('เปิด PR');if(!c.docs.invoice)m.push('Invoice');return m;}
+  function payMissing(c){const m=[];if((c.pr||'none')==='wait')m.push('เปิด PR');if(!c.invoiceNo)m.push('เลขที่ Invoice');return m;}
   function cutoffInfo(c){if(c.steps.payment)return null;const miss=payMissing(c);if(!miss.length)return null;
     let day=null;if((c.payRound||'').includes('กลางเดือน'))day=7;else if((c.payRound||'').includes('ปลายเดือน'))day=21;
     const target=day?nextCutoff(day):(daysTo(nextCutoff(7))<=daysTo(nextCutoff(21))?nextCutoff(7):nextCutoff(21));
@@ -406,8 +416,7 @@ E-Mail : nobsatha@honda.th.com`;
       <div class="grid2"><div class="frow"><label>จำนวนคน</label><input id="aCount" type="number" min="1" value="1"></div>
         <div class="frow"><label>ประเภท</label><select id="aCat">${CATS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
       <div class="frow"><label>สถานะ Vendor เริ่มต้น</label><select id="aVstat"><option value="none">มี Vendor อยู่แล้ว</option><option value="wait_docs">ต้องขอเปิด Vendor</option></select></div>
-      <div class="frow"><label>รายชื่อผู้เข้าอบรม (บรรทัดละคน)</label><textarea id="aPeople" rows="3"></textarea></div>
-      <p class="note">ระบบจะสร้าง Training Code ให้อัตโนมัติ และเพิ่มหลักสูตรนี้เข้า Calendar + แจ้งฝั่ง DSD ให้ดึงไปยื่นต่อ</p>
+      <p class="note">ระบบจะสร้าง Training Code ให้อัตโนมัติ และเพิ่มหลักสูตรนี้เข้า Calendar + แจ้งฝั่ง DSD ให้ดึงไปยื่นต่อ<br>รายชื่อผู้เข้าอบรมและเอกสาร PDF ให้เก็บใน SharePoint — จะมีปุ่มลิงก์ให้หลังบันทึกแล้ว</p>
       <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Training.addCourse()">บันทึก</button></div>`);
   }
   async function addCourse(){
@@ -416,8 +425,8 @@ E-Mail : nobsatha@honda.th.com`;
     const s=state.train[g];const no=Math.max(0,...s.courses.map(c=>c.no||0))+1;const code=g+'-'+String(no).padStart(3,'0');
     const c={id:Date.now().toString(36),no,code,name,co:g,vendorName:document.getElementById('aVendor').value.trim(),
       start:parseDMY(document.getElementById('aStart').value),end:parseDMY(document.getElementById('aEnd').value)||parseDMY(document.getElementById('aStart').value),
-      count:+document.getElementById('aCount').value||1,cat:document.getElementById('aCat').value,people:document.getElementById('aPeople').value.trim(),
-      vendor:document.getElementById('aVstat').value,pr:'none',by:state.profile.username,steps:{},stepTs:{},stepBy:{},stepRemark:{},docs:{},docBy:{}};
+      count:+document.getElementById('aCount').value||1,cat:document.getElementById('aCat').value,
+      vendor:document.getElementById('aVstat').value,pr:'none',by:state.profile.username,steps:{},stepTs:{},stepBy:{},stepRemark:{}};
     s.courses.push(c);
     try{await App.saveTrain(g,'add course: '+name);await App.calFromCourse(c);closeModal();App.render();toast('เพิ่มแล้ว — Code '+code);}catch(e){}
   }
@@ -438,11 +447,10 @@ E-Mail : nobsatha@honda.th.com`;
       if(s.k==='payment'){const ropts=PAYROUNDS.map(r=>`<option value="${r}" ${c.payRound===r?'selected':''}>${r||'— เลือกรอบทำจ่าย —'}</option>`).join('');
         row+=`<div class="step sub"><select style="max-width:230px" onchange="Training.editField('payRound',this.value)">${ropts}</select></div>`;}
       return row+remarkRow(c,s.k);}).join('');
-    const docRows=DOCS.map(dc=>{const db=(c.docBy||{})[dc.k];const f=c.docs[dc.k];
-      return`<div class="docrow"><span class="who" style="min-width:78px;font-size:11px;color:var(--sub)"></span><span class="nm">${dc.nm}<br><span class="fn ${f?'':'miss'}">${f?esc(f):'ยังไม่มีไฟล์'}</span>${db?`<br><span class="ts">โดย ${esc(db)}</span>`:''}</span>${f?`<button class="mini" onclick="Training.dlFile('${esc(f)}')">ดาวน์โหลด</button>`:''}<button class="mini" onclick="Training.upDoc('${dc.k}')">${f?'แทนที่':'อัปโหลด PDF'}</button></div>`;}).join('');
-    const certList=(c.docs.cert||[]);
-    const certFiles=certList.length?`<div class="filelist">${certList.map(fn=>`<div class="fileitem"><span class="fn" style="flex:1">${esc(fn)}</span><button class="mini" onclick="Training.dlFile('${esc(fn)}')">โหลด</button><button class="mini" style="color:var(--alert);border-color:var(--alert)" onclick="Training.delCert('${esc(fn)}')">ลบ</button></div>`).join('')}</div>`:'<span class="fn miss">ยังไม่มีไฟล์</span>';
-    const certRow=`<div class="docrow"><span class="who" style="min-width:78px;font-size:11px;color:var(--sub)">Training</span><span class="nm">Certificate <span class="ts">(${certList.length} ไฟล์ · เลือกได้หลายไฟล์)</span>${certFiles}</span><button class="mini" onclick="Training.upDoc('cert')">+ อัปโหลด</button></div>`;
+    const spUrl=spLink(g,c.code||'');
+    const spSection=`<div class="sect"><h3>รายชื่อ + เอกสาร PDF (SharePoint)</h3>
+      <p class="note">รายชื่อผู้เข้าอบรมและไฟล์ Invoice / ใบสมัคร / รายละเอียดหลักสูตร / หลักฐานชำระเงิน / ใบเสร็จ / Certificate เก็บที่ SharePoint ทั้งหมด — ให้สร้างโฟลเดอร์ย่อยชื่อ <span class="code">${esc(c.code||'')}</span> ไว้ล่วงหน้าถ้ายังไม่มี</p>
+      <a class="btn btn-red" href="${spUrl}" target="_blank" rel="noopener" style="text-decoration:none">📁 เปิดโฟลเดอร์ SharePoint (${esc(c.code||'')})</a></div>`;
     document.getElementById('drawer').innerHTML=`
       <div class="dhead"><h2><span class="co ${currentG}">${CO[currentG]}</span> <span class="code">${esc(c.code||'')}</span> ${esc(c.name)}</h2><button class="btn btn-ghost" onclick="Training.close()">✕</button></div>
       <div class="dbody">
@@ -453,7 +461,6 @@ E-Mail : nobsatha@honda.th.com`;
           <div class="frow"><label>จำนวนคน</label><input type="number" value="${c.count||1}" onchange="Training.editField('count',+this.value)"></div>
           <div class="frow"><label>วันที่เริ่ม</label>${dateInput(c.start,"Training.editDate('start',this.value)")}</div>
           <div class="frow"><label>วันที่สิ้นสุด</label>${dateInput(c.end,"Training.editDate('end',this.value)")}</div></div>
-          <div class="frow"><label>ผู้เข้าอบรม (บรรทัดละคน)</label><textarea rows="3" onchange="Training.editField('people',this.value)">${esc(c.people||'')}</textarea></div>
           ${c.by?`<p class="by">เพิ่มโดย ${esc(c.by)}</p>`:''}</div>
         <div class="sect"><h3>ขั้นตอน</h3>${stepRows}</div>
         <div class="sect"><h3>Invoice / ค่าใช้จ่าย</h3><div class="grid2">
@@ -463,7 +470,7 @@ E-Mail : nobsatha@honda.th.com`;
           <div class="frow"><label>หัก ณ ที่จ่าย</label><select id="ivWht" onchange="Training.calcInv();Training.editField('whtPct',+this.value)"><option value="0" ${!c.whtPct?'selected':''}>ไม่หัก</option><option value="3" ${c.whtPct===3?'selected':''}>3%</option></select></div>
           <div class="frow"><label>ครบกำหนดชำระ</label>${dateInput(c.invoiceDue,"Training.editDate('invoiceDue',this.value)")}</div></div>
           <div id="invSum" class="note" style="background:#FAFAFA;border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin-top:4px"></div></div>
-        <div class="sect"><h3>เอกสาร PDF</h3>${docRows}${certRow}</div>
+        ${spSection}
         <div class="sect"><button class="mini" style="color:var(--alert);border-color:var(--alert)" onclick="Training.delCourse()">ลบหลักสูตรนี้</button></div>
       </div>`;
     document.getElementById('ov').classList.add('open');document.getElementById('drawer').classList.add('open');calcInv();
@@ -483,24 +490,6 @@ E-Mail : nobsatha@honda.th.com`;
   async function editDate(f,dmy){const iso=dmy?parseDMY(dmy):'';if(dmy&&!iso){toast('วันที่ต้องเป็น dd/mm/yyyy');openDrawer(currentG,currentId);return;}editField(f,iso);}
   async function delCourse(){if(!confirm('ลบหลักสูตรนี้?'))return;const s=state.train[currentG];s.courses=s.courses.filter(x=>x.id!==currentId);try{await App.saveTrain(currentG,'delete');close();App.render();}catch(e){}}
 
-  function safeName(s){return s.replace(/[\\/:*?"<>|#%\s]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);}
-  function docLabel(k){return{invoice:'Invoice',app:'ใบสมัคร',detail:'รายละเอียดหลักสูตร',payproof:'หลักฐานการชำระเงิน',receipt:'ใบเสร็จรับเงิน',cert:'Certificate'}[k];}
-  function upDoc(k){const inp=document.createElement('input');inp.type='file';inp.accept='application/pdf';if(k==='cert')inp.multiple=true;
-    inp.onchange=async()=>{const files=[...inp.files];if(!files.length)return;if(files.some(f=>f.size>20*1024*1024)){toast('ไฟล์ใหญ่เกิน 20MB');return;}
-      const c=cur();const g=currentG;toast('กำลังอัปโหลด…');
-      try{for(const file of files){const buf=await file.arrayBuffer();let bin='';const by=new Uint8Array(buf);for(let i=0;i<by.length;i+=0x8000)bin+=String.fromCharCode.apply(null,by.subarray(i,i+0x8000));const b64=btoa(bin);
-          const base=safeName(file.name.replace(/\.pdf$/i,''));
-          const fn=k==='cert'?`${c.code}_Certificate_${base}.pdf`:`${c.code}_${docLabel(k)}.pdf`;
-          await api('POST','api/upload',{file:'training-'+g,path:'docs/'+g+'/'+fn,base64:b64});
-          if(k==='cert'){c.docs.cert=c.docs.cert||[];if(!c.docs.cert.includes(fn))c.docs.cert.push(fn);}else c.docs[k]=fn;}
-        c.docBy=c.docBy||{};c.docBy[k]=state.profile.username+' '+new Date().toLocaleDateString('en-GB');
-        await App.saveTrain(g,'doc '+k);toast('อัปโหลดสำเร็จ');App.render();openDrawer(g,c.id);
-      }catch(e){toast('อัปโหลดไม่สำเร็จ: '+e.message);}};inp.click();}
-  async function delCert(fn){const c=cur();c.docs.cert=(c.docs.cert||[]).filter(x=>x!==fn);await saveCur('del cert');}
-  async function dlFile(fn){toast('กำลังดาวน์โหลด…');try{const r=await api('GET','api/file?path='+encodeURIComponent('docs/'+currentG+'/'+fn));
-    const bin=atob(r.base64);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
-    const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const a=document.createElement('a');a.href=url;a.download=fn;a.click();URL.revokeObjectURL(url);
-  }catch(e){toast('ดาวน์โหลดไม่สำเร็จ');}}
 
   function openEmail(){const c=cur();
     openModal(`<h2><span>อีเมล</span>ยืนยันการอบรม</h2>
@@ -534,7 +523,7 @@ E-Mail : nobsatha@honda.th.com`;
     const blob=new Blob(['\uFEFF'+head.map(q).join(',')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='training_'+dstamp()+'.csv';a.click();URL.revokeObjectURL(a.href);toast('ส่งออกแล้ว');}
 
-  return {render,openAdd,addCourse,openDrawer,close,setStep,setVendor,setPr,setRemark,editField,editDate,delCourse,calcInv,upDoc,delCert,dlFile,openEmail,setLang,copyEmail,exportCSV};
+  return {render,openAdd,addCourse,openDrawer,close,setStep,setVendor,setPr,setRemark,editField,editDate,delCourse,calcInv,openEmail,setLang,copyEmail,exportCSV};
 })();
 
 /* ================= DSD Tracker ================= */
