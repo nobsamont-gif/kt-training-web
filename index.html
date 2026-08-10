@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https:; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>People Center Training Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -148,7 +150,7 @@ const state={ apiBase:localStorage.getItem(API_KEY)||'', token:localStorage.getI
   profile:JSON.parse(localStorage.getItem(PROF_KEY)||'null'),
   view:'training', train:{}, dsd:{}, cal:{events:[],sha:null} };
 
-const esc=s=>String(s??'').replace(/[<>&"]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[m]));
+const esc=s=>String(s??'').replace(/[<>&"'`]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;','`':'&#96;'}[m]));
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2800)}
 function sync(t){const el=document.getElementById('syncState');if(el)el.textContent=t}
 const nowStamp=()=>new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
@@ -219,7 +221,7 @@ const App=(()=>{
     <p style="margin-top:14px;text-align:center"><span class="authlink" onclick="App.resetAuth()">← เปลี่ยนกลุ่ม/ตำแหน่ง</span></p>`);}
   function registerScreen(err){return shell(`${err}<p class="note" style="margin-bottom:14px">ลงทะเบียนผู้ใช้ใหม่ — ต้องรอ Admin อนุมัติก่อนเข้าใช้งาน</p>
     <div class="frow"><label>ชื่อผู้ใช้</label><input id="rUser" autocomplete="off"></div>
-    <div class="frow"><label>รหัสผ่าน (อย่างน้อย 6 ตัว)</label><input id="rPass" type="password" autocomplete="new-password"></div>
+    <div class="frow"><label>รหัสผ่าน (อย่างน้อย 10 ตัว)</label><input id="rPass" type="password" autocomplete="new-password"></div>
     <div class="frow"><label>กลุ่มผู้ใช้</label><select id="rType" onchange="App.regTypeChange()"><option value="People Center">People Center</option><option value="Others">Others</option></select></div>
     <div class="frow"><label>ตำแหน่ง</label><select id="rRole"></select></div>
     <div class="frow hide" id="rGenpoRow"><label>Genpo</label><select id="rGenpo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>
@@ -304,7 +306,7 @@ const App=(()=>{
 
   const VIEWS=()=>{const p=state.profile;
     if(!p.allAccess)return[['training','Training Tracker']];
-    const v=[['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
+    const v=[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
     if(p.admin)v.push(['admin','Admin']);return v;};
   function pendingBadge(){return 0;}
   function renderNav(){
@@ -315,12 +317,14 @@ const App=(()=>{
   }
   function go(v){state.view=v;renderNav();render();}
   function render(){const el=document.getElementById('app');
-    if(state.view==='training')Training.render(el);
+    if(state.view==='dashboard')Dash.render(el);
+    else if(state.view==='training')Training.render(el);
     else if(state.view==='dsd')DSD.render(el);
     else if(state.view==='calendar')Calendar.render(el);
     else if(state.view==='admin')Admin.render(el);}
   async function enterApp(){
     document.getElementById('auth').classList.add('hide');document.getElementById('appShell').classList.remove('hide');
+    if(state.profile.role==='Manager')state.view='dashboard';
     if(!VIEWS().some(v=>v[0]===state.view))state.view=VIEWS()[0][0];
     renderNav();try{await loadData();}catch(e){sync('เชื่อมต่อไม่ได้');toast(e.message)}render();}
   async function boot(){if(state.token&&state.profile){try{await enterApp();return;}catch(e){}}document.getElementById('appShell').classList.add('hide');renderAuth();}
@@ -793,7 +797,7 @@ const Admin=(()=>{
   async function approve(u){try{await api('POST','api/admin/approve',{username:u,role:roleOf(u),genpo:genOf(u)});toast('อนุมัติแล้ว');reload();}catch(e){toast(e.message);}}
   async function reject(u){if(!confirm('ปฏิเสธคำขอนี้?'))return;try{await api('POST','api/admin/reject',{username:u});reload();}catch(e){toast(e.message);}}
   async function suspend(u){try{await api('POST','api/admin/suspend',{username:u});reload();}catch(e){toast(e.message);}}
-  async function reset(u){const p=prompt('ตั้งรหัสผ่านใหม่ให้ '+u+' (อย่างน้อย 6 ตัว)');if(p===null)return;if(p.length<6){toast('รหัสผ่านอย่างน้อย 6 ตัว');return;}
+  async function reset(u){const p=prompt('ตั้งรหัสผ่านใหม่ให้ '+u+' (อย่างน้อย 10 ตัว)');if(p===null)return;if(p.length<10){toast('รหัสผ่านอย่างน้อย 10 ตัว');return;}
     try{await api('POST','api/admin/reset',{username:u,newPassword:p});toast('รีเซตรหัสผ่านแล้ว');reload();}catch(e){toast(e.message);}}
   return {render,reload,approve,reject,suspend,reset};
 })();
@@ -849,7 +853,154 @@ const Import=(()=>{
   return {open,check,run};
 })();
 
-/* ================= seed (ว่าง — ข้อมูลเดิมนำเข้าผ่านปุ่ม "นำเข้าข้อมูล") ================= */
+/* ================= Dashboard (ผู้บริหาร) ================= */
+const Dash=(()=>{
+  const LEAD=30, REPORT=60;
+  const today=()=>new Date().toISOString().slice(0,10);
+  const ISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:null;
+  const addD=(s,n)=>{if(!ISO(s))return null;const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+  const daysTo=s=>ISO(s)?Math.round((new Date(s)-new Date(today()))/864e5):null;
+  const endD=r=>ISO(r.dateEnd)||ISO(r.date);
+  const isPast=r=>!!endD(r)&&endD(r)<today();
+  const reqDue=r=>addD(r.date,-LEAD), reportDue=r=>addD(endD(r),REPORT);
+  const MTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  let gfil='ALL';
+
+  const runs=()=>{const o=[];for(const g of Object.keys(state.dsd))for(const r of(state.dsd[g].runs||[]))if(gfil==='ALL'||g===gfil)o.push({r,g});return o;};
+  const courses=()=>App.allCourses().filter(({c})=>gfil==='ALL'||c.co===gfil);
+
+  // ความเสี่ยงตามกฎหมาย
+  function risks(){
+    const out=[];
+    for(const {r,g} of runs()){
+      const rq=r.req||'none';
+      if(rq==='none'&&r.date){const d=daysTo(reqDue(r));
+        if(d!==null&&d<0)out.push({r,g,lv:'high',t:`เลยกำหนดยื่นขอรับรอง ${-d} วัน`,due:reqDue(r)});
+        else if(d!==null&&d<=14)out.push({r,g,lv:'mid',t:`ต้องยื่นขอรับรองใน ${d} วัน`,due:reqDue(r)});}
+      if(rq!=='ok'&&isPast(r))out.push({r,g,lv:'high',t:'อบรมไปแล้วแต่ยังไม่ได้รับรองหลักสูตร',due:endD(r)});
+      if(rq==='ok'&&isPast(r)&&!r.report){const d=daysTo(reportDue(r));
+        if(d!==null&&d<0)out.push({r,g,lv:'high',t:`เลยกำหนดยื่นรายงาน ${-d} วัน`,due:reportDue(r)});
+        else out.push({r,g,lv:'mid',t:`ต้องยื่นรายงานใน ${d} วัน`,due:reportDue(r)});}
+    }
+    const rank={high:0,mid:1};
+    return out.sort((a,b)=>rank[a.lv]-rank[b.lv]||(a.due||'').localeCompare(b.due||''));
+  }
+
+  function render(el){
+    const R=runs(), n=R.length;
+    const certified=R.filter(({r})=>(r.req||'none')==='ok').length;
+    const submitted=R.filter(({r})=>(r.req||'none')!=='none').length;
+    const reported=R.filter(({r})=>r.report).length;
+    const deptOk=R.filter(({r})=>r.dept).length;
+    const closed=R.filter(({r})=>r.receipt&&r.cert).length;
+    const rk=risks(), high=rk.filter(x=>x.lv==='high').length, mid=rk.filter(x=>x.lv==='mid').length;
+    const ids=R.flatMap(({r})=>(r.people||[]).map(x=>String(x).trim()).filter(Boolean));
+    const uniq=new Set(ids).size;
+    const pct=(a,b)=>b?Math.round(a*100/b):0;
+    const certPct=pct(certified,n);
+
+    // funnel
+    const FUN=[['ทั้งหมด',n],['ยื่นขอรับรอง',submitted],['รับรองแล้ว',certified],['ยื่นรายงาน',reported],['กรมอนุมัติ',deptOk],['ปิดเอกสารครบ',closed]];
+    const fw=560, fx=110;
+    const funnel=FUN.map(([lb,v],i)=>{
+      const w=n?Math.max(2,v*fw/n):2, y=i*34+16;
+      return `<text class="fl" x="${fx-10}" y="${y+14}" text-anchor="end">${lb}</text>`+
+        `<rect x="${fx}" y="${y}" width="${w}" height="22" rx="4" fill="${i===0?'#C9C9C9':i<=2?'#CC0000':'#1E8E3E'}" opacity="${i===0?.5:1-i*0.08}"/>`+
+        `<text class="fv" x="${fx+w+8}" y="${y+15}">${v} (${pct(v,n)}%)</text>`;}).join('');
+
+    // by genpo
+    const rows=GENPOS.map(g=>{
+      const gr=(state.dsd[g]&&state.dsd[g].runs)||[];
+      const c=gr.filter(r=>(r.req||'none')==='ok').length;
+      const ov=gr.filter(r=>((r.req||'none')!=='ok'&&isPast(r))||((r.req||'none')==='none'&&r.date&&daysTo(reqDue(r))<0)||((r.req||'none')==='ok'&&isPast(r)&&!r.report&&daysTo(reportDue(r))<0)).length;
+      return {g,n:gr.length,c,ov,p:pct(c,gr.length)};});
+
+    // รายเดือน (ปี Ki ปัจจุบัน เม.ย.–มี.ค.)
+    const nowD=new Date(), kiStart=new Date(nowD.getMonth()>=3?nowD.getFullYear():nowD.getFullYear()-1,3,1);
+    const months=[...Array(12)].map((_,i)=>{const d=new Date(kiStart.getFullYear(),kiStart.getMonth()+i,1);return {y:d.getFullYear(),m:d.getMonth(),key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};});
+    const mData=months.map(mo=>{const mr=R.filter(({r})=>(r.date||'').slice(0,7)===mo.key);
+      return {...mo,tot:mr.length,ok:mr.filter(({r})=>(r.req||'none')==='ok').length};});
+    const mMax=Math.max(1,...mData.map(x=>x.tot));
+    const bw=44, bars=mData.map((d,i)=>{const x=i*bw+40, h=d.tot*110/mMax, y=150-h, ho=d.ok*110/mMax;
+      return `<rect x="${x}" y="${y}" width="26" height="${h}" rx="3" fill="#E0E0E0"/>`+
+        `<rect x="${x}" y="${150-ho}" width="26" height="${ho}" rx="3" fill="#1E8E3E"/>`+
+        `<text class="fv" x="${x+13}" y="${y-5}" text-anchor="middle">${d.tot||''}</text>`+
+        `<text class="fl" x="${x+13}" y="166" text-anchor="middle">${MTH[d.m]}</text>`;}).join('');
+
+    // training pipeline
+    const CS=courses(), cDone=CS.filter(({c})=>c.steps&&c.steps.dsd).length, cPay=CS.filter(({c})=>c.steps&&c.steps.payment).length;
+
+    el.innerHTML=`
+      <style>
+      .dwrap{display:grid;gap:14px}
+      .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+      .kcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;border-top:3px solid var(--line)}
+      .kcard.ok{border-top-color:var(--ok)}.kcard.bad{border-top-color:var(--alert)}.kcard.warn{border-top-color:var(--wait)}.kcard.neutral{border-top-color:var(--red)}
+      .kcard b{display:block;font-size:30px;font-weight:600;line-height:1.15}
+      .kcard .lb{font-size:12px;color:var(--sub);margin-top:2px}
+      .kcard .sub{font-size:11px;color:var(--none);margin-top:5px}
+      .kcard.bad b{color:var(--alert)}.kcard.ok b{color:var(--ok)}.kcard.warn b{color:var(--wait)}
+      .panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+      .panel h3{font-size:13px;font-weight:600;margin-bottom:2px}
+      .panel .cap{font-size:11.5px;color:var(--sub);margin-bottom:10px}
+      .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.two{grid-template-columns:1fr}}
+      .fl{font-size:11.5px;fill:var(--sub)}.fv{font-size:11.5px;fill:var(--ink);font-weight:500}
+      .gbar{height:8px;background:var(--line2);border-radius:4px;overflow:hidden;margin-top:5px}
+      .gbar i{display:block;height:100%;background:var(--ok)}
+      .grow{padding:9px 0;border-bottom:1px solid var(--line2)}.grow:last-child{border:none}
+      .rk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line2)}
+      .rk:last-child{border:none}
+      .rk .bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
+      .rk.high .bar{background:var(--alert)}.rk.mid .bar{background:var(--wait)}
+      .rk .msg{font-size:12px}.rk.high .msg{color:var(--alert)}.rk.mid .msg{color:var(--wait)}
+      @media print{header,.toolbar,.noprint{display:none!important}main{padding:0}.panel,.kcard{break-inside:avoid}}
+      </style>
+      <div class="toolbar noprint">
+        <div class="cofil"><button class="${gfil==='ALL'?'on':''}" onclick="Dash.fil('ALL')">ทุกบริษัท</button>${GENPOS.map(g=>`<button class="${gfil===g?'on':''}" onclick="Dash.fil('${g}')">${CO[g]}</button>`).join('')}</div>
+        <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
+        <button class="btn btn-ghost" onclick="window.print()">พิมพ์ / บันทึก PDF</button>
+        <span class="note">ข้อมูล ณ ${fmtDMY(today())}</span>
+      </div>
+      <div class="dwrap">
+        <div class="kpi">
+          <div class="kcard ${certPct>=90?'ok':certPct>=70?'warn':'bad'}"><b>${certPct}%</b><div class="lb">อัตรารับรองหลักสูตร DSD</div><div class="sub">${certified} จาก ${n} รุ่น</div></div>
+          <div class="kcard ${high?'bad':'ok'}"><b>${high}</b><div class="lb">รายการเกินกำหนดตามกฎหมาย</div><div class="sub">${high?'ต้องดำเนินการทันที':'ไม่มีรายการค้าง'}</div></div>
+          <div class="kcard ${mid?'warn':'ok'}"><b>${mid}</b><div class="lb">ใกล้ครบกำหนด (ภายใน 14 วัน)</div><div class="sub">เฝ้าระวัง</div></div>
+          <div class="kcard neutral"><b>${uniq}</b><div class="lb">พนักงานที่ยื่นแล้ว (ไม่ซ้ำ)</div><div class="sub">จากการยื่นรวม ${ids.length} ครั้ง</div></div>
+        </div>
+
+        <div class="panel">
+          <h3>ขั้นตอนการดำเนินการ DSD</h3>
+          <div class="cap">ยื่นขอรับรองก่อนอบรม ${LEAD} วัน · ยื่นรายงานหลังอบรมภายใน ${REPORT} วัน</div>
+          <svg width="100%" viewBox="0 0 700 ${FUN.length*34+20}">${funnel}</svg>
+        </div>
+
+        <div class="two">
+          <div class="panel">
+            <h3>เปรียบเทียบตามบริษัท</h3>
+            <div class="cap">อัตรารับรองหลักสูตร และรายการค้าง</div>
+            ${rows.map(r=>`<div class="grow"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span><span class="co ${r.g}">${CO[r.g]}</span> <span style="color:var(--sub)">${r.c}/${r.n} รุ่น</span></span><span><b>${r.p}%</b>${r.ov?` <span class="chip alert">ค้าง ${r.ov}</span>`:''}</span></div><div class="gbar"><i style="width:${r.p}%;background:${r.p>=90?'var(--ok)':r.p>=70?'var(--wait)':'var(--alert)'}"></i></div></div>`).join('')}
+            <div class="cap" style="margin:12px 0 0">สถานะ Training Tracker (${CS.length} หลักสูตร) · ทำจ่ายแล้ว ${cPay} · ยื่น DSD แล้ว ${cDone}</div>
+          </div>
+          <div class="panel">
+            <h3>ปริมาณการอบรมรายเดือน (ปี Ki ปัจจุบัน)</h3>
+            <div class="cap">แท่งเขียว = รับรองหลักสูตรแล้ว · เทา = ยังไม่รับรอง</div>
+            <svg width="100%" viewBox="0 0 620 180">${bars}</svg>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>รายการที่ต้องดำเนินการ ${rk.length?`(${rk.length})`:''}</h3>
+          <div class="cap">เรียงตามความเร่งด่วน — แดง = เกินกำหนดแล้ว, ส้ม = ใกล้ครบกำหนด</div>
+          ${rk.length?rk.slice(0,15).map(x=>`<div class="rk ${x.lv}"><span class="bar"></span><div style="flex:1"><div style="font-size:13px"><span class="co ${x.g}">${CO[x.g]}</span> ${esc(x.r.course)}</div><div class="msg">${esc(x.t)}${x.due?` · กำหนด ${fmtDMY(x.due)}`:''}</div></div></div>`).join('')+(rk.length>15?`<div class="cap" style="margin-top:8px">และอีก ${rk.length-15} รายการ — ดูทั้งหมดในหน้า DSD Tracker</div>`:''):'<div class="note" style="color:var(--ok)">ไม่มีรายการค้างดำเนินการ</div>'}
+        </div>
+      </div>`;
+  }
+  function fil(g){gfil=g;App.render();}
+  return {render,fil};
+})();
+
+
 const SEED=[], CAL_SEED=[];
 
 /* ================= modal helpers ================= */
