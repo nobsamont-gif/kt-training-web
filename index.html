@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https:; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<title>People Center Training Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+<meta name="referrer" content="no-referrer">
+<title>People Center Training Hub — Demo</title>
 <style>
 :root{
   --red:#CC0000; --red-dark:#A30000; --ink:#1A1A1A; --sub:#6B6B6B;
@@ -15,951 +14,262 @@
   --c-TH:#1f3a5f; --c-HRST:#CC0000; --c-EGAS:#3f6f68;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;font-weight:300}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Leelawadee UI","Noto Sans Thai",Tahoma,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:14px}
 button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:13px}
-input,select,textarea{font-family:inherit;font-size:13px;font-weight:300;border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;background:#fff}
+input,select,textarea{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;background:#fff}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--red);outline-offset:-1px;border-color:transparent}
 label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px}
-.btn{padding:8px 15px;border-radius:4px;font-weight:400;display:inline-flex;align-items:center;gap:6px}
+a{color:var(--red)}
+.btn{padding:8px 15px;border-radius:4px;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dark)}
-.btn-ghost{border:1px solid var(--line);background:#fff}.btn-ghost:hover{border-color:var(--sub)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}.btn-ghost:hover{border-color:var(--sub)}
 .chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#EFEFEF;color:var(--sub);white-space:nowrap}
 .chip.ok{background:#E6F4EA;color:var(--ok)}.chip.wait{background:#FFF3E0;color:var(--wait)}
 .chip.alert{background:#FDE7E7;color:var(--alert)}
-.code{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:#F0F0F2;color:#444;font-family:'Prompt',monospace;letter-spacing:.02em}
+.code{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:#F0F0F2;color:#444}
 .co{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:10px;white-space:nowrap}
 .co.TH{background:#E5EFFA;color:var(--c-TH)}.co.HRST{background:#FDE7E7;color:var(--red)}.co.EGAS{background:#E6F4EA;color:var(--c-EGAS)}
-.by{font-size:10.5px;color:var(--none)}
 
-#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.authcard{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--red);border-radius:8px;width:min(420px,100%);padding:26px 30px;box-shadow:0 10px 40px rgba(0,0,0,.06)}
-.authlogo{height:30px;margin-bottom:12px}
-.authcard h1{font-size:18px;font-weight:600;margin-bottom:4px}
-.authcard .sub{font-size:12.5px;color:var(--sub);margin-bottom:20px}
-.frow{margin-bottom:14px}
-.pick{display:grid;gap:10px}
-.pickbtn{border:1px solid var(--line);border-radius:6px;padding:14px 16px;text-align:left;background:#fff;transition:border-color .15s}
-.pickbtn:hover{border-color:var(--red)}
-.pickbtn b{display:block;font-size:14px;font-weight:500;color:var(--ink)}.pickbtn span{font-size:12px;color:var(--sub)}
-.authlink{color:var(--red);text-decoration:underline;font-size:12.5px;cursor:pointer}
-.autherr{background:#FDE7E7;color:var(--alert);font-size:12.5px;padding:9px 12px;border-radius:5px;margin-bottom:14px}
-.authok{background:#E6F4EA;color:var(--ok);font-size:12.5px;padding:9px 12px;border-radius:5px;margin-bottom:14px}
-.crumbs{font-size:11px;color:var(--sub);margin-bottom:16px}.crumbs b{color:var(--ink);font-weight:500}
-
+#demoBar{background:#2C2C2A;color:#fff;font-size:12.5px;padding:7px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#demoBar b{background:#E9A13B;color:#2C2C2A;padding:1px 8px;border-radius:3px;font-size:11px;letter-spacing:.04em}
+#demoBar span{opacity:.85}
 header{background:var(--card);border-bottom:2px solid var(--red);padding:0 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;height:56px}
 header .brand{display:flex;align-items:center;gap:10px;margin-right:8px}
 header .brand img{height:26px}
 header .brand .nm{font-size:15px;font-weight:600;line-height:1.1}
 .nav{display:flex;gap:2px;height:100%}
-.nav button{padding:0 15px;font-size:13px;font-weight:400;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-2px;position:relative}
+.nav button{padding:0 15px;font-size:13px;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-2px}
 .nav button.on{color:var(--red);border-bottom-color:var(--red);font-weight:500}
 .nav button:hover{color:var(--ink)}
-.nav .badge{position:absolute;top:9px;right:4px;background:var(--red);color:#fff;font-size:9px;min-width:15px;height:15px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
 .spacer{flex:1}
-.whoami{font-size:12px;color:var(--sub);text-align:right;line-height:1.35}
-.whoami b{color:var(--ink);font-weight:500;font-size:13px}
-.lock{font-size:11px;color:var(--c-EGAS)}
 main{max-width:1240px;margin:0 auto;padding:18px 20px 60px}
-#syncState{font-size:12px;color:var(--sub)}
 .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .cofil{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
 .cofil button{padding:8px 14px;color:var(--sub)}.cofil button.on{background:var(--red);color:#fff}
+.note{font-size:12px;color:var(--sub);line-height:1.6}
 
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden}
 th{font-size:11px;font-weight:500;color:var(--sub);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);background:#FCFCFC;white-space:nowrap}
 td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-tbody tr{cursor:pointer}tbody tr:hover{background:#FFF6F6}
-tbody tr.late{box-shadow:inset 3px 0 0 var(--alert)}
-.cname{font-weight:400;max-width:300px}.cdate{white-space:nowrap;font-size:12.5px;color:var(--sub)}
-.mrow td{background:#FCFCFC;font-size:11px;font-weight:500;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;cursor:default}
+tbody tr:hover{background:#FFF6F6}
+.cname{max-width:320px}.cdate{white-space:nowrap;font-size:12.5px;color:var(--sub)}
 .dots{display:flex;gap:5px}
 .dot{width:11px;height:11px;border-radius:50%;background:#E9E9E9;border:1px solid #DADADA}
 .dot.ok{background:var(--ok);border-color:var(--ok)}.dot.wait{background:#FFD9A0;border-color:var(--wait)}
 .dot.hot{background:var(--alert);border-color:var(--alert)}
 
-.tiles{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:9px 15px;text-align:left;min-width:104px;line-height:1.35}
-.tile b{display:block;font-size:20px;font-weight:500}.tile span{display:block;font-size:11px;color:var(--sub)}
-.tile:hover{border-color:var(--sub)}.tile.on{border-color:var(--red);box-shadow:inset 0 -2px 0 var(--red)}
-.tile.alert b{color:var(--alert)}.tile.wait b{color:var(--wait)}.tile.ok b{color:var(--ok)}
-.tile.big b{font-size:26px}.tile.big{min-width:130px;padding:12px 18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.panel h3{font-size:13px;font-weight:600;margin-bottom:2px}
+.panel .cap{font-size:11.5px;color:var(--sub);margin-bottom:10px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;border-top:3px solid var(--line)}
+.kcard.ok{border-top-color:var(--ok)}.kcard.bad{border-top-color:var(--alert)}.kcard.warn{border-top-color:var(--wait)}.kcard.neutral{border-top-color:var(--red)}
+.kcard b{display:block;font-size:30px;font-weight:600;line-height:1.15}
+.kcard .lb{font-size:12px;color:var(--sub);margin-top:2px}
+.kcard .sub{font-size:11px;color:var(--none);margin-top:5px}
+.kcard.bad b{color:var(--alert)}.kcard.ok b{color:var(--ok)}.kcard.warn b{color:var(--wait)}
+.dwrap{display:grid;gap:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.two{grid-template-columns:1fr}}
+.fl{font-size:11.5px;fill:var(--sub)}.fv{font-size:11.5px;fill:var(--ink);font-weight:500}
+.gbar{height:8px;background:var(--line2);border-radius:4px;overflow:hidden;margin-top:5px}
+.gbar i{display:block;height:100%;background:var(--ok)}
+.grow{padding:9px 0;border-bottom:1px solid var(--line2)}.grow:last-child{border:none}
+.rk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line2)}
+.rk:last-child{border:none}
+.rk .bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
+.rk.high .bar{background:var(--alert)}.rk.mid .bar{background:var(--wait)}
+.rk .msg{font-size:12px}.rk.high .msg{color:var(--alert)}.rk.mid .msg{color:var(--wait)}
 
-.banner{background:#FFFAF2;border:1px solid #F3D9A8;border-left:3px solid var(--wait);border-radius:6px;padding:10px 14px;margin-bottom:14px}
-.banner b{color:var(--wait)}
-.banner .row{display:flex;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed #F0DCB8;flex-wrap:wrap}
-.banner .row:first-of-type{border-top:none}
-
-#ov{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:20}#ov.open{display:block}
-#drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--card);z-index:21;transform:translateX(100%);transition:transform .2s;overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,.12)}
-#drawer.open{transform:none}
-.dhead{padding:16px 20px;border-bottom:2px solid var(--red);display:flex;align-items:flex-start;gap:10px;position:sticky;top:0;background:var(--card);z-index:2}
-.dhead h2{font-size:15px;font-weight:600;flex:1;line-height:1.35}
-.dbody{padding:16px 20px 40px}
-.sect{margin-bottom:20px}.sect h3{font-size:12px;font-weight:500;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.step{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
-.step:last-child{border-bottom:none}.step .who{font-size:11px;color:var(--sub);min-width:78px}.step .nm{flex:1}
-.step input[type=checkbox]{width:16px;height:16px;accent-color:var(--red)}.step select{width:auto}.step .ts{font-size:11px;color:var(--sub)}
-.step.sub{padding:4px 0 6px 88px}
-.reqbox{border:1px solid var(--line);border-left-width:3px;border-radius:5px;padding:10px 12px;background:#FAFAFA;margin-bottom:10px}
-.reqbox.none{border-left-color:var(--alert);background:#FEF6F6}.reqbox.sent{border-left-color:var(--wait);background:#FFFAF2}.reqbox.ok{border-left-color:var(--ok);background:#F4FAF5}
-.reqline{display:flex;align-items:center;gap:9px;font-size:13px}.reqdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.reqbox.none .reqdot{background:var(--alert)}.reqbox.sent .reqdot{background:var(--wait)}.reqbox.ok .reqdot{background:var(--ok)}
-.mini{font-size:11px;padding:4px 10px;border-radius:4px;border:1px solid var(--line)}.mini:hover{border-color:var(--red);color:var(--red)}
-.docrow{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}.docrow:last-child{border-bottom:none}
-.docrow .nm{flex:1}.fn{font-size:11.5px;color:var(--ok);word-break:break-all}.fn.miss{color:var(--none)}
-.filelist{margin-top:3px}.fileitem{display:flex;align-items:center;gap:6px;padding:2px 0}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-start;justify-content:center;z-index:30;overflow-y:auto;padding:30px 12px}
-.modal.open{display:flex}
-.mcard{background:#fff;border-radius:8px;width:min(640px,100%);padding:22px}
-.mcard h2{font-size:15px;font-weight:600;margin-bottom:14px}.mcard h2 span{color:var(--red)}
-.mfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
-.tabs{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;width:fit-content;margin-bottom:12px}
-.tabs button{padding:6px 16px;background:#fff}.tabs button.on{background:var(--red);color:#fff}
-.note{font-size:12px;color:var(--sub);line-height:1.6}
-#emailOut{font-family:'Prompt',monospace;font-size:12.5px;height:300px;white-space:pre-wrap}
-.urow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}.urow:last-child{border-bottom:none}
-.tag{font-size:10.5px;padding:2px 8px;border-radius:10px;font-weight:500}
-.tag.pending{background:#FFF3E0;color:var(--wait)}.tag.active{background:#E6F4EA;color:var(--ok)}.tag.rejected{background:#FDE7E7;color:var(--alert)}.tag.suspended{background:#EFEFEF;color:var(--sub)}
+.sect{margin-bottom:22px}
+.sect h3{font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.frow{margin-bottom:14px}
+.warnbox{background:#FFFAF2;border:1px solid #F3D9A8;border-left:3px solid var(--wait);border-radius:0 6px 6px 0;padding:11px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.65}
+.okbox{background:#F4FAF5;border:1px solid #CBE6D0;border-left:3px solid var(--ok);border-radius:0 6px 6px 0;padding:11px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.65}
+.mini{font-size:11px;padding:4px 10px;border-radius:4px;border:1px solid var(--line);background:#fff}
+.mini:hover{border-color:var(--red);color:var(--red)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 18px;border-radius:5px;font-size:13px;display:none;z-index:60}
 .hide{display:none!important}
+@media print{#demoBar,header,.toolbar,.noprint{display:none!important}main{padding:0}.panel,.kcard{break-inside:avoid}}
 </style>
 </head>
 <body>
-<div id="auth"></div>
-<div id="appShell" class="hide">
-  <header>
-    <div class="brand"><img id="hdrLogo" alt="Honda"><span class="nm">People Center<br>Training Hub</span></div>
-    <nav class="nav" id="nav"></nav>
-    <div class="spacer"></div>
-    <div class="whoami" id="whoami"></div>
-    <button class="btn btn-ghost" style="margin-left:10px" onclick="App.logout()">ออกจากระบบ</button>
-  </header>
-  <main><div style="text-align:right"><span id="syncState"></span></div><div id="app"></div></main>
+<div id="demoBar">
+  <b>DEMO</b>
+  <span>ข้อมูลทั้งหมดในหน้านี้เป็นข้อมูลสมมติสำหรับสาธิตเท่านั้น · ไม่มีการเชื่อมต่อเซิร์ฟเวอร์ใด ๆ · สิ่งที่พิมพ์เพิ่มจะหายเมื่อปิดหน้าต่าง</span>
 </div>
-<div id="ov" onclick="document.getElementById('drawer').classList.remove('open');this.classList.remove('open')"></div>
-<aside id="drawer"></aside>
+<header>
+  <div class="brand"><img id="hdrLogo" alt="Honda"><span class="nm">People Center<br>Training Hub</span></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="spacer"></div>
+  <span class="note">โหมดสาธิต</span>
+</header>
+<main><div id="app"></div></main>
 <div id="toast"></div>
 <script>
 const LOGO="data:image/png;base64,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";
-const API_KEY='kt_api', TOK_KEY='kt_token', PROF_KEY='kt_profile';
 const GENPOS=['TH','HRST','EGAS'], CO={TH:'TH',HRST:'HRS-T',EGAS:'EG-AS'};
-const state={ apiBase:localStorage.getItem(API_KEY)||'', token:localStorage.getItem(TOK_KEY)||'',
-  profile:JSON.parse(localStorage.getItem(PROF_KEY)||'null'),
-  view:'training', train:{}, dsd:{}, cal:{events:[],sha:null} };
-
 const esc=s=>String(s??'').replace(/[<>&"'`]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;','`':'&#96;'}[m]));
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2800)}
-function sync(t){const el=document.getElementById('syncState');if(el)el.textContent=t}
-const nowStamp=()=>new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-const dstamp=()=>new Date().toISOString().slice(0,10);
-/* ---- date helpers: แสดง/รับ dd/mm/yyyy, เก็บภายในเป็น ISO ---- */
-function fmtDMY(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return '';const[y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}
-function parseDMY(s){s=(s||'').trim();const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3];if(mo<1||mo>12||d<1||d>31)return '';return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-function dmask(el){let v=el.value.replace(/\D/g,'').slice(0,8);let o=v.slice(0,2);if(v.length>2)o+='/'+v.slice(2,4);if(v.length>4)o+='/'+v.slice(4,8);el.value=o;}
-function dateInput(iso,handler,id){return `<input type="text" inputmode="numeric" placeholder="dd/mm/yyyy" ${id?`id="${id}"`:''} value="${fmtDMY(iso)}" oninput="dmask(this)"${handler?` onchange="${handler}"`:''}>`;}
+const fmtDMY=iso=>/^\d{4}-\d{2}-\d{2}$/.test(iso||'')?iso.split('-').reverse().join('/'):'';
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const addD=(s,n)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+const daysTo=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?Math.round((new Date(s)-new Date(todayISO()))/864e5):null;
+const rel=n=>addD(todayISO(),n);
 
-async function api(method,ep,body){
-  const r=await fetch(state.apiBase.replace(/\/+$/,'')+'/'+ep,{
-    method, headers:{'Content-Type':'application/json',...(state.token?{Authorization:'Bearer '+state.token}:{})},
-    body:body?JSON.stringify(body):undefined });
-  if(r.status===401){App.logout('เซสชันหมดอายุ — เข้าสู่ระบบใหม่');throw new Error('unauthorized')}
-  if(r.status===409)throw new Error('conflict');
-  let j={}; try{j=await r.json()}catch(e){}
-  if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
-  return j;
-}
-const scopeGenpos=()=>state.profile.allAccess?[...GENPOS]:[state.profile.genpo];
-
-/* ================= SharePoint link-out (เก็บชื่อคน+เอกสาร PDF ไว้นอกระบบ) =================
-   ต้องมีโฟลเดอร์ย่อยชื่อตรงกับ Training Code อยู่ใต้โฟลเดอร์ของแต่ละ Genpo เช่น .../8.HRST/HRST-001 */
-const SP_SITE='aoash457';
-const SP_PATH_PREFIX='06. Training and Engagement/00.Training Plan and Activities';
-const SP_GENPO_FOLDER={TH:'7.TH', HRST:'8.HRST', EGAS:'9.EGAS'};
+/* ---------- ลิงก์ SharePoint: เก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่เคยส่งออกไปไหน ---------- */
+const SP_KEY='pcth_sp_links';
+function spCfg(){try{return JSON.parse(localStorage.getItem(SP_KEY)||'{}')}catch(e){return{}}}
+function spSave(o){localStorage.setItem(SP_KEY,JSON.stringify(o))}
 function spLink(g,code){
-  const seg=SP_GENPO_FOLDER[g]||g;
-  const path=`/sites/${SP_SITE}/Shared Documents/${SP_PATH_PREFIX}/${seg}/${code}`;
-  return `https://globalhonda.sharepoint.com/sites/${SP_SITE}/Shared%20Documents/Forms/AllItems.aspx?id=${encodeURIComponent(path)}`;
+  const base=(spCfg()[g]||'').trim(); if(!base)return null;
+  let u; try{u=new URL(base)}catch(e){return null}
+  if(u.protocol!=='https:')return null;              // กัน javascript: / data: เด็ดขาด
+  if(u.searchParams.has('id')){                       // รูปแบบ .../AllItems.aspx?id=<path>
+    u.searchParams.set('id',u.searchParams.get('id').replace(/\/+$/,'')+'/'+code);
+    return u.toString();
+  }
+  return base.replace(/\/+$/,'')+'/'+encodeURIComponent(code);
+}
+function spButton(g,code,label){
+  const url=spLink(g,code);
+  if(!url)return `<button class="mini" onclick="App.go('settings')">ตั้งค่าลิงก์ SharePoint ก่อน</button>`;
+  return `<a class="btn btn-red" style="font-size:12px;padding:7px 13px" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label||'เปิดโฟลเดอร์ SharePoint')}</a>`;
 }
 
-/* ================= App: auth, shell, data layer ================= */
+/* ================= ข้อมูลสมมติสำหรับสาธิต (ไม่ใช่ข้อมูลจริง) =================
+   เก็บในหน่วยความจำเท่านั้น รีเฟรชหน้าแล้วกลับเป็นค่าตั้งต้น ไม่มีการบันทึกที่ใดทั้งสิ้น */
+const VENDORS=['สถาบันฝึกอบรม ก.','สถาบันฝึกอบรม ข.','ศูนย์พัฒนาบุคลากร ค.','บริษัทที่ปรึกษา ง.'];
+function demoRuns(){
+  const mk=(co,course,code,date,dateEnd,ppl,req,id,report,dept,receipt,cert,people)=>
+    ({id_:code,code,co,course,date,dateEnd:dateEnd||date,ppl,req,id:id||'',report,dept,receipt,cert,
+      people:people||[],by:'ผู้ใช้สาธิต',remark:''});
+  const ids=n=>[...Array(n)].map((_,i)=>'EMP-'+String(1000+i));
+  return [
+    mk('TH','ความปลอดภัยในการทำงาน ระดับหัวหน้างาน','TH-001',rel(-120),rel(-119),40,'ok','DEMO-100011',true,true,true,true,ids(40)),
+    mk('TH','การควบคุมคุณภาพด้วยกิจกรรม QCC','TH-002',rel(-80),rel(-80),45,'ok','DEMO-100012',true,true,false,false,ids(45)),
+    mk('TH','พื้นฐานการบำรุงรักษาเครื่องจักร','TH-003',rel(-40),rel(-39),30,'ok','DEMO-100013',true,false,false,false,ids(30)),
+    mk('TH','ทักษะหัวหน้างานยุคใหม่','TH-004',rel(-25),rel(-25),28,'ok','DEMO-100014',false,false,false,false,ids(28)),
+    mk('TH','การแก้ปัญหาด้วยหลัก PDCA','TH-005',rel(-95),rel(-95),22,'ok','DEMO-100015',false,false,false,false,ids(22)),
+    mk('TH','ความปลอดภัยพื้นฐานสำหรับพนักงานใหม่','TH-006',rel(-15),rel(-15),50,'none','',false,false,false,false,ids(50)),
+    mk('TH','การสื่อสารในองค์กร','TH-007',rel(+38),rel(+38),25,'none','',false,false,false,false,[]),
+    mk('TH','การบริหารเวลาและการวางแผนงาน','TH-008',rel(+70),rel(+70),30,'none','',false,false,false,false,[]),
+    mk('TH','ระบบการผลิตแบบลีน','TH-009',rel(+20),rel(+21),35,'ok','DEMO-100016',false,false,false,false,[]),
+    mk('HRST','การวิเคราะห์ข้อมูลเบื้องต้น','HRST-001',rel(-60),rel(-60),18,'ok','DEMO-100021',true,true,false,false,ids(18)),
+    mk('HRST','การเขียนรายงานเชิงเทคนิค','HRST-002',rel(-30),rel(-30),12,'ok','DEMO-100022',true,false,false,false,ids(12)),
+    mk('HRST','การออกแบบการทดลอง','HRST-003',rel(+25),rel(+26),15,'sent','',false,false,false,false,[]),
+    mk('EGAS','การใช้โปรแกรมออกแบบ 3 มิติ','EGAS-001',rel(-70),rel(-66),8,'ok','DEMO-100031',true,true,false,false,ids(8)),
+    mk('EGAS','การเจรจาต่อรองเชิงธุรกิจ','EGAS-002',rel(-10),rel(-10),6,'ok','DEMO-100032',false,false,false,false,ids(6)),
+    mk('EGAS','การบริหารโครงการ','EGAS-003',rel(+50),rel(+52),10,'none','',false,false,false,false,[]),
+  ];
+}
+function demoCourses(){
+  const mk=(co,no,code,name,v,start,end,count,steps,pr)=>
+    ({id:code,no,code,name,co,vendorName:VENDORS[v],start,end:end||start,count,cat:'Public',
+      vendor:'none',pr:pr||'none',by:'ผู้ใช้สาธิต',steps,stepTs:{},stepBy:{},stepRemark:{}});
+  return [
+    mk('HRST',1,'HRST-001','การวิเคราะห์ข้อมูลเบื้องต้น',0,rel(-60),rel(-60),18,{register:true,hbi:true,email:true,payment:true,dsd:true},'ok'),
+    mk('HRST',2,'HRST-002','การเขียนรายงานเชิงเทคนิค',1,rel(-30),rel(-30),12,{register:true,hbi:true,email:true,payment:true,dsd:true},'ok'),
+    mk('HRST',3,'HRST-003','การออกแบบการทดลอง',2,rel(+25),rel(+26),15,{register:true,hbi:true},'none'),
+    mk('HRST',4,'HRST-004','ทักษะการนำเสนออย่างมืออาชีพ',3,rel(+40),rel(+40),20,{register:true},'none'),
+    mk('TH',1,'TH-007','การสื่อสารในองค์กร',1,rel(+38),rel(+38),25,{register:true,hbi:true},'none'),
+    mk('TH',2,'TH-008','การบริหารเวลาและการวางแผนงาน',2,rel(+70),rel(+70),30,{},'none'),
+    mk('EGAS',1,'EGAS-003','การบริหารโครงการ',0,rel(+50),rel(+52),10,{register:true,hbi:true,email:true},'ok'),
+  ];
+}
+function demoEvents(){
+  return demoCourses().map((c,i)=>({id:'ev'+i,code:c.code,title:c.name,co:c.co,status:'confirmed',
+    date:c.start,end:c.end!==c.start?c.end:'',time:'09:00-16:00',by:'ผู้ใช้สาธิต',note:'ข้อมูลสาธิต'}));
+}
+const state={view:'dashboard',runs:demoRuns(),courses:demoCourses(),events:demoEvents()};
+
+/* ================= App shell ================= */
 const App=(()=>{
-  let authStep={type:null,role:null,genpo:null,mode:'login'};
-  function renderAuth(msg,ok){
-    const el=document.getElementById('auth');
-    if(!state.apiBase){el.innerHTML=configScreen();return;}
-    const err=msg?`<div class="${ok?'authok':'autherr'}">${esc(msg)}</div>`:'';
-    if(authStep.mode==='register'){el.innerHTML=registerScreen(err);return;}
-    if(!authStep.type){el.innerHTML=typeScreen(err);return;}
-    if(!authStep.role){el.innerHTML=roleScreen(err);return;}
-    el.innerHTML=loginScreen(err);
-  }
-  function crumbs(){const p=[];if(authStep.type)p.push(authStep.type);if(authStep.role)p.push(authStep.role);if(authStep.genpo)p.push(CO[authStep.genpo]);
-    return p.length?`<div class="crumbs">${p.map(x=>`<b>${esc(x)}</b>`).join(' · ')}</div>`:'';}
-  const shell=(inner)=>`<div class="authcard"><img class="authlogo" src="${LOGO}" alt="Honda"><h1>People Center Training Hub</h1><div class="sub">HR Service Excellent (HRSX) · Asian Honda Motor</div>${inner}</div>`;
-  function configScreen(){return shell(`<div class="frow"><label>Worker API URL (ครั้งแรกครั้งเดียว)</label>
-    <input id="cfgUrl" placeholder="https://xxx.workers.dev" value="${esc(state.apiBase)}"></div>
-    <p class="note" style="margin-bottom:14px">กรอก URL ของ Worker ครั้งเดียวต่อเครื่อง — token ของ GitHub เก็บอยู่ที่ Worker ไม่ได้อยู่ในเครื่องนี้</p>
-    <button class="btn btn-red" style="width:100%;justify-content:center" onclick="App.saveApi()">บันทึก</button>`);}
-  function typeScreen(err){return shell(`${err}<p class="note" style="margin-bottom:16px">เข้าสู่ระบบ — เลือกกลุ่มผู้ใช้</p>
-    <div class="pick">
-      <button class="pickbtn" onclick="App.pickType('People Center')"><b>People Center</b><span>Training Co · DSD Cont · Manager — เข้าได้ทุกหน้า ทุก Genpo</span></button>
-      <button class="pickbtn" onclick="App.pickType('Others')"><b>Others</b><span>Accounting · Purchasing — เฉพาะ Tracker และ Genpo ที่กำหนด</span></button>
-    </div>
-    <p style="margin-top:18px;text-align:center"><span class="authlink" onclick="App.gotoRegister()">ยังไม่มีบัญชี? ลงทะเบียน</span></p>`);}
-  function roleScreen(err){const roles=authStep.type==='People Center'?['Training Co','DSD Cont','Manager']:['Accounting','Purchasing'];
-    const gpick=authStep.type==='Others'?`<div class="frow"><label>Genpo</label><select id="authGenpo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>`:'';
-    return shell(`${err}${crumbs()}<p class="note" style="margin-bottom:14px">เลือกตำแหน่ง</p>
-      <div class="pick" style="margin-bottom:14px">${roles.map(r=>`<button class="pickbtn" onclick="App.pickRole('${r}')"><b>${r}</b></button>`).join('')}</div>${gpick}
-      <p style="margin-top:6px"><span class="authlink" onclick="App.resetAuth()">← ย้อนกลับ</span></p>`);}
-  function loginScreen(err){return shell(`${err}${crumbs()}
-    <div class="frow"><label>ชื่อผู้ใช้</label><input id="lUser" autocomplete="username"></div>
-    <div class="frow"><label>รหัสผ่าน</label><input id="lPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')App.login()"></div>
-    <button class="btn btn-red" style="width:100%;justify-content:center" onclick="App.login()">เข้าสู่ระบบ</button>
-    <p style="margin-top:14px;text-align:center"><span class="authlink" onclick="App.resetAuth()">← เปลี่ยนกลุ่ม/ตำแหน่ง</span></p>`);}
-  function registerScreen(err){return shell(`${err}<p class="note" style="margin-bottom:14px">ลงทะเบียนผู้ใช้ใหม่ — ต้องรอ Admin อนุมัติก่อนเข้าใช้งาน</p>
-    <div class="frow"><label>ชื่อผู้ใช้</label><input id="rUser" autocomplete="off"></div>
-    <div class="frow"><label>รหัสผ่าน (อย่างน้อย 10 ตัว)</label><input id="rPass" type="password" autocomplete="new-password"></div>
-    <div class="frow"><label>กลุ่มผู้ใช้</label><select id="rType" onchange="App.regTypeChange()"><option value="People Center">People Center</option><option value="Others">Others</option></select></div>
-    <div class="frow"><label>ตำแหน่ง</label><select id="rRole"></select></div>
-    <div class="frow hide" id="rGenpoRow"><label>Genpo</label><select id="rGenpo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>
-    <button class="btn btn-red" style="width:100%;justify-content:center" onclick="App.register()">ส่งคำขอลงทะเบียน</button>
-    <p style="margin-top:14px;text-align:center"><span class="authlink" onclick="App.gotoLogin()">← กลับไปเข้าสู่ระบบ</span></p>`);}
-
-  function saveApi(){let u=document.getElementById('cfgUrl').value.trim();if(!u){toast('กรอก URL');return}if(!/^https?:\/\//i.test(u))u='https://'+u;state.apiBase=u;localStorage.setItem(API_KEY,u);renderAuth();}
-  function pickType(t){authStep.type=t;authStep.role=null;renderAuth();}
-  function pickRole(r){authStep.role=r;if(authStep.type==='Others'){const g=document.getElementById('authGenpo');authStep.genpo=g?g.value:'TH';}renderAuth();}
-  function resetAuth(){authStep={type:null,role:null,genpo:null,mode:'login'};renderAuth();}
-  function gotoRegister(){authStep.mode='register';renderAuth();setTimeout(regTypeChange,0);}
-  function gotoLogin(){authStep.mode='login';authStep.type=null;authStep.role=null;renderAuth();}
-  function regTypeChange(){const t=document.getElementById('rType').value;const roles=t==='People Center'?['Training Co','DSD Cont','Manager']:['Accounting','Purchasing'];
-    document.getElementById('rRole').innerHTML=roles.map(r=>`<option>${r}</option>`).join('');document.getElementById('rGenpoRow').classList.toggle('hide',t!=='Others');}
-  async function register(){
-    const b={username:document.getElementById('rUser').value.trim(),password:document.getElementById('rPass').value,
-      type:document.getElementById('rType').value,role:document.getElementById('rRole').value,
-      genpo:document.getElementById('rType').value==='Others'?document.getElementById('rGenpo').value:null};
-    if(!b.username||!b.password){toast('กรอกชื่อผู้ใช้และรหัสผ่าน');return}
-    try{const res=await api('POST','api/register',b);authStep.mode='login';authStep.type=null;authStep.role=null;
-      renderAuth(res.admin?'สร้างบัญชี Admin สำเร็จ — เข้าสู่ระบบได้เลย':'ส่งคำขอแล้ว รอ Admin อนุมัติ',true);
-    }catch(e){renderAuth(e.message)}
-  }
-  async function login(){
-    const username=document.getElementById('lUser').value.trim(),password=document.getElementById('lPass').value;
-    if(!username||!password){toast('กรอกชื่อผู้ใช้และรหัสผ่าน');return}
-    try{const res=await api('POST','api/login',{username,password});
-      if(authStep.type==='Others'&&res.profile.genpo&&authStep.genpo&&res.profile.genpo!==authStep.genpo){renderAuth(`บัญชีนี้ผูกกับ ${CO[res.profile.genpo]} ไม่ใช่ ${CO[authStep.genpo]}`);return;}
-      state.token=res.token;state.profile=res.profile;localStorage.setItem(TOK_KEY,res.token);localStorage.setItem(PROF_KEY,JSON.stringify(res.profile));
-      await enterApp();
-    }catch(e){renderAuth(e.message)}
-  }
-  function logout(msg){state.token='';state.profile=null;localStorage.removeItem(TOK_KEY);localStorage.removeItem(PROF_KEY);
-    state.train={};state.dsd={};state.cal={events:[],sha:null};
-    document.getElementById('appShell').classList.add('hide');document.getElementById('auth').classList.remove('hide');resetAuth();if(msg)renderAuth(msg);}
-
-  /* ---------- data layer ---------- */
-  async function loadData(){
-    sync('กำลังโหลด…');const gs=scopeGenpos();state.train={};state.dsd={};
-    for(const g of gs){const t=await api('GET','api/data?file=training-'+g);state.train[g]={courses:(t.json&&t.json.courses)||[],sha:t.sha};}
-    if(state.profile.allAccess){
-      for(const g of gs){const d=await api('GET','api/data?file=dsd-'+g);state.dsd[g]={runs:(d.json&&d.json.runs)||[],sha:d.sha};}
-      const c=await api('GET','api/data?file=calendar');state.cal={events:(c.json&&c.json.events)||[],sha:c.sha};
-    }
-    sync('ซิงค์ล่าสุด '+nowStamp());
-  }
-  async function reloadGenpo(app,g){const r=await api('GET','api/data?file='+app+'-'+g);
-    if(app==='training')state.train[g]={courses:(r.json&&r.json.courses)||[],sha:r.sha};
-    else state.dsd[g]={runs:(r.json&&r.json.runs)||[],sha:r.sha};}
-  async function saveTrain(g,msg){const s=state.train[g];
-    try{const r=await api('PUT','api/data?file=training-'+g,{content:{courses:s.courses},sha:s.sha,msg});s.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
-    catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดใหม่ กรุณาทำซ้ำ');await reloadGenpo('training',g);render();}else{toast('บันทึกไม่สำเร็จ');}throw e;}}
-  async function saveDsd(g,msg){const s=state.dsd[g];
-    try{const r=await api('PUT','api/data?file=dsd-'+g,{content:{runs:s.runs},sha:s.sha,msg});s.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
-    catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดใหม่ กรุณาทำซ้ำ');await reloadGenpo('dsd',g);render();}else{toast('บันทึกไม่สำเร็จ');}throw e;}}
-  async function saveCal(msg){
-    try{const r=await api('PUT','api/data?file=calendar',{content:{events:state.cal.events},sha:state.cal.sha,msg});state.cal.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
-    catch(e){if(e.message==='conflict'){toast('มีคนบันทึกปฏิทินก่อน — โหลดใหม่');const c=await api('GET','api/data?file=calendar');state.cal={events:(c.json&&c.json.events)||[],sha:c.sha};render();}else toast('บันทึกไม่สำเร็จ');throw e;}}
-
-  /* ---------- cross-module linkage helpers ---------- */
-  const allCourses=()=>{const o=[];for(const g of Object.keys(state.train))for(const c of(state.train[g].courses||[]))o.push({c,g});return o;};
-  const courseByCode=(code,g)=>(state.train[g]?state.train[g].courses:[]).find(c=>c.code===code);
-  const dsdByCode=(code,g)=>(state.dsd[g]?state.dsd[g].runs:[]).find(r=>r.code===code);
-  function creators(){const s=new Set();allCourses().forEach(({c})=>c.by&&s.add(c.by));for(const g in state.dsd)(state.dsd[g].runs||[]).forEach(r=>r.by&&s.add(r.by));(state.cal.events||[]).forEach(e=>e.by&&s.add(e.by));return [...s].sort();}
-  // เมื่อเพิ่มหลักสูตรใน Training → เพิ่มกิจกรรมใน Calendar อัตโนมัติ (เฉพาะผู้ที่โหลดปฏิทิน = People Center)
-  async function calFromCourse(c){
-    if(!state.profile.allAccess)return;
-    if((state.cal.events||[]).some(e=>e.code===c.code))return;
-    state.cal.events.push({id:Date.now().toString(36)+'_c',code:c.code,title:c.name,co:c.co,status:'confirmed',
-      date:c.start,end:c.end&&c.end!==c.start?c.end:'',time:'',note:'สร้างจาก Training Tracker',by:c.by,
-      history:['สร้างจาก Training โดย '+c.by+' '+new Date().toLocaleDateString('en-GB')]});
-    try{await saveCal('cal from course '+c.code);}catch(e){}
-  }
-  // เมื่อ DSD Cont กดยื่น (sent/ok) → อัปเดตขั้นตอน "ยื่น DSD" ใน Training ให้สอดคล้อง
-  async function syncDsdToTraining(run,g){
-    const c=courseByCode(run.code,g);if(!c)return;
-    const submitted=(run.req==='sent'||run.req==='ok');
-    if(!!c.steps.dsd!==submitted){c.steps.dsd=submitted;c.stepTs=c.stepTs||{};c.stepBy=c.stepBy||{};
-      c.stepTs.dsd=submitted?new Date().toLocaleDateString('en-GB'):null;c.stepBy.dsd=submitted?run.by||state.profile.username:null;
-      try{await saveTrain(g,'sync dsd step '+run.code);}catch(e){}}
-  }
-
-  const VIEWS=()=>{const p=state.profile;
-    if(!p.allAccess)return[['training','Training Tracker']];
-    const v=[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
-    if(p.admin)v.push(['admin','Admin']);return v;};
-  function pendingBadge(){return 0;}
-  function renderNav(){
-    document.getElementById('nav').innerHTML=VIEWS().map(([k,t])=>`<button class="${state.view===k?'on':''}" onclick="App.go('${k}')">${t}</button>`).join('');
-    const p=state.profile;
-    document.getElementById('whoami').innerHTML=`<b>${esc(p.username)}</b><br>${esc(p.role)}`+(p.allAccess?'':` <span class="lock">🔒 ${CO[p.genpo]}</span>`);
+  const VIEWS=[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar'],['settings','ตั้งค่าลิงก์']];
+  function nav(){
+    document.getElementById('nav').innerHTML=VIEWS.map(([k,t])=>`<button class="${state.view===k?'on':''}" onclick="App.go('${k}')">${t}</button>`).join('');
     document.getElementById('hdrLogo').src=LOGO;
   }
-  function go(v){state.view=v;renderNav();render();}
+  function go(v){state.view=v;nav();render();window.scrollTo(0,0);}
   function render(){const el=document.getElementById('app');
-    if(state.view==='dashboard')Dash.render(el);
-    else if(state.view==='training')Training.render(el);
-    else if(state.view==='dsd')DSD.render(el);
-    else if(state.view==='calendar')Calendar.render(el);
-    else if(state.view==='admin')Admin.render(el);}
-  async function enterApp(){
-    document.getElementById('auth').classList.add('hide');document.getElementById('appShell').classList.remove('hide');
-    if(state.profile.role==='Manager')state.view='dashboard';
-    if(!VIEWS().some(v=>v[0]===state.view))state.view=VIEWS()[0][0];
-    renderNav();try{await loadData();}catch(e){sync('เชื่อมต่อไม่ได้');toast(e.message)}render();}
-  async function boot(){if(state.token&&state.profile){try{await enterApp();return;}catch(e){}}document.getElementById('appShell').classList.add('hide');renderAuth();}
-
-  return {boot,renderAuth,saveApi,pickType,pickRole,resetAuth,gotoRegister,gotoLogin,regTypeChange,register,login,logout,
-    go,render,renderNav,loadData,reloadGenpo,saveTrain,saveDsd,saveCal,
-    allCourses,courseByCode,dsdByCode,creators,calFromCourse,syncDsdToTraining};
+    ({dashboard:Dash,training:Training,dsd:DSD,calendar:Calendar,settings:Settings})[state.view].render(el);}
+  function boot(){nav();render();}
+  return {boot,go,render};
 })();
 
-/* ================= Training Tracker ================= */
-const Training=(()=>{
-  const VTXT={none:'ไม่ต้องเปิด',wait_docs:'รอเอกสารจาก Vendor',review:'พิจารณาเอกสาร',ok:'เสร็จสิ้น'};
-  const PRTXT={none:'ไม่ต้องเปิด',wait:'รอเปิด PR',ok:'เปิดแล้ว'};
-  const PAYROUNDS=['','ทำจ่ายรอบกลางเดือน','ทำจ่ายรอบปลายเดือน','ทำจ่ายรอบพิเศษ (รอบเงินเดือน)'];
-  const CATS=['Public','Inhouse','Other'];
-  const STEPS=[{k:'vendor',nm:'เปิด Vendor',who:'Purchasing'},{k:'register',nm:'สมัครอบรม',who:'Training Co'},
-    {k:'hbi',nm:'อนุมัติใน HBI',who:'Training Co'},{k:'pr',nm:'เปิด PR',who:'Training Co'},
-    {k:'email',nm:'ส่งอีเมลยืนยัน',who:'Training Co'},{k:'payment',nm:'ทำจ่าย',who:'Accounting'},{k:'dsd',nm:'ยื่น DSD',who:'DSD Cont'}];
-  const SIG=`Ms. Nobsamon Thadtapong (Oy) | นบศมน ถัดทะพงษ์ (ออย)
-People Center Department
-HR Service Excellent (HRSX)
-Asian Honda Motor Co., Ltd.
-Tel.  (+66) 63-191-0261
-E-Mail : nobsatha@honda.th.com`;
-  let cofil='ALL', currentG=null, currentId=null, lang='th';
-
-  const vendorDone=c=>c.vendor==='none'||c.vendor==='ok';
-  const prDone=c=>(c.pr||'none')!=='wait';
-  function findCourse(id){for(const g of Object.keys(state.train)){const c=(state.train[g].courses||[]).find(x=>x.id===id);if(c)return{c,g};}return null;}
-  const allCourses=App.allCourses;
-  function prevDone(c,k){const o=['vendor','register','hbi','pr','email','payment','dsd'],i=o.indexOf(k);if(i===0)return true;const p=o[i-1];if(p==='vendor')return vendorDone(c);if(p==='pr')return prDone(c);return !!c.steps[p];}
-  function lastStatus(c){if(c.steps.dsd)return{t:'เสร็จสิ้น',cl:'ok'};
-    for(const s of STEPS){if(s.k==='vendor'){if(!vendorDone(c))return{t:VTXT[c.vendor]||'รอเปิด Vendor',cl:'wait'};continue;}
-      if(s.k==='pr'){if(!prDone(c))return{t:'รอเปิด PR',cl:'wait'};continue;}
-      if(!c.steps[s.k]){if(s.k==='payment'&&c.payRound)return{t:'รอ'+c.payRound.replace('ทำจ่าย','ทำจ่าย '),cl:'wait'};return{t:'รอ'+s.nm,cl:'wait'};}}
-    return{t:'เสร็จสิ้น',cl:'ok'};}
-  function isLate(c){const today=new Date().toISOString().slice(0,10),soon=new Date(Date.now()+7*864e5).toISOString().slice(0,10);
-    if(!c.steps.email&&c.start&&c.start<=soon&&!c.steps.dsd)return true;if(!c.steps.payment&&c.end&&c.end<today)return true;return false;}
-  function nextCutoff(day){const now=new Date();now.setHours(0,0,0,0);let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);return d;}
-  const fmtDM=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-  const daysTo=d=>Math.round((d-new Date().setHours(0,0,0,0))/864e5);
-  function payMissing(c){const m=[];if((c.pr||'none')==='wait')m.push('เปิด PR');if(!c.invoiceNo)m.push('เลขที่ Invoice');return m;}
-  function cutoffInfo(c){if(c.steps.payment)return null;const miss=payMissing(c);if(!miss.length)return null;
-    let day=null;if((c.payRound||'').includes('กลางเดือน'))day=7;else if((c.payRound||'').includes('ปลายเดือน'))day=21;
-    const target=day?nextCutoff(day):(daysTo(nextCutoff(7))<=daysTo(nextCutoff(21))?nextCutoff(7):nextCutoff(21));
-    return{target,days:daysTo(target),miss,fixed:!!day};}
-  function riskScore(c){let r=0;if(isLate(c))r+=100;const i=cutoffInfo(c);if(i)r+=i.days<=0?80:i.days<=3?60:i.days<=7?40:10;if(!c.steps.dsd&&!r)r+=1;return r;}
-  const dr=c=>c.start===c.end?fmtDMY(c.start):(fmtDMY(c.start)+' – '+fmtDMY(c.end));
-
-  function render(el){
-    const cofilBtns=state.profile.allAccess
-      ?`<div class="cofil" id="tCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`
-      :`<span class="co ${state.profile.genpo}">${CO[state.profile.genpo]}</span>`;
-    let rows=allCourses().filter(({c})=>state.profile.allAccess?(cofil==='ALL'||c.co===cofil):true);
-    const lateN=rows.filter(({c})=>isLate(c)).length,cutN=rows.filter(({c})=>{const i=cutoffInfo(c);return i&&i.days<=7;}).length;
-    const mode=localStorage.getItem('t_sort')||'date';
-    if(mode==='risk')rows.sort((a,b)=>riskScore(b.c)-riskScore(a.c)||(a.c.start||'').localeCompare(b.c.start||''));
-    else if(mode==='no')rows.sort((a,b)=>(a.c.no||0)-(b.c.no||0));
-    else rows.sort((a,b)=>(a.c.start||'').localeCompare(b.c.start||''));
-    el.innerHTML=`
-      <div class="toolbar">
-        <button class="btn btn-red" onclick="Training.openAdd()">+ เพิ่มรายการ</button>${cofilBtns}
-        <select id="tSort" style="width:auto" onchange="localStorage.setItem('t_sort',this.value);App.render()">
-          <option value="date" ${mode==='date'?'selected':''}>เรียง: วันอบรม</option>
-          <option value="risk" ${mode==='risk'?'selected':''}>เรียง: ความเสี่ยงสูง→ต่ำ</option>
-          <option value="no" ${mode==='no'?'selected':''}>เรียง: ลำดับ</option></select>
-        <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
-        <button class="btn btn-ghost" onclick="Training.exportCSV()">Excel</button>
-        ${state.profile.allAccess?`<button class="btn btn-ghost" onclick="Import.open('training')">นำเข้าข้อมูล</button>`:''}
-      </div>
-      ${(lateN||cutN)?`<div class="tiles"><span class="tile alert"><b>${lateN}</b><span>รายการเสี่ยง</span></span><span class="tile wait"><b>${cutN}</b><span>ใกล้ cut off ทำจ่าย</span></span></div>`:''}
-      <table><thead><tr><th>Code</th><th>หลักสูตร / สถาบัน</th><th>วันอบรม</th><th>คน</th><th>ขั้นตอน</th><th>สถานะล่าสุด</th></tr></thead><tbody id="tRows"></tbody></table>`;
-    if(state.profile.allAccess)el.querySelectorAll('#tCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
-    const tb=el.querySelector('#tRows');
-    if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="color:var(--sub);text-align:center;padding:30px">ยังไม่มีรายการ — กด "+ เพิ่มรายการ"</td></tr>';return;}
-    tb.innerHTML=rows.map(({c,g})=>{const st=lastStatus(c),late=isLate(c),co=cutoffInfo(c);
-      const coChip=co&&co.days<=7?`<br><span class="chip ${co.days<=3?'alert':'wait'}" style="margin-top:3px">cut off ${fmtDM(co.target)} · ขาด ${co.miss.join('+')}</span>`:'';
-      const dots=STEPS.map(s=>{let cl;if(s.k==='vendor')cl=vendorDone(c)?'ok':'wait';else if(s.k==='pr')cl=prDone(c)?'ok':'wait';else cl=c.steps[s.k]?'ok':(prevDone(c,s.k)?'wait':'');return`<span class="dot ${cl}" title="${s.nm}"></span>`;}).join('');
-      return`<tr class="${late?'late':''}" onclick="Training.openDrawer('${g}','${c.id}')">
-        <td><span class="co ${g}">${CO[g]}</span><br><span class="code">${esc(c.code||'')}</span></td>
-        <td class="cname">${esc(c.name)} <span class="chip" style="font-size:10px">${esc(c.cat||'')}</span><br><span style="font-size:11.5px;color:var(--sub)">${esc(c.vendorName||'')}</span>${c.by?`<br><span class="by">เพิ่มโดย ${esc(c.by)}</span>`:''}</td>
-        <td class="cdate">${dr(c)}</td><td>${c.count||''}</td>
-        <td><div class="dots">${dots}</div></td>
-        <td><span class="chip ${late?'alert':st.cl}">${late?'⚠ ':''}${st.t}</span>${coChip}</td></tr>`;}).join('');
-  }
-
-  function openAdd(){
-    const genpoField=state.profile.allAccess?`<div class="frow"><label>บริษัท (Genpo)</label><select id="aCo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>`:`<input type="hidden" id="aCo" value="${state.profile.genpo}">`;
-    openModal(`<h2><span>เพิ่ม</span>รายการ</h2>${genpoField}
-      <div class="frow"><label>ชื่อหลักสูตร</label><input id="aName"></div>
-      <div class="frow"><label>สถาบัน / Vendor</label><input id="aVendor"></div>
-      <div class="grid2"><div class="frow"><label>วันที่เริ่ม</label>${dateInput('','','aStart')}</div><div class="frow"><label>วันที่สิ้นสุด</label>${dateInput('','','aEnd')}</div></div>
-      <div class="grid2"><div class="frow"><label>จำนวนคน</label><input id="aCount" type="number" min="1" value="1"></div>
-        <div class="frow"><label>ประเภท</label><select id="aCat">${CATS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
-      <div class="frow"><label>สถานะ Vendor เริ่มต้น</label><select id="aVstat"><option value="none">มี Vendor อยู่แล้ว</option><option value="wait_docs">ต้องขอเปิด Vendor</option></select></div>
-      <p class="note">ระบบจะสร้าง Training Code ให้อัตโนมัติ และเพิ่มหลักสูตรนี้เข้า Calendar + แจ้งฝั่ง DSD ให้ดึงไปยื่นต่อ<br>รายชื่อผู้เข้าอบรมและเอกสาร PDF ให้เก็บใน SharePoint — จะมีปุ่มลิงก์ให้หลังบันทึกแล้ว</p>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Training.addCourse()">บันทึก</button></div>`);
-  }
-  async function addCourse(){
-    const g=document.getElementById('aCo').value;const name=document.getElementById('aName').value.trim();
-    if(!name){toast('กรอกชื่อหลักสูตร');return;}
-    const s=state.train[g];const no=Math.max(0,...s.courses.map(c=>c.no||0))+1;const code=g+'-'+String(no).padStart(3,'0');
-    const c={id:Date.now().toString(36),no,code,name,co:g,vendorName:document.getElementById('aVendor').value.trim(),
-      start:parseDMY(document.getElementById('aStart').value),end:parseDMY(document.getElementById('aEnd').value)||parseDMY(document.getElementById('aStart').value),
-      count:+document.getElementById('aCount').value||1,cat:document.getElementById('aCat').value,
-      vendor:document.getElementById('aVstat').value,pr:'none',by:state.profile.username,steps:{},stepTs:{},stepBy:{},stepRemark:{}};
-    s.courses.push(c);
-    try{await App.saveTrain(g,'add course: '+name);await App.calFromCourse(c);closeModal();App.render();toast('เพิ่มแล้ว — Code '+code);}catch(e){}
-  }
-
-  const cur=()=>{const f=findCourse(currentId);return f?f.c:null;};
-  function openDrawer(g,id){
-    currentG=g;currentId=id;const c=cur();if(!c)return;
-    const linked=App.dsdByCode(c.code,g);
-    const stepRows=STEPS.map(s=>{
-      if(s.k==='vendor'){const opts=Object.entries(VTXT).map(([v,t])=>`<option value="${v}" ${c.vendor===v?'selected':''}>${t}</option>`).join('');
-        return`<div class="step"><span class="who">${s.who}</span><span class="nm">${s.nm}</span>${c.vendorBy?`<span class="ts">${esc(c.vendorBy)}</span>`:''}<select onchange="Training.setVendor(this.value)">${opts}</select></div>`+remarkRow(c,'vendor');}
-      if(s.k==='pr'){const opts=Object.entries(PRTXT).map(([v,t])=>`<option value="${v}" ${(c.pr||'none')===v?'selected':''}>${t}</option>`).join('');
-        return`<div class="step"><span class="who">${s.who}</span><span class="nm">${s.nm} <span class="ts">(เฉพาะกรุ๊ป/พนง.ญี่ปุ่น)</span></span><select onchange="Training.setPr(this.value)">${opts}</select></div>`+remarkRow(c,'pr');}
-      const done=!!c.steps[s.k];const extra=s.k==='email'?`<button class="mini" onclick="event.stopPropagation();Training.openEmail()">สร้างอีเมล</button>`:'';
-      const by=(c.stepBy||{})[s.k];const ts=done&&c.stepTs[s.k]?`<span class="ts">${c.stepTs[s.k]}${by?' · '+esc(by):''}</span>`:'';
-      const dsdHint=s.k==='dsd'?(linked?` <span class="ts">(ซิงค์กับ DSD: ${esc({none:'ยังไม่ยื่น',sent:'ยื่นแล้ว',ok:'รับรองแล้ว'}[linked.req||'none'])})</span>`:` <span class="ts">(ยังไม่ผูก DSD)</span>`):'';
-      let row=`<div class="step"><span class="who">${s.who}</span><span class="nm">${s.nm}${dsdHint}</span>${extra}${ts}<input type="checkbox" ${done?'checked':''} onchange="Training.setStep('${s.k}',this.checked)"></div>`;
-      if(s.k==='payment'){const ropts=PAYROUNDS.map(r=>`<option value="${r}" ${c.payRound===r?'selected':''}>${r||'— เลือกรอบทำจ่าย —'}</option>`).join('');
-        row+=`<div class="step sub"><select style="max-width:230px" onchange="Training.editField('payRound',this.value)">${ropts}</select></div>`;}
-      return row+remarkRow(c,s.k);}).join('');
-    const spUrl=spLink(g,c.code||'');
-    const spSection=`<div class="sect"><h3>รายชื่อ + เอกสาร PDF (SharePoint)</h3>
-      <p class="note">รายชื่อผู้เข้าอบรมและไฟล์ Invoice / ใบสมัคร / รายละเอียดหลักสูตร / หลักฐานชำระเงิน / ใบเสร็จ / Certificate เก็บที่ SharePoint ทั้งหมด — ให้สร้างโฟลเดอร์ย่อยชื่อ <span class="code">${esc(c.code||'')}</span> ไว้ล่วงหน้าถ้ายังไม่มี</p>
-      <a class="btn btn-red" href="${spUrl}" target="_blank" rel="noopener" style="text-decoration:none">📁 เปิดโฟลเดอร์ SharePoint (${esc(c.code||'')})</a></div>`;
-    document.getElementById('drawer').innerHTML=`
-      <div class="dhead"><h2><span class="co ${currentG}">${CO[currentG]}</span> <span class="code">${esc(c.code||'')}</span> ${esc(c.name)}</h2><button class="btn btn-ghost" onclick="Training.close()">✕</button></div>
-      <div class="dbody">
-        <div class="sect"><h3>ข้อมูลหลักสูตร</h3><div class="grid2">
-          <div class="frow"><label>Training Code</label><input value="${esc(c.code||'')}" onchange="Training.editField('code',this.value.trim())"></div>
-          <div class="frow"><label>สถาบัน / Vendor</label><input value="${esc(c.vendorName||'')}" onchange="Training.editField('vendorName',this.value)"></div>
-          <div class="frow"><label>ประเภท</label><select onchange="Training.editField('cat',this.value)">${CATS.map(x=>`<option ${c.cat===x?'selected':''}>${x}</option>`).join('')}</select></div>
-          <div class="frow"><label>จำนวนคน</label><input type="number" value="${c.count||1}" onchange="Training.editField('count',+this.value)"></div>
-          <div class="frow"><label>วันที่เริ่ม</label>${dateInput(c.start,"Training.editDate('start',this.value)")}</div>
-          <div class="frow"><label>วันที่สิ้นสุด</label>${dateInput(c.end,"Training.editDate('end',this.value)")}</div></div>
-          ${c.by?`<p class="by">เพิ่มโดย ${esc(c.by)}</p>`:''}</div>
-        <div class="sect"><h3>ขั้นตอน</h3>${stepRows}</div>
-        <div class="sect"><h3>Invoice / ค่าใช้จ่าย</h3><div class="grid2">
-          <div class="frow"><label>ราคา/หัว ก่อน VAT</label><input id="ivPrice" type="number" min="0" step="0.01" value="${c.price??''}" oninput="Training.calcInv()" onchange="Training.editField('price',+this.value||0)"></div>
-          <div class="frow"><label>เลขที่ Invoice</label><input value="${esc(c.invoiceNo||'')}" onchange="Training.editField('invoiceNo',this.value)"></div>
-          <div class="frow"><label>VAT</label><select id="ivVat" onchange="Training.calcInv();Training.editField('vatOn',this.value==='1')"><option value="1" ${c.vatOn!==false?'selected':''}>มี VAT 7%</option><option value="0" ${c.vatOn===false?'selected':''}>ยกเว้น VAT</option></select></div>
-          <div class="frow"><label>หัก ณ ที่จ่าย</label><select id="ivWht" onchange="Training.calcInv();Training.editField('whtPct',+this.value)"><option value="0" ${!c.whtPct?'selected':''}>ไม่หัก</option><option value="3" ${c.whtPct===3?'selected':''}>3%</option></select></div>
-          <div class="frow"><label>ครบกำหนดชำระ</label>${dateInput(c.invoiceDue,"Training.editDate('invoiceDue',this.value)")}</div></div>
-          <div id="invSum" class="note" style="background:#FAFAFA;border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin-top:4px"></div></div>
-        ${spSection}
-        <div class="sect"><button class="mini" style="color:var(--alert);border-color:var(--alert)" onclick="Training.delCourse()">ลบหลักสูตรนี้</button></div>
-      </div>`;
-    document.getElementById('ov').classList.add('open');document.getElementById('drawer').classList.add('open');calcInv();
-  }
-  function calcInv(){const c=cur();if(!c)return;const el=document.getElementById('invSum');if(!el)return;
-    const price=+((document.getElementById('ivPrice')||{}).value)||0,vatOn=((document.getElementById('ivVat')||{}).value??'1')==='1',wht=+((document.getElementById('ivWht')||{}).value)||0,n=c.count||1;
-    const sub=price*n,vat=vatOn?sub*0.07:0,whtAmt=sub*wht/100,net=sub+vat-whtAmt,f=x=>x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-    el.innerHTML=price?`${f(price)} × ${n} = <b>${f(sub)}</b>${vatOn?` + VAT ${f(vat)}`:''}${wht?` − หัก ${f(whtAmt)}`:''} → สุทธิ <b style="color:var(--red)">${f(net)}</b> บาท`:'กรอกราคาต่อหัวเพื่อคำนวณ';}
-  function remarkRow(c,k){const v=(c.stepRemark||{})[k]||'';return`<div class="step sub"><input class="rmk" style="font-size:11.5px;padding:4px 8px" placeholder="Remark" value="${esc(v)}" onchange="Training.setRemark('${k}',this.value)"></div>`;}
-  function close(){document.getElementById('ov').classList.remove('open');document.getElementById('drawer').classList.remove('open');currentId=null;}
-  async function saveCur(msg){try{await App.saveTrain(currentG,msg);App.render();openDrawer(currentG,currentId);}catch(e){}}
-  async function setStep(k,v){const c=cur();c.steps[k]=v;c.stepTs[k]=v?new Date().toLocaleDateString('en-GB'):null;c.stepBy=c.stepBy||{};c.stepBy[k]=v?state.profile.username:null;await saveCur(`step ${k}=${v}`);}
-  async function setVendor(v){const c=cur();c.vendor=v;c.vendorBy=state.profile.username;await saveCur('vendor '+v);}
-  async function setPr(v){const c=cur();c.pr=v;c.prBy=state.profile.username;await saveCur('pr '+v);}
-  async function setRemark(k,v){const c=cur();c.stepRemark=c.stepRemark||{};c.stepRemark[k]=v.trim();try{await App.saveTrain(currentG,'remark '+k);}catch(e){}}
-  async function editField(f,v){const c=cur();c[f]=v;try{await App.saveTrain(currentG,'edit '+f);App.render();}catch(e){}}
-  async function editDate(f,dmy){const iso=dmy?parseDMY(dmy):'';if(dmy&&!iso){toast('วันที่ต้องเป็น dd/mm/yyyy');openDrawer(currentG,currentId);return;}editField(f,iso);}
-  async function delCourse(){if(!confirm('ลบหลักสูตรนี้?'))return;const s=state.train[currentG];s.courses=s.courses.filter(x=>x.id!==currentId);try{await App.saveTrain(currentG,'delete');close();App.render();}catch(e){}}
-
-
-  function openEmail(){const c=cur();
-    openModal(`<h2><span>อีเมล</span>ยืนยันการอบรม</h2>
-      <div class="tabs" id="langTabs"><button class="on" onclick="Training.setLang('th')">ไทย</button><button onclick="Training.setLang('jp')">日本語</button><button onclick="Training.setLang('en')">English</button></div>
-      <div class="grid2"><div class="frow"><label>เรียนถึง</label><input id="eTo" value="${esc(c._to||'')}"></div><div class="frow"><label>เวลา</label><input id="eTime" value="09:00 - 16:30"></div></div>
-      <div class="frow"><label>ชื่อหลักสูตร</label><input id="eCourse" value="${esc(c.name)}"></div>
-      <div class="frow"><label>สถานที่</label><input id="eVenue" value="${esc(c._venue||'')}"></div>
-      <div class="frow"><label>ผู้เข้าอบรม</label><input id="ePeople" value="${esc((c.people||'').split('\n').filter(Boolean).join(', '))}"></div>
-      <div class="frow"><label>Remark</label><textarea id="eRemark" rows="2"></textarea></div>
-      <div class="frow"><label>ข้อความ</label><textarea id="emailOut" readonly></textarea></div>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ปิด</button><button class="btn btn-red" onclick="Training.copyEmail()">คัดลอกอีเมล</button></div>`);
-    lang='th';setLang('th');['eTo','eTime','eCourse','eVenue','ePeople','eRemark'].forEach(id=>document.getElementById(id).addEventListener('input',genEmail));}
-  function setLang(l){lang=l;document.querySelectorAll('#langTabs button').forEach((b,i)=>b.classList.toggle('on',['th','jp','en'][i]===l));
-    const def={th:'หากรับทราบรายละเอียดแล้ว รบกวนตอบกลับอีเมลนี้ด้วยนะคะ',jp:'内容をご確認のうえ、本メールへご返信いただけますようお願いいたします。',en:'Once you have acknowledged the details, please kindly reply to this email.'};
-    document.getElementById('eRemark').value=def[l];genEmail();}
-  function jd(s){if(!s)return'';const[y,m,d]=s.split('-');return`${y}年${+m}月${+d}日`;}
-  function genEmail(){const c=cur()||{};const v=id=>document.getElementById(id).value.trim();
-    const to=v('eTo'),course=v('eCourse'),time=v('eTime'),venue=v('eVenue'),people=v('ePeople'),rm=v('eRemark');
-    const dTH=c.start===c.end?fmtDMY(c.start):`${fmtDMY(c.start)} - ${fmtDMY(c.end)}`,dJP=c.start===c.end?jd(c.start):`${jd(c.start)}～${jd(c.end)}`;let t='';
-    if(lang==='th')t=`เรียน ${to}\n\nขออนุญาตแจ้งยืนยันการจัดอบรม หลักสูตร ${course} ตามรายละเอียด ดังนี้ค่ะ\n\nชื่อหลักสูตร\t${course}\nวันที่อบรม\t${dTH}\nเวลา\t${time} น.\nสถานที่\t${venue}\nผู้เข้าอบรม\t${people}\n\n${rm}\n\nด้วยความเคารพ\nขอบคุณค่ะ\n\n${SIG}`;
-    if(lang==='jp')t=`${to}様、\nいつもお世話になっております。\n下記の通り、${course}研修の詳細についてご案内いたします。\n\nコース名\t${course}\n受講日\t${dJP}\n時間\t${time}\n会場\t${venue}\n受講者\t${people}\n\n${rm}\n\n何卒よろしくお願い申し上げます。\n\n${SIG}`;
-    if(lang==='en')t=`Dear ${to},\n\nPlease be informed of the confirmed training details for "${course}" as follows.\n\nCourse\t${course}\nDate\t${dTH}\nTime\t${time}\nVenue\t${venue}\nParticipant(s)\t${people}\n\n${rm}\n\nBest regards,\n\n${SIG}`;
-    document.getElementById('emailOut').value=t;}
-  async function copyEmail(){await navigator.clipboard.writeText(document.getElementById('emailOut').value);
-    const c=cur();if(c){c._to=document.getElementById('eTo').value;c._venue=document.getElementById('eVenue').value;try{await App.saveTrain(currentG,'email meta');}catch(e){}}toast('คัดลอกแล้ว');}
-
-  function exportCSV(){const q=s=>`"${String(s??'').replace(/"/g,'""')}"`;
-    const head=['Code','Genpo','หลักสูตร','ประเภท','สถาบัน','เริ่ม','สิ้นสุด','คน','สถานะ','เพิ่มโดย'];
-    const rows=allCourses().filter(({c})=>state.profile.allAccess?(cofil==='ALL'||c.co===cofil):true).sort((a,b)=>(a.c.start||'').localeCompare(b.c.start||''))
-      .map(({c,g})=>[c.code,CO[g],c.name,c.cat,c.vendorName,fmtDMY(c.start),fmtDMY(c.end),c.count,lastStatus(c).t,c.by||''].map(q).join(','));
-    const blob=new Blob(['\uFEFF'+head.map(q).join(',')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='training_'+dstamp()+'.csv';a.click();URL.revokeObjectURL(a.href);toast('ส่งออกแล้ว');}
-
-  return {render,openAdd,addCourse,openDrawer,close,setStep,setVendor,setPr,setRemark,editField,editDate,delCourse,calcInv,openEmail,setLang,copyEmail,exportCSV};
-})();
-
-/* ================= DSD Tracker ================= */
-const DSD=(()=>{
-  const LEAD=30, REPORT=60;
-  const REQ={none:'ยังไม่ยื่นขอรับรอง',sent:'ยื่นแล้ว รอกรมรับรอง',ok:'รับรองหลักสูตรแล้ว'};
-  const STEPS=[{k:'report',nm:'ยื่นรายงานการฝึก'},{k:'dept',nm:'กรมพัฒฯ อนุมัติรายงาน'},{k:'receipt',nm:'ใบเสร็จ'},{k:'cert',nm:'หนังสือรับรอง'}];
-  const MTH=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  let cofil='ALL', bfil='ALL', q='', currentG=null, currentId=null;
-  const ISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:null;
-  const today=()=>new Date().toISOString().slice(0,10);
-  const daysTo=s=>ISO(s)?Math.round((new Date(s)-new Date(today()))/864e5):null;
-  const addD=(s,n)=>{if(!ISO(s))return null;const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
-  const endD=r=>ISO(r.dateEnd)||ISO(r.date);
-  const isPast=r=>!!endD(r)&&endD(r)<today();
-  const fRange=r=>r.dateEnd&&r.dateEnd!==r.date?fmtDMY(r.date)+' – '+fmtDMY(r.dateEnd):fmtDMY(r.date);
-  const reqDue=r=>addD(r.date,-LEAD), reportDue=r=>addD(endD(r),REPORT);
-  function findRun(id){for(const g in state.dsd){const r=(state.dsd[g].runs||[]).find(x=>x.id_===id);if(r)return{r,g};}return null;}
-  function allRuns(){const out=[];for(const g of Object.keys(state.dsd))for(const r of(state.dsd[g].runs||[]))out.push({r,g});return out;}
-  const cur=()=>{const f=findRun(currentId);return f?f.r:null;};
-  function bucket(r){if((r.req||'none')==='none')return'noreq';if(r.req==='sent')return'waitapv';if(!r.report)return isPast(r)?'noreport':'ready';if(!r.dept)return'waitdept';if(!r.receipt||!r.cert)return'waitdoc';return'done';}
-  const BUCKET={noreq:{t:'ยังไม่ยื่นขอรับรอง',cl:'alert'},waitapv:{t:'รอกรมรับรองหลักสูตร',cl:'wait'},ready:{t:'รับรองแล้ว รออบรม',cl:'ok'},noreport:{t:'ค้างยื่นรายงาน',cl:'alert'},waitdept:{t:'รอกรมอนุมัติรายงาน',cl:'wait'},waitdoc:{t:'รอใบเสร็จ/หนังสือรับรอง',cl:'wait'},done:{t:'เสร็จสิ้น',cl:'ok'}};
-  function lastStatus(r){const b=bucket(r),o={...BUCKET[b]};
-    if(b==='noreq'){const d=daysTo(reqDue(r));if(d!==null&&d<=0)o.t='เลยกำหนดยื่นขอรับรอง';else if(d!==null&&d<=14)o.t=`ยังไม่ยื่น · เหลือ ${d} วัน`;}
-    if(b==='waitapv'&&isPast(r)){o.cl='alert';o.t='อบรมแล้วแต่ยังไม่ได้รับรอง';}
-    if(b==='noreport'){const d=daysTo(reportDue(r));o.t=d!==null&&d<0?`เลยกำหนดยื่นรายงาน ${-d} วัน`:`ค้างยื่นรายงาน · เหลือ ${d} วัน`;}return o;}
-  function personStats(runs){const ids=runs.flatMap(r=>(r.people||[]).map(x=>String(x).trim()).filter(Boolean));const counts={};ids.forEach(id=>counts[id]=(counts[id]||0)+1);const unique=Object.keys(counts).length;return {total:ids.length,unique,dup:ids.length-unique,dupIds:Object.keys(counts).filter(id=>counts[id]>1)};}
-  const TILES=[['ALL','ทั้งหมด',''],['noreq','ยังไม่ยื่นขอรับรอง','alert'],['waitapv','รอกรมรับรอง','wait'],['noreport','ค้างยื่นรายงาน','alert'],['waitdept','รอกรมอนุมัติรายงาน','wait'],['waitdoc','รอปิดเอกสาร','wait'],['ready','รออบรม','ok'],['done','เสร็จสิ้น','ok']];
-
-  // หลักสูตรจาก Training ที่ยังไม่ถูกดึงเข้า DSD (จับคู่ด้วย code)
-  function unlinked(){const out=[];for(const {c,g} of App.allCourses()){if(cofil!=='ALL'&&c.co!==cofil)continue;if(!App.dsdByCode(c.code,g))out.push({c,g});}return out;}
-
-  function render(el){
-    const scope=allRuns().filter(({r})=>cofil==='ALL'||r.co===cofil);
-    const ps=personStats(scope.map(x=>x.r));const cnt={};scope.forEach(({r})=>cnt[bucket(r)]=(cnt[bucket(r)]||0)+1);
-    let rs=scope.filter(({r})=>bfil==='ALL'||bucket(r)===bfil);if(q)rs=rs.filter(({r})=>(r.course+' '+(r.id||'')+' '+(r.code||'')).toLowerCase().includes(q));
-    rs.sort((a,b)=>(a.r.date||'9999').localeCompare(b.r.date||'9999'));
-    const un=unlinked();
-    el.innerHTML=`
-      <div class="toolbar">
-        <button class="btn btn-red" onclick="DSD.openAdd()">+ เพิ่มรุ่นอบรม</button>
-        <div class="cofil" id="dCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>
-        <input id="dq" type="search" placeholder="ค้นหา หลักสูตร / Code / ID" value="${esc(q)}" style="width:220px" oninput="DSD.search(this.value)">
-        <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
-        <button class="btn btn-ghost" onclick="DSD.exportCSV()">Excel</button>
-        <button class="btn btn-ghost" onclick="Import.open('dsd')">นำเข้าข้อมูล</button>
-      </div>
-      ${un.length?`<div class="banner"><b>🔔 หลักสูตรใหม่จาก Training (${un.length})</b> — ดึงเข้ามายื่น DSD ได้เลย
-        ${un.map(({c,g})=>`<div class="row"><span class="co ${g}">${CO[g]}</span><span class="code">${esc(c.code)}</span><span style="flex:1">${esc(c.name)}</span><span class="cdate">${c.start?fmtDMY(c.start):''}</span><button class="mini" onclick="DSD.pull('${g}','${c.id}')">ดึงเข้า DSD</button></div>`).join('')}</div>`:''}
-      <div class="tiles">
-        <span class="tile big"><b>${ps.total}</b><span>ยื่นทั้งหมด (คน·ครั้ง)</span></span>
-        <span class="tile big ok"><b>${ps.unique}</b><span>ไม่ซ้ำ (คน)</span></span>
-        <span class="tile big ${ps.dup?'alert':''}"><b>${ps.dup}</b><span>ซ้ำ (ยื่นเกิน 1 ครั้ง)</span></span>
-      </div>
-      ${ps.dup?`<div class="note" style="color:var(--alert);margin:-6px 0 12px">⚠ มีรหัสพนักงานยื่นซ้ำ ${ps.dupIds.length} คน: ${ps.dupIds.slice(0,12).map(esc).join(', ')}${ps.dupIds.length>12?' …':''}</div>`:''}
-      <div class="tiles">${TILES.map(([k,t,cl])=>`<button class="tile ${cl} ${bfil===k?'on':''}" onclick="DSD.setB('${k}')"><b>${k==='ALL'?scope.length:(cnt[k]||0)}</b><span>${t}</span></button>`).join('')}</div>
-      <table><thead><tr><th>บริษัท / Code</th><th>หลักสูตร</th><th>วันอบรม</th><th>คน</th><th>ขอรับรอง</th><th>ขั้นตอน</th><th>สถานะ</th></tr></thead><tbody id="dRows"></tbody></table>`;
-    el.querySelectorAll('#dCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
-    const tb=el.querySelector('#dRows');
-    if(!rs.length){tb.innerHTML=`<tr><td colspan="7" style="color:var(--sub);text-align:center;padding:30px">ไม่มีรายการ</td></tr>`;return;}
-    let html='',lastM='';
-    for(const {r,g} of rs){const mk=r.date?r.date.slice(0,7):'no';
-      if(mk!==lastM){lastM=mk;const lbl=mk==='no'?'ไม่ระบุวันที่':MTH[+mk.slice(5)]+' '+(+mk.slice(0,4)+543);html+=`<tr class="mrow"><td colspan="7">${lbl}</td></tr>`;}
-      const b=bucket(r),st=lastStatus(r),hot=st.cl==='alert',rq=r.req||'none';
-      const rqChip=rq==='ok'?`<span class="chip ok">✓ รับรองแล้ว</span><br><span style="font-size:11.5px;color:var(--sub)">ID ${esc(r.id)||'—'}</span>`:rq==='sent'?`<span class="chip wait">ยื่นแล้ว</span>`:`<span class="chip alert">✕ ยังไม่ยื่น</span>${r.date?`<br><span style="font-size:11.5px;color:var(--sub)">ภายใน ${fmtDMY(reqDue(r))}</span>`:''}`;
-      const dots=`<span class="dot ${rq==='ok'?'ok':rq==='sent'?'wait':'hot'}" title="${REQ[rq]}"></span>`+STEPS.map(s=>`<span class="dot ${r[s.k]?'ok':(s.k==='report'&&b==='noreport'?'hot':'wait')}" title="${s.nm}"></span>`).join('');
-      const pc=(r.people||[]).length;
-      html+=`<tr class="${hot?'late':''}" onclick="DSD.openDrawer('${g}','${r.id_}')">
-        <td><span class="co ${g}">${CO[g]}</span>${r.code?`<br><span class="code">${esc(r.code)}</span>`:''}</td>
-        <td class="cname">${esc(r.course)}${r.by?`<br><span class="by">เพิ่มโดย ${esc(r.by)}</span>`:''}</td>
-        <td class="cdate">${fRange(r)}</td><td>${r.ppl??''}${pc?`<br><span style="font-size:11px;color:var(--sub)">${pc} id</span>`:''}</td>
-        <td style="line-height:1.5">${rqChip}</td><td><div class="dots">${dots}</div></td>
-        <td><span class="chip ${st.cl}">${st.t}</span></td></tr>`;}
-    tb.innerHTML=html;
-  }
-  function setB(b){bfil=b;App.render();}
-  function search(v){q=v.trim().toLowerCase();App.render();const i=document.getElementById('dq');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}}
-
-  async function pull(g,cid){const c=(state.train[g].courses||[]).find(x=>x.id===cid);if(!c)return;
-    if(App.dsdByCode(c.code,g)){toast('ดึงเข้าแล้ว');return;}
-    state.dsd[g].runs.push({id_:Date.now().toString(36),code:c.code,co:g,course:c.name,date:c.start,dateEnd:c.end,dateText:'',
-      ppl:c.count||null,id:'',req:'none',reqDate:'',report:false,dept:false,receipt:false,cert:false,remark:'ดึงจาก Training',people:[],by:state.profile.username,source:'training'});
-    try{await App.saveDsd(g,'pull from training '+c.code);App.render();toast('ดึงเข้า DSD แล้ว: '+c.code);}catch(e){}}
-
-  function openDrawer(g,id){currentG=g;currentId=id;const r=cur();if(!r)return;
-    const rq=r.req||'none',dRq=daysTo(reqDue(r)),dRep=daysTo(reportDue(r));
-    const mine=(r.people||[]).map(x=>String(x).trim()).filter(Boolean);
-    const others=allRuns().filter(({r:o})=>o!==r).flatMap(({r:o})=>(o.people||[]).map(x=>String(x).trim()));
-    const dupHere=mine.filter(id=>others.includes(id));
-    const linkedC=App.courseByCode(r.code,g);
-    const stepRows=STEPS.map(s=>{const by=(r.by2||{})[s.k];const ts=r[s.k]&&by?`<span class="ts">${esc(by)}</span>`:'';
-      const due=s.k==='report'&&!r.report&&r.date?`<span class="ts" style="color:${dRep<0?'var(--alert)':dRep<=14?'var(--wait)':'var(--sub)'}">ครบกำหนด ${fmtDMY(reportDue(r))}${dRep<0?` · เลย ${-dRep} วัน`:` · เหลือ ${dRep} วัน`}</span>`:'';
-      return`<div class="step"><span class="nm">${s.nm}</span>${due}${ts}<input type="checkbox" ${r[s.k]?'checked':''} onchange="DSD.setStep('${s.k}',this.checked)"></div>`;}).join('');
-    document.getElementById('drawer').innerHTML=`
-      <div class="dhead"><h2><span class="co ${g}">${CO[g]}</span> ${r.code?`<span class="code">${esc(r.code)}</span> `:''}${esc(r.course)}</h2><button class="btn btn-ghost" onclick="DSD.close()">✕</button></div>
-      <div class="dbody">
-        <div class="sect"><h3>เชื่อมกับ Training</h3>
-          <div class="frow"><label>Training Code (แก้ให้ตรงกับ Training เพื่อซิงค์ — ข้อมูลเก่าตั้งเองได้)</label><input value="${esc(r.code||'')}" onchange="DSD.editField('code',this.value.trim())"></div>
-          <p class="note">${linkedC?`ผูกกับหลักสูตร: <b>${esc(linkedC.name)}</b> — เมื่อกดยื่น ระบบจะอัปเดตขั้นตอน "ยื่น DSD" ใน Training ให้`:'ยังไม่พบหลักสูตรที่ code ตรงกันใน Training'}</p></div>
-        <div class="sect"><h3>1 · ขอรับรองหลักสูตร (ก่อนอบรม)</h3>
-          <div class="reqbox ${rq}"><div class="reqline"><span class="reqdot"></span><b>${REQ[rq]}</b>${r.date&&rq!=='ok'?`<span class="ts" style="margin-left:auto;color:${dRq<0?'var(--alert)':dRq<=14?'var(--wait)':'var(--sub)'}">ยื่นภายใน ${fmtDMY(reqDue(r))}${dRq<0?` · เลย ${-dRq} วัน`:` · เหลือ ${dRq} วัน`}</span>`:''}</div></div>
-          <div class="grid2"><div class="frow"><label>สถานะการยื่น</label><select onchange="DSD.setReq(this.value)">${Object.entries(REQ).map(([k,v])=>`<option value="${k}" ${rq===k?'selected':''}>${v}</option>`).join('')}</select></div>
-            <div class="frow"><label>วันที่ยื่น</label>${dateInput(r.reqDate,"DSD.editDate('reqDate',this.value)")}</div></div>
-          <div class="frow"><label>เลข ID รับรองหลักสูตร</label><input inputmode="numeric" value="${esc(r.id)}" onchange="DSD.setId(this.value.trim())"></div></div>
-        <div class="sect"><h3>2 · หลังอบรม</h3>${stepRows}</div>
-        <div class="sect"><h3>รหัสพนักงานที่ยื่น (บรรทัดละ 1 รหัส)</h3>
-          <textarea rows="5" placeholder="เช่น 12345&#10;12346" onchange="DSD.setPeople(this.value)">${esc((r.people||[]).join('\n'))}</textarea>
-          <div class="note" style="margin-top:6px">${mine.length} รหัสในรุ่นนี้${dupHere.length?` · <b style="color:var(--alert)">ซ้ำกับรุ่นอื่น ${dupHere.length}: ${dupHere.slice(0,10).map(esc).join(', ')}</b>`:''}</div></div>
-        <div class="sect"><h3>ข้อมูลรุ่น</h3>
-          <div class="frow"><label>ชื่อหลักสูตร</label><input value="${esc(r.course)}" onchange="DSD.editField('course',this.value)"></div>
-          <div class="grid2"><div class="frow"><label>บริษัท</label><select onchange="DSD.moveGenpo(this.value)">${GENPOS.map(k=>`<option value="${k}" ${r.co===k?'selected':''}>${CO[k]}</option>`).join('')}</select></div>
-            <div class="frow"><label>วันเริ่ม</label>${dateInput(r.date,"DSD.editDate('date',this.value)")}</div>
-            <div class="frow"><label>วันสุดท้าย</label>${dateInput(r.dateEnd,"DSD.editDate('dateEnd',this.value)")}</div>
-            <div class="frow"><label>จำนวนที่นั่ง</label><input type="number" min="0" value="${r.ppl??''}" onchange="DSD.editField('ppl',this.value?+this.value:null)"></div></div>
-          ${r.by?`<p class="by">เพิ่มโดย ${esc(r.by)}</p>`:''}</div>
-        <div class="sect"><h3>Remark</h3><textarea rows="2" onchange="DSD.editField('remark',this.value)">${esc(r.remark||'')}</textarea></div>
-        <div class="sect"><button class="btn btn-ghost" style="color:var(--alert);border-color:var(--alert)" onclick="DSD.delRun()">ลบรุ่นนี้</button></div>
-      </div>`;
-    document.getElementById('ov').classList.add('open');document.getElementById('drawer').classList.add('open');}
-  function close(){document.getElementById('ov').classList.remove('open');document.getElementById('drawer').classList.remove('open');currentId=null;}
-  async function saveCur(msg){try{await App.saveDsd(currentG,msg);App.render();openDrawer(currentG,currentId);}catch(e){}}
-  async function setReq(v){const r=cur();if(v==='ok'&&!r.id){toast('กรอกเลข ID ก่อน');openDrawer(currentG,r.id_);return;}r.req=v;if(v==='sent'&&!r.reqDate)r.reqDate=today();r.by2=r.by2||{};
-    try{await App.saveDsd(currentG,'req '+v);await App.syncDsdToTraining(r,currentG);App.render();openDrawer(currentG,r.id_);}catch(e){}}
-  async function setId(v){const r=cur();r.id=v;if(v)r.req='ok';else if(r.req==='ok')r.req='sent';
-    try{await App.saveDsd(currentG,'id '+v);await App.syncDsdToTraining(r,currentG);App.render();openDrawer(currentG,r.id_);}catch(e){}}
-  async function setStep(k,v){const r=cur();if(v&&(r.req||'none')!=='ok'&&!confirm('หลักสูตรยังไม่ได้รับรอง — ยืนยันติ๊ก?')){openDrawer(currentG,r.id_);return;}r[k]=v;r.by2=r.by2||{};r.by2[k]=v?state.profile.username:null;await saveCur(k+'='+v);}
-  async function setPeople(v){const r=cur();r.people=v.split('\n').map(x=>x.trim()).filter(Boolean);await saveCur('people');}
-  async function editField(f,v){const r=cur();r[f]=v;try{await App.saveDsd(currentG,'edit '+f);App.render();}catch(e){}}
-  async function editDate(f,dmy){const iso=dmy?parseDMY(dmy):'';if(dmy&&!iso){toast('วันที่ต้องเป็น dd/mm/yyyy');openDrawer(currentG,currentId);return;}const r=cur();r[f]=iso;try{await App.saveDsd(currentG,'edit '+f);App.render();openDrawer(currentG,currentId);}catch(e){}}
-  async function delRun(){const r=cur();if(!confirm(`ลบ "${r.course}" ?`))return;const s=state.dsd[currentG];s.runs=s.runs.filter(x=>x!==r);try{await App.saveDsd(currentG,'delete');close();App.render();}catch(e){}}
-  async function moveGenpo(ng){if(ng===currentG)return;const r=cur();const from=currentG;
-    state.dsd[from].runs=state.dsd[from].runs.filter(x=>x!==r);r.co=ng;state.dsd[ng].runs.push(r);
-    try{await App.saveDsd(from,'move out');await App.saveDsd(ng,'move in');currentG=ng;App.render();openDrawer(ng,r.id_);}catch(e){}}
-  function openAdd(){openModal(`<h2><span>เพิ่ม</span>รุ่นอบรม</h2>
-      <div class="frow"><label>บริษัท (Genpo)</label><select id="daCo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>
-      <div class="frow"><label>ชื่อหลักสูตร</label><input id="daName"></div>
-      <div class="frow"><label>Training Code (ถ้ามี — ให้ตรงกับ Training)</label><input id="daCode" placeholder="เช่น TH-005"></div>
-      <div class="grid2"><div class="frow"><label>วันเริ่ม</label>${dateInput('','','daDate')}</div><div class="frow"><label>วันสุดท้าย</label>${dateInput('','','daEnd')}</div><div class="frow"><label>ที่นั่ง</label><input id="daPpl" type="number" min="0"></div></div>
-      <div class="frow"><label>สถานะขอรับรอง</label><select id="daReq"><option value="none">ยังไม่ยื่น</option><option value="sent">ยื่นแล้ว</option><option value="ok">รับรองแล้ว</option></select></div>
-      <div class="frow"><label>เลข ID (ถ้ามี)</label><input id="daId" inputmode="numeric"></div>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="DSD.addRun()">บันทึก</button></div>`);}
-  async function addRun(){const g=document.getElementById('daCo').value,name=document.getElementById('daName').value.trim();
-    if(!name){toast('กรอกชื่อหลักสูตร');return;}const id=document.getElementById('daId').value.trim();
-    state.dsd[g].runs.push({id_:Date.now().toString(36),code:document.getElementById('daCode').value.trim(),co:g,course:name,
-      date:parseDMY(document.getElementById('daDate').value),dateEnd:parseDMY(document.getElementById('daEnd').value),dateText:'',
-      ppl:document.getElementById('daPpl').value?+document.getElementById('daPpl').value:null,id,req:id?'ok':document.getElementById('daReq').value,
-      reqDate:'',report:false,dept:false,receipt:false,cert:false,remark:'',people:[],by:state.profile.username});
-    try{await App.saveDsd(g,'add run: '+name);closeModal();App.render();}catch(e){}}
-  function exportCSV(){const qq=s=>`"${String(s??'').replace(/"/g,'""')}"`;
-    const head=['บริษัท','Code','หลักสูตร','เริ่ม','สุดท้าย','ที่นั่ง','รหัสที่ยื่น','จำนวนรหัส','สถานะขอรับรอง','ID','สถานะ','เพิ่มโดย'];
-    const rows=allRuns().filter(({r})=>cofil==='ALL'||r.co===cofil).sort((a,b)=>(a.r.date||'').localeCompare(b.r.date||''))
-      .map(({r,g})=>[CO[g],r.code||'',r.course,fmtDMY(r.date),fmtDMY(r.dateEnd),r.ppl,(r.people||[]).join('; '),(r.people||[]).length,REQ[r.req||'none'],r.id,lastStatus(r).t,r.by||''].map(qq).join(','));
-    const blob=new Blob(['\uFEFF'+head.map(qq).join(',')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dsd_'+dstamp()+'.csv';a.click();URL.revokeObjectURL(a.href);toast('ส่งออกแล้ว');}
-  return {render,setB,search,pull,openDrawer,close,setReq,setId,setStep,setPeople,editField,editDate,delRun,moveGenpo,openAdd,addRun,exportCSV};
-})();
-
-/* ================= Calendar (Ki fiscal) ================= */
-const Calendar=(()=>{
-  const STA={confirmed:{t:'ยืนยัน',c:'var(--ok)'},tentative:{t:'ชั่วคราว',c:'var(--wait)'},postponed:{t:'เลื่อน',c:'#B26A00'},cancelled:{t:'ยกเลิก',c:'var(--none)'}};
-  const DOW=['อา','จ','อ','พ','พฤ','ศ','ส'],MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  let cur=new Date(),cofil='ALL',byfil='ALL',editId=null;
-  const evs=()=>state.cal.events;
-  const kiOf=d=>{const y=d.getFullYear(),m=d.getMonth();return (m>=3?y:y-1)-1923;};
-  const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const show=e=>(cofil==='ALL'||e.co===cofil)&&(byfil==='ALL'||e.by===byfil);
-  const fD=s=>{if(!s)return'';const[y,m,d]=s.split('-');return`${d}/${m}/${+y+543}`;};
-
-  function render(el){
-    const y=cur.getFullYear(),m=cur.getMonth(),start=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-    const monthEvs=evs().filter(e=>e.date&&e.date.slice(0,7)===`${y}-${String(m+1).padStart(2,'0')}`&&show(e)).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''));
-    const curKi=kiOf(cur),kis=[];for(let k=curKi-3;k<=curKi+3;k++)kis.push(k);
-    const bys=App.creators();
-    let cells='';for(let i=0;i<start;i++)cells+='<div class="cal-cell empty"></div>';
-    for(let d=1;d<=days;d++){const ds=ymd(new Date(y,m,d));const de=evs().filter(e=>e.date===ds&&show(e));const isToday=ds===ymd(new Date());
-      cells+=`<div class="cal-cell${isToday?' today':''}" onclick="Calendar.add('${ds}')"><div class="cal-d">${d}</div>${de.slice(0,3).map(e=>`<div class="cal-ev" style="border-left-color:${STA[e.status].c}" onclick="event.stopPropagation();Calendar.open('${e.id}')"><span class="dotco ${e.co}"></span>${e.time?`<b>${esc(e.time)}</b> `:''}${esc(e.title)}</div>`).join('')}${de.length>3?`<div class="cal-more">+${de.length-3}</div>`:''}</div>`;}
-    el.innerHTML=`
-      <style>
-      .cal-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-      .cal-wrap{display:grid;grid-template-columns:1fr 300px;gap:16px}@media(max-width:860px){.cal-wrap{grid-template-columns:1fr}}
-      .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-      .cal-dow{background:#FCFCFC;padding:7px 0;text-align:center;font-size:11px;color:var(--sub);font-weight:500}
-      .cal-cell{background:#fff;min-height:92px;padding:4px 5px;cursor:pointer;overflow:hidden}.cal-cell.empty{background:#FAFAFA;cursor:default}.cal-cell:hover{background:#FFF9F9}
-      .cal-cell.today{box-shadow:inset 0 0 0 2px var(--red)}
-      .cal-d{font-size:12px;color:var(--sub);margin-bottom:3px}
-      .cal-ev{font-size:11px;background:#F7F7F7;border-left:3px solid;border-radius:3px;padding:2px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .cal-more{font-size:10.5px;color:var(--sub)}
-      .dotco{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
-      .dotco.TH{background:var(--c-TH)}.dotco.HRST{background:var(--c-HRST)}.dotco.EGAS{background:var(--c-EGAS)}
-      .agenda{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;max-height:640px;overflow:auto}
-      .agenda h4{font-size:12px;color:var(--sub);margin-bottom:8px}
-      .ag-item{border-left:3px solid;padding:6px 9px;margin-bottom:7px;background:#FAFAFA;border-radius:0 5px 5px 0;cursor:pointer}
-      .ag-item b{font-size:12.5px}.ag-item .m{font-size:11px;color:var(--sub)}
-      </style>
-      <div class="cal-top">
-        <button class="btn btn-ghost" onclick="Calendar.move(-1)">‹</button>
-        <div style="font-size:18px;font-weight:600">${MTH[m]} ${y+543}</div>
-        <button class="btn btn-ghost" onclick="Calendar.move(1)">›</button>
-        <select style="width:auto" onchange="Calendar.jumpKi(+this.value)" title="เลือกปี Ki">${kis.map(k=>`<option value="${k}" ${k===curKi?'selected':''}>${k} Ki (เม.ย.${k+1923+543} – มี.ค.${k+1924+543})</option>`).join('')}</select>
-        <button class="btn btn-ghost" onclick="Calendar.today()">วันนี้</button>
-        <div class="cofil"><button class="${cofil==='ALL'?'on':''}" onclick="Calendar.fil('ALL')">ทั้งหมด</button>${GENPOS.map(g=>`<button class="${cofil===g?'on':''}" onclick="Calendar.fil('${g}')">${CO[g]}</button>`).join('')}</div>
-        <select style="width:auto" onchange="Calendar.byFil(this.value)" title="กรองตามผู้เพิ่ม"><option value="ALL" ${byfil==='ALL'?'selected':''}>ทุกผู้เพิ่ม</option>${bys.map(b=>`<option value="${esc(b)}" ${byfil===b?'selected':''}>${esc(b)}</option>`).join('')}</select>
-        <button class="btn btn-ghost" onclick="Calendar.syncTraining()">ซิงค์จาก Training</button>
-        <button class="btn btn-red" onclick="Calendar.add('${ymd(new Date())}')">+ เพิ่มกิจกรรม</button>
-      </div>
-      <div class="cal-wrap">
-        <div><div class="cal-grid">${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${cells}</div></div>
-        <div class="agenda"><h4>กิจกรรมเดือนนี้ (${monthEvs.length})</h4>${monthEvs.length?monthEvs.map(e=>`<div class="ag-item" style="border-left-color:${STA[e.status].c}" onclick="Calendar.open('${e.id}')"><b>${esc(e.title)}</b><div class="m"><span class="dotco ${e.co}"></span>${CO[e.co]} · ${fD(e.date)}${e.time?' · '+esc(e.time):''} · ${STA[e.status].t}${e.by?' · โดย '+esc(e.by):''}</div></div>`).join(''):'<div class="note">ไม่มีกิจกรรม</div>'}</div>
-      </div>`;
-  }
-  function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);App.render();}
-  function today(){cur=new Date();App.render();}
-  function jumpKi(k){cur=new Date(k+1923,3,1);App.render();} // เม.ย. ของปี Ki นั้น
-  function fil(c){cofil=c;App.render();}
-  function byFil(b){byfil=b;App.render();}
-  async function syncTraining(){let n=0;for(const {c} of App.allCourses()){if(!c.start)continue;if(evs().some(e=>e.code===c.code))continue;
-      evs().push({id:Date.now().toString(36)+(n++),code:c.code,title:c.name,co:c.co,status:'confirmed',date:c.start,end:c.end&&c.end!==c.start?c.end:'',time:'',note:'สร้างจาก Training Tracker',by:c.by,history:['ซิงค์จาก Training โดย '+state.profile.username+' '+new Date().toLocaleDateString('en-GB')]});}
-    if(!n){toast('ไม่มีหลักสูตรใหม่ที่ต้องซิงค์');return;}try{await App.saveCal('sync from training');App.render();toast('ซิงค์ '+n+' หลักสูตรเข้า Calendar');}catch(e){}}
-  function add(date){editId=null;form({date,co:cofil==='ALL'?'HRST':cofil,status:'confirmed',time:'',end:'',title:'',note:''});}
-  function open(id){const e=evs().find(x=>x.id===id);if(!e)return;editId=id;form(e,true);}
-  function form(e,isEdit){openModal(`<h2><span>${isEdit?'แก้ไข':'เพิ่ม'}</span>กิจกรรม</h2>
-      <div class="frow"><label>ชื่อกิจกรรม</label><input id="ceTitle" value="${esc(e.title||'')}"></div>
-      <div class="grid2">
-        <div class="frow"><label>บริษัท</label><select id="ceCo">${GENPOS.map(g=>`<option value="${g}" ${e.co===g?'selected':''}>${CO[g]}</option>`).join('')}</select></div>
-        <div class="frow"><label>สถานะ</label><select id="ceStatus">${Object.entries(STA).map(([k,v])=>`<option value="${k}" ${e.status===k?'selected':''}>${v.t}</option>`).join('')}</select></div>
-        <div class="frow"><label>วันที่</label>${dateInput(e.date,'','ceDate')}</div>
-        <div class="frow"><label>ถึงวันที่ (ถ้ามี)</label>${dateInput(e.end,'','ceEnd')}</div>
-        <div class="frow"><label>เวลา</label><input id="ceTime" value="${esc(e.time||'')}" placeholder="09:00-16:00"></div></div>
-      <div class="frow"><label>หมายเหตุ</label><textarea id="ceNote" rows="2">${esc(e.note||'')}</textarea></div>
-      ${isEdit?`<p class="by">${e.by?'เพิ่มโดย '+esc(e.by):''}${e.code?' · Code '+esc(e.code):''}</p>`:''}
-      ${isEdit&&e.history&&e.history.length?`<div class="note" style="background:#FAFAFA;border:1px solid var(--line);border-radius:5px;padding:8px 10px;margin:8px 0"><b>ประวัติแก้ไข</b><br>${e.history.slice(-5).map(esc).join('<br>')}</div>`:''}
-      <div class="mfoot">${isEdit?`<button class="btn btn-ghost" style="color:var(--alert);margin-right:auto" onclick="Calendar.del()">ลบ</button>`:''}<button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Calendar.save()">บันทึก</button></div>`);}
-  async function save(){const g=id=>document.getElementById(id).value;
-    const title=g('ceTitle').trim();if(!title){toast('กรอกชื่อกิจกรรม');return;}
-    const date=parseDMY(g('ceDate'));if(!date){toast('วันที่ต้องเป็น dd/mm/yyyy');return;}
-    const rec={title,co:g('ceCo'),status:g('ceStatus'),date,end:parseDMY(g('ceEnd')),time:g('ceTime').trim(),note:g('ceNote').trim()};
-    const stamp=`${state.profile.username} ${new Date().toLocaleDateString('en-GB')} ${nowStamp()}`;
-    if(editId){const e=evs().find(x=>x.id===editId);Object.assign(e,rec);e.history=e.history||[];e.history.push('แก้ไขโดย '+stamp);}
-    else evs().push({id:Date.now().toString(36),...rec,by:state.profile.username,history:['สร้างโดย '+stamp]});
-    try{await App.saveCal(editId?'edit event':'add event');closeModal();App.render();}catch(e){}}
-  async function del(){if(!confirm('ลบกิจกรรมนี้?'))return;state.cal.events=evs().filter(x=>x.id!==editId);try{await App.saveCal('delete event');closeModal();App.render();}catch(e){}}
-  return {render,move,today,jumpKi,fil,byFil,syncTraining,add,open,save,del};
-})();
-
-/* ================= Admin (จัดการผู้ใช้ + รีเซตรหัส) ================= */
-const Admin=(()=>{
-  let users=[];
-  async function render(el){el.innerHTML=`<div class="toolbar"><button class="btn btn-ghost" onclick="Admin.reload()">รีเฟรช</button><span class="note">อนุมัติ/จัดการผู้ใช้ · รีเซตรหัสผ่าน · เฉพาะ Admin</span></div><div id="admList" class="note">กำลังโหลด…</div>`;await reload();}
-  async function reload(){try{const r=await api('GET','api/admin/users');users=r.users||[];draw();}catch(e){const el=document.getElementById('admList');if(el)el.textContent='โหลดไม่สำเร็จ: '+e.message;}}
-  function draw(){const wrap=document.getElementById('admList');if(!wrap)return;
-    const order={pending:0,active:1,suspended:2,rejected:3};
-    const us=[...users].sort((a,b)=>(order[a.status]-order[b.status])||a.username.localeCompare(b.username));
-    const pend=us.filter(u=>u.status==='pending').length;
-    wrap.innerHTML=(pend?`<div class="note" style="color:var(--wait);margin-bottom:8px">มีคำขอรออนุมัติ ${pend} รายการ</div>`:'')+
-      us.map(u=>{const roleSel=`<select id="ar_${esc(u.username)}" style="width:auto;font-size:12px">${(u.type==='Others'?['Accounting','Purchasing']:['Training Co','DSD Cont','Manager']).map(r=>`<option ${u.role===r?'selected':''}>${r}</option>`).join('')}</select>`;
-        const genSel=u.type==='Others'?`<select id="ag_${esc(u.username)}" style="width:auto;font-size:12px">${GENPOS.map(g=>`<option value="${g}" ${u.genpo===g?'selected':''}>${CO[g]}</option>`).join('')}</select>`:'';
-        let actions='';
-        if(u.status==='pending')actions=`<button class="mini" style="color:var(--ok);border-color:var(--ok)" onclick="Admin.approve('${esc(u.username)}')">อนุมัติ</button><button class="mini" style="color:var(--alert);border-color:var(--alert)" onclick="Admin.reject('${esc(u.username)}')">ปฏิเสธ</button>`;
-        else if(u.status==='active'&&!u.admin)actions=`<button class="mini" onclick="Admin.suspend('${esc(u.username)}')">ระงับ</button>`;
-        else if(u.status==='suspended')actions=`<button class="mini" onclick="Admin.suspend('${esc(u.username)}')">คืนสิทธิ์</button>`;
-        else if(u.status==='rejected')actions=`<button class="mini" style="color:var(--ok);border-color:var(--ok)" onclick="Admin.approve('${esc(u.username)}')">อนุมัติ</button>`;
-        const reset=!u.admin?`<button class="mini" onclick="Admin.reset('${esc(u.username)}')">รีเซตรหัส</button>`:'';
-        return`<div class="urow"><div style="flex:1;min-width:180px"><b>${esc(u.username)}</b> ${u.admin?'<span class="chip">Admin</span>':''}<br><span class="note">${esc(u.type)} · ${roleSel} ${genSel}</span></div><span class="tag ${u.status}">${u.status}</span><div style="display:flex;gap:6px;flex-wrap:wrap">${actions}${reset}</div></div>`;
-      }).join('');}
-  const roleOf=u=>{const s=document.getElementById('ar_'+u);return s?s.value:undefined;};
-  const genOf=u=>{const s=document.getElementById('ag_'+u);return s?s.value:undefined;};
-  async function approve(u){try{await api('POST','api/admin/approve',{username:u,role:roleOf(u),genpo:genOf(u)});toast('อนุมัติแล้ว');reload();}catch(e){toast(e.message);}}
-  async function reject(u){if(!confirm('ปฏิเสธคำขอนี้?'))return;try{await api('POST','api/admin/reject',{username:u});reload();}catch(e){toast(e.message);}}
-  async function suspend(u){try{await api('POST','api/admin/suspend',{username:u});reload();}catch(e){toast(e.message);}}
-  async function reset(u){const p=prompt('ตั้งรหัสผ่านใหม่ให้ '+u+' (อย่างน้อย 10 ตัว)');if(p===null)return;if(p.length<10){toast('รหัสผ่านอย่างน้อย 10 ตัว');return;}
-    try{await api('POST','api/admin/reset',{username:u,newPassword:p});toast('รีเซตรหัสผ่านแล้ว');reload();}catch(e){toast(e.message);}}
-  return {render,reload,approve,reject,suspend,reset};
-})();
-
-/* ================= Import (นำเข้าข้อมูลเก่า) — เฉพาะ People Center ================= */
-const Import=(()=>{
-  let app='training',pending=null;
-  const pick=(o,keys)=>{for(const k of keys)if(o[k]!==undefined&&o[k]!==''&&o[k]!==null)return o[k];return undefined;};
-  function toISO(v){if(!v)return '';v=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v;
-    let m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(v);if(m){return `${m[3]}-${String(+m[2]).padStart(2,'0')}-${String(+m[1]).padStart(2,'0')}`;}
-    const d=new Date(v);return isNaN(d)?'':d.toISOString().slice(0,10);}
-  function open(a){app=a;pending=null;
-    const gsel=app==='calendar'?'':`<div class="frow"><label>นำเข้าไปที่บริษัท (Genpo)</label><select id="imGenpo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>`;
-    const hint={training:'รับ array ของหลักสูตร หรือ {courses:[...]} — ฟิลด์ที่อ่าน: name/course, vendor, start, end, count, code',
-      dsd:'รับ array ของรุ่น หรือ {runs:[...]} — ฟิลด์: course/name, code, date, dateEnd, ppl, id, req/status, people(รหัสพนักงาน)',
-      calendar:'รับ array ของกิจกรรม หรือ {events:[...]} — ฟิลด์: title, co, date, end, time, status, note'}[app];
-    openModal(`<h2><span>นำเข้า</span>${app==='training'?'Training':app==='dsd'?'DSD':'Calendar'}</h2>
-      <p class="note" style="margin-bottom:10px">วางข้อมูล JSON จากระบบเดิม แล้วกด "ตรวจสอบ" เพื่อดูตัวอย่างก่อนนำเข้า วันที่รับได้ทั้ง yyyy-mm-dd และ dd/mm/yyyy</p>
-      ${gsel}
-      <div class="frow"><label>ข้อมูล JSON</label><textarea id="imJson" rows="8" placeholder='[ { "name":"...", "start":"2026-05-08", "count":10 } ]'></textarea></div>
-      <div id="imPrev" class="note"></div>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-ghost" onclick="Import.check()">ตรวจสอบ</button><button class="btn btn-red" id="imGo" disabled onclick="Import.run()">นำเข้า</button></div>`);}
-  function parse(){let raw;try{raw=JSON.parse(document.getElementById('imJson').value);}catch(e){throw new Error('JSON ไม่ถูกต้อง: '+e.message);}
-    let arr=Array.isArray(raw)?raw:(raw.courses||raw.runs||raw.events||raw.data||[]);
-    if(!Array.isArray(arr)||!arr.length)throw new Error('ไม่พบรายการข้อมูล');
-    if(app==='training')return arr.map(o=>({name:pick(o,['name','course','title','courseName'])||'(ไม่มีชื่อ)',
-      vendorName:pick(o,['vendorName','vendor','institute','สถาบัน'])||'',start:toISO(pick(o,['start','date','dateStart','startDate'])),
-      end:toISO(pick(o,['end','dateEnd','endDate']))||toISO(pick(o,['start','date'])),count:+pick(o,['count','ppl','people','seats','จำนวน'])||1,
-      cat:pick(o,['cat','category','ประเภท'])||'Public',code:pick(o,['code','trainingCode'])||''}));
-    if(app==='dsd')return arr.map(o=>{let ppl=pick(o,['people','ids','empIds','รหัส']);let people=Array.isArray(ppl)?ppl.map(x=>String(x).trim()).filter(Boolean):(typeof ppl==='string'?ppl.split(/[\n,]/).map(x=>x.trim()).filter(Boolean):[]);
-      let req=String(pick(o,['req','status'])||'').toLowerCase();req=/ok|รับรอง|approve|cert/.test(req)?'ok':/sent|ยื่น|submit/.test(req)?'sent':'none';
-      const id=pick(o,['id','certId','courseId'])||'';return {course:pick(o,['course','name','title'])||'(ไม่มีชื่อ)',code:pick(o,['code','trainingCode'])||'',
-      date:toISO(pick(o,['date','start','dateStart'])),dateEnd:toISO(pick(o,['dateEnd','end'])),ppl:pick(o,['ppl','count','seats'])!==undefined?+pick(o,['ppl','count','seats']):null,
-      id:String(id),req:id?'ok':req,people};});
-    return arr.map(o=>{let co=String(pick(o,['co','company','genpo'])||'HRST').toUpperCase().replace('-','').replace('HRST','HRST');if(!GENPOS.includes(co))co=co.includes('TH')&&co!=='HRST'?'TH':co.includes('EG')?'EGAS':'HRST';
-      let st=String(pick(o,['status'])||'confirmed').toLowerCase();st=['confirmed','tentative','postponed','cancelled'].includes(st)?st:'confirmed';
-      return {title:pick(o,['title','name','course'])||'(ไม่มีชื่อ)',co,date:toISO(pick(o,['date','start'])),end:toISO(pick(o,['end','dateEnd'])),time:pick(o,['time'])||'',status:st,note:pick(o,['note','remark'])||''};});}
-  function check(){try{pending=parse();const sample=pending.slice(0,5).map(x=>'· '+esc(x.name||x.course||x.title||'')+(x.start||x.date?` (${fmtDMY(x.start||x.date)})`:'')).join('<br>');
-    document.getElementById('imPrev').innerHTML=`<div style="background:#F4FAF5;border:1px solid #CBE6D0;border-radius:5px;padding:9px 12px;margin-top:4px"><b>พบ ${pending.length} รายการ</b><br>${sample}${pending.length>5?'<br>…':''}</div>`;
-    document.getElementById('imGo').disabled=false;}catch(e){pending=null;document.getElementById('imGo').disabled=true;document.getElementById('imPrev').innerHTML=`<div class="autherr" style="margin-top:4px">${esc(e.message)}</div>`;}}
-  async function run(){if(!pending)return;const by=state.profile.username;
-    try{
-      if(app==='training'){const g=document.getElementById('imGenpo').value;const s=state.train[g];let no=Math.max(0,...s.courses.map(c=>c.no||0));
-        pending.forEach(p=>{no++;s.courses.push({id:Date.now().toString(36)+no,no,code:p.code||g+'-'+String(no).padStart(3,'0'),name:p.name,co:g,vendorName:p.vendorName,start:p.start,end:p.end,count:p.count,cat:p.cat,people:'',vendor:'none',pr:'none',by,imported:true,steps:{},stepTs:{},stepBy:{},stepRemark:{},docs:{},docBy:{}});});
-        await App.saveTrain(g,'import '+pending.length+' courses');}
-      else if(app==='dsd'){const g=document.getElementById('imGenpo').value;const s=state.dsd[g];
-        pending.forEach((p,i)=>s.runs.push({id_:Date.now().toString(36)+i,code:p.code,co:g,course:p.course,date:p.date,dateEnd:p.dateEnd,dateText:'',ppl:p.ppl,id:p.id,req:p.req,reqDate:'',report:false,dept:false,receipt:false,cert:false,remark:'',people:p.people,by,imported:true}));
-        await App.saveDsd(g,'import '+pending.length+' runs');}
-      else {pending.forEach((p,i)=>state.cal.events.push({id:Date.now().toString(36)+i,title:p.title,co:p.co,date:p.date,end:p.end,time:p.time,status:p.status,note:p.note,by,history:['นำเข้าโดย '+by]}));
-        await App.saveCal('import '+pending.length+' events');}
-      closeModal();App.render();toast('นำเข้า '+pending.length+' รายการแล้ว');
-    }catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message);}}
-  return {open,check,run};
-})();
-
-/* ================= Dashboard (ผู้บริหาร) ================= */
+/* ================= Dashboard ================= */
 const Dash=(()=>{
   const LEAD=30, REPORT=60;
-  const today=()=>new Date().toISOString().slice(0,10);
-  const ISO=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:null;
-  const addD=(s,n)=>{if(!ISO(s))return null;const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
-  const daysTo=s=>ISO(s)?Math.round((new Date(s)-new Date(today()))/864e5):null;
-  const endD=r=>ISO(r.dateEnd)||ISO(r.date);
-  const isPast=r=>!!endD(r)&&endD(r)<today();
-  const reqDue=r=>addD(r.date,-LEAD), reportDue=r=>addD(endD(r),REPORT);
   const MTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   let gfil='ALL';
-
-  const runs=()=>{const o=[];for(const g of Object.keys(state.dsd))for(const r of(state.dsd[g].runs||[]))if(gfil==='ALL'||g===gfil)o.push({r,g});return o;};
-  const courses=()=>App.allCourses().filter(({c})=>gfil==='ALL'||c.co===gfil);
-
-  // ความเสี่ยงตามกฎหมาย
+  const runs=()=>state.runs.filter(r=>gfil==='ALL'||r.co===gfil);
+  const endD=r=>r.dateEnd||r.date;
+  const isPast=r=>!!endD(r)&&endD(r)<todayISO();
+  const reqDue=r=>addD(r.date,-LEAD), reportDue=r=>addD(endD(r),REPORT);
   function risks(){
     const out=[];
-    for(const {r,g} of runs()){
+    for(const r of runs()){
       const rq=r.req||'none';
       if(rq==='none'&&r.date){const d=daysTo(reqDue(r));
-        if(d!==null&&d<0)out.push({r,g,lv:'high',t:`เลยกำหนดยื่นขอรับรอง ${-d} วัน`,due:reqDue(r)});
-        else if(d!==null&&d<=14)out.push({r,g,lv:'mid',t:`ต้องยื่นขอรับรองใน ${d} วัน`,due:reqDue(r)});}
-      if(rq!=='ok'&&isPast(r))out.push({r,g,lv:'high',t:'อบรมไปแล้วแต่ยังไม่ได้รับรองหลักสูตร',due:endD(r)});
+        if(d!==null&&d<0)out.push({r,lv:'high',t:`เลยกำหนดยื่นขอรับรอง ${-d} วัน`,due:reqDue(r)});
+        else if(d!==null&&d<=14)out.push({r,lv:'mid',t:`ต้องยื่นขอรับรองใน ${d} วัน`,due:reqDue(r)});}
+      if(rq!=='ok'&&isPast(r))out.push({r,lv:'high',t:'อบรมไปแล้วแต่ยังไม่ได้รับรองหลักสูตร',due:endD(r)});
       if(rq==='ok'&&isPast(r)&&!r.report){const d=daysTo(reportDue(r));
-        if(d!==null&&d<0)out.push({r,g,lv:'high',t:`เลยกำหนดยื่นรายงาน ${-d} วัน`,due:reportDue(r)});
-        else out.push({r,g,lv:'mid',t:`ต้องยื่นรายงานใน ${d} วัน`,due:reportDue(r)});}
+        if(d!==null&&d<0)out.push({r,lv:'high',t:`เลยกำหนดยื่นรายงาน ${-d} วัน`,due:reportDue(r)});
+        else out.push({r,lv:'mid',t:`ต้องยื่นรายงานใน ${d} วัน`,due:reportDue(r)});}
     }
     const rank={high:0,mid:1};
     return out.sort((a,b)=>rank[a.lv]-rank[b.lv]||(a.due||'').localeCompare(b.due||''));
   }
-
   function render(el){
-    const R=runs(), n=R.length;
-    const certified=R.filter(({r})=>(r.req||'none')==='ok').length;
-    const submitted=R.filter(({r})=>(r.req||'none')!=='none').length;
-    const reported=R.filter(({r})=>r.report).length;
-    const deptOk=R.filter(({r})=>r.dept).length;
-    const closed=R.filter(({r})=>r.receipt&&r.cert).length;
+    const R=runs(), n=R.length, pct=(a,b)=>b?Math.round(a*100/b):0;
+    const certified=R.filter(r=>r.req==='ok').length, certPct=pct(certified,n);
     const rk=risks(), high=rk.filter(x=>x.lv==='high').length, mid=rk.filter(x=>x.lv==='mid').length;
-    const ids=R.flatMap(({r})=>(r.people||[]).map(x=>String(x).trim()).filter(Boolean));
-    const uniq=new Set(ids).size;
-    const pct=(a,b)=>b?Math.round(a*100/b):0;
-    const certPct=pct(certified,n);
+    const ids=R.flatMap(r=>r.people||[]), uniq=new Set(ids).size;
 
-    // funnel
-    const FUN=[['ทั้งหมด',n],['ยื่นขอรับรอง',submitted],['รับรองแล้ว',certified],['ยื่นรายงาน',reported],['กรมอนุมัติ',deptOk],['ปิดเอกสารครบ',closed]];
-    const fw=560, fx=110;
-    const funnel=FUN.map(([lb,v],i)=>{
-      const w=n?Math.max(2,v*fw/n):2, y=i*34+16;
-      return `<text class="fl" x="${fx-10}" y="${y+14}" text-anchor="end">${lb}</text>`+
-        `<rect x="${fx}" y="${y}" width="${w}" height="22" rx="4" fill="${i===0?'#C9C9C9':i<=2?'#CC0000':'#1E8E3E'}" opacity="${i===0?.5:1-i*0.08}"/>`+
-        `<text class="fv" x="${fx+w+8}" y="${y+15}">${v} (${pct(v,n)}%)</text>`;}).join('');
+    const STG=[{k:'noreq',lb:'ยังไม่ยื่นขอรับรอง',c:'#D93025'},
+      {k:'sent',lb:'ยื่นแล้ว รอกรมรับรอง',c:'#E9A13B'},
+      {k:'okwait',lb:'รับรองแล้ว รอยื่นรายงาน',c:'#4A90D9'},
+      {k:'reported',lb:'ยื่นรายงาน รอกรมอนุมัติ',c:'#7E9E3E'},
+      {k:'deptok',lb:'กรมอนุมัติแล้ว รอปิดเอกสาร',c:'#2E9E5B'},
+      {k:'closed',lb:'ปิดเอกสารครบ',c:'#1B6B3A'}];
+    const stageOf=r=>{const rq=r.req||'none';
+      if(rq==='none')return'noreq'; if(rq==='sent')return'sent';
+      if(!r.report)return'okwait'; if(!r.dept)return'reported';
+      return (r.receipt&&r.cert)?'closed':'deptok';};
+    const sc={}; R.forEach(r=>{const k=stageOf(r);sc[k]=(sc[k]||0)+1;});
+    const CX=130,CY=132,RM=76,SW=36,CIRC=2*Math.PI*RM; let off=0;
+    const donut=STG.map(s=>{const v=sc[s.k]||0;if(!v||!n)return'';
+      const len=v*CIRC/n;
+      const e=`<circle cx="${CX}" cy="${CY}" r="${RM}" fill="none" stroke="${s.c}" stroke-width="${SW}" stroke-dasharray="${len.toFixed(2)} ${(CIRC-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${CX} ${CY})"><title>${s.lb}: ${v}</title></circle>`;
+      off+=len;return e;}).join('')||`<circle cx="${CX}" cy="${CY}" r="${RM}" fill="none" stroke="#E8E8E8" stroke-width="${SW}"/>`;
+    const legend=STG.map((s,i)=>{const v=sc[s.k]||0,y=34+i*32;
+      return `<rect x="266" y="${y}" width="12" height="12" rx="3" fill="${s.c}" opacity="${v?1:.28}"/>`+
+        `<text class="fl" x="288" y="${y+11}" ${v?'style="fill:var(--ink)"':''}>${s.lb}</text>`+
+        `<text class="fv" x="612" y="${y+11}" text-anchor="end" ${v?'':'style="fill:var(--none)"'}>${v} · ${pct(v,n)}%</text>`;}).join('');
 
-    // by genpo
-    const rows=GENPOS.map(g=>{
-      const gr=(state.dsd[g]&&state.dsd[g].runs)||[];
-      const c=gr.filter(r=>(r.req||'none')==='ok').length;
-      const ov=gr.filter(r=>((r.req||'none')!=='ok'&&isPast(r))||((r.req||'none')==='none'&&r.date&&daysTo(reqDue(r))<0)||((r.req||'none')==='ok'&&isPast(r)&&!r.report&&daysTo(reportDue(r))<0)).length;
+    const rows=GENPOS.map(g=>{const gr=state.runs.filter(r=>r.co===g);
+      const c=gr.filter(r=>r.req==='ok').length;
+      const ov=gr.filter(r=>(r.req!=='ok'&&isPast(r))||(r.req==='none'&&r.date&&daysTo(reqDue(r))<0)||(r.req==='ok'&&isPast(r)&&!r.report&&daysTo(reportDue(r))<0)).length;
       return {g,n:gr.length,c,ov,p:pct(c,gr.length)};});
 
-    // รายเดือน (ปี Ki ปัจจุบัน เม.ย.–มี.ค.)
-    const nowD=new Date(), kiStart=new Date(nowD.getMonth()>=3?nowD.getFullYear():nowD.getFullYear()-1,3,1);
-    const months=[...Array(12)].map((_,i)=>{const d=new Date(kiStart.getFullYear(),kiStart.getMonth()+i,1);return {y:d.getFullYear(),m:d.getMonth(),key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};});
-    const mData=months.map(mo=>{const mr=R.filter(({r})=>(r.date||'').slice(0,7)===mo.key);
-      return {...mo,tot:mr.length,ok:mr.filter(({r})=>(r.req||'none')==='ok').length};});
+    const nowD=new Date(), kiS=new Date(nowD.getMonth()>=3?nowD.getFullYear():nowD.getFullYear()-1,3,1);
+    const mData=[...Array(12)].map((_,i)=>{const d=new Date(kiS.getFullYear(),kiS.getMonth()+i,1);
+      const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const mr=R.filter(r=>(r.date||'').slice(0,7)===key);
+      return {m:d.getMonth(),tot:mr.length,ok:mr.filter(r=>r.req==='ok').length};});
     const mMax=Math.max(1,...mData.map(x=>x.tot));
-    const bw=44, bars=mData.map((d,i)=>{const x=i*bw+40, h=d.tot*110/mMax, y=150-h, ho=d.ok*110/mMax;
+    const bars=mData.map((d,i)=>{const x=i*44+40,h=d.tot*110/mMax,y=150-h,ho=d.ok*110/mMax;
       return `<rect x="${x}" y="${y}" width="26" height="${h}" rx="3" fill="#E0E0E0"/>`+
         `<rect x="${x}" y="${150-ho}" width="26" height="${ho}" rx="3" fill="#1E8E3E"/>`+
         `<text class="fv" x="${x+13}" y="${y-5}" text-anchor="middle">${d.tot||''}</text>`+
         `<text class="fl" x="${x+13}" y="166" text-anchor="middle">${MTH[d.m]}</text>`;}).join('');
 
-    // training pipeline
-    const CS=courses(), cDone=CS.filter(({c})=>c.steps&&c.steps.dsd).length, cPay=CS.filter(({c})=>c.steps&&c.steps.payment).length;
-
     el.innerHTML=`
-      <style>
-      .dwrap{display:grid;gap:14px}
-      .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
-      .kcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;border-top:3px solid var(--line)}
-      .kcard.ok{border-top-color:var(--ok)}.kcard.bad{border-top-color:var(--alert)}.kcard.warn{border-top-color:var(--wait)}.kcard.neutral{border-top-color:var(--red)}
-      .kcard b{display:block;font-size:30px;font-weight:600;line-height:1.15}
-      .kcard .lb{font-size:12px;color:var(--sub);margin-top:2px}
-      .kcard .sub{font-size:11px;color:var(--none);margin-top:5px}
-      .kcard.bad b{color:var(--alert)}.kcard.ok b{color:var(--ok)}.kcard.warn b{color:var(--wait)}
-      .panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
-      .panel h3{font-size:13px;font-weight:600;margin-bottom:2px}
-      .panel .cap{font-size:11.5px;color:var(--sub);margin-bottom:10px}
-      .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.two{grid-template-columns:1fr}}
-      .fl{font-size:11.5px;fill:var(--sub)}.fv{font-size:11.5px;fill:var(--ink);font-weight:500}
-      .gbar{height:8px;background:var(--line2);border-radius:4px;overflow:hidden;margin-top:5px}
-      .gbar i{display:block;height:100%;background:var(--ok)}
-      .grow{padding:9px 0;border-bottom:1px solid var(--line2)}.grow:last-child{border:none}
-      .rk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line2)}
-      .rk:last-child{border:none}
-      .rk .bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0}
-      .rk.high .bar{background:var(--alert)}.rk.mid .bar{background:var(--wait)}
-      .rk .msg{font-size:12px}.rk.high .msg{color:var(--alert)}.rk.mid .msg{color:var(--wait)}
-      @media print{header,.toolbar,.noprint{display:none!important}main{padding:0}.panel,.kcard{break-inside:avoid}}
-      </style>
       <div class="toolbar noprint">
         <div class="cofil"><button class="${gfil==='ALL'?'on':''}" onclick="Dash.fil('ALL')">ทุกบริษัท</button>${GENPOS.map(g=>`<button class="${gfil===g?'on':''}" onclick="Dash.fil('${g}')">${CO[g]}</button>`).join('')}</div>
-        <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
         <button class="btn btn-ghost" onclick="window.print()">พิมพ์ / บันทึก PDF</button>
-        <span class="note">ข้อมูล ณ ${fmtDMY(today())}</span>
+        <span class="note">ข้อมูลสาธิต ณ ${fmtDMY(todayISO())}</span>
       </div>
       <div class="dwrap">
         <div class="kpi">
@@ -968,31 +278,26 @@ const Dash=(()=>{
           <div class="kcard ${mid?'warn':'ok'}"><b>${mid}</b><div class="lb">ใกล้ครบกำหนด (ภายใน 14 วัน)</div><div class="sub">เฝ้าระวัง</div></div>
           <div class="kcard neutral"><b>${uniq}</b><div class="lb">พนักงานที่ยื่นแล้ว (ไม่ซ้ำ)</div><div class="sub">จากการยื่นรวม ${ids.length} ครั้ง</div></div>
         </div>
-
         <div class="panel">
-          <h3>ขั้นตอนการดำเนินการ DSD</h3>
+          <h3>สถานะการดำเนินการ DSD</h3>
           <div class="cap">ยื่นขอรับรองก่อนอบรม ${LEAD} วัน · ยื่นรายงานหลังอบรมภายใน ${REPORT} วัน</div>
-          <svg width="100%" viewBox="0 0 700 ${FUN.length*34+20}">${funnel}</svg>
+          <svg width="100%" viewBox="0 0 620 244">${donut}
+            <text x="${CX}" y="${CY-4}" text-anchor="middle" style="font-size:26px;font-weight:600;fill:var(--ink)">${n}</text>
+            <text x="${CX}" y="${CY+16}" text-anchor="middle" class="fl">รุ่นอบรม</text>${legend}</svg>
         </div>
-
         <div class="two">
-          <div class="panel">
-            <h3>เปรียบเทียบตามบริษัท</h3>
-            <div class="cap">อัตรารับรองหลักสูตร และรายการค้าง</div>
+          <div class="panel"><h3>เปรียบเทียบตามบริษัท</h3><div class="cap">อัตรารับรองหลักสูตร และรายการค้าง</div>
             ${rows.map(r=>`<div class="grow"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span><span class="co ${r.g}">${CO[r.g]}</span> <span style="color:var(--sub)">${r.c}/${r.n} รุ่น</span></span><span><b>${r.p}%</b>${r.ov?` <span class="chip alert">ค้าง ${r.ov}</span>`:''}</span></div><div class="gbar"><i style="width:${r.p}%;background:${r.p>=90?'var(--ok)':r.p>=70?'var(--wait)':'var(--alert)'}"></i></div></div>`).join('')}
-            <div class="cap" style="margin:12px 0 0">สถานะ Training Tracker (${CS.length} หลักสูตร) · ทำจ่ายแล้ว ${cPay} · ยื่น DSD แล้ว ${cDone}</div>
+            <div class="cap" style="margin:12px 0 0">Training Tracker: ${state.courses.length} หลักสูตร · ยื่น DSD แล้ว ${state.courses.filter(c=>c.steps.dsd).length}</div>
           </div>
-          <div class="panel">
-            <h3>ปริมาณการอบรมรายเดือน (ปี Ki ปัจจุบัน)</h3>
+          <div class="panel"><h3>ปริมาณการอบรมรายเดือน (ปี Ki ปัจจุบัน)</h3>
             <div class="cap">แท่งเขียว = รับรองหลักสูตรแล้ว · เทา = ยังไม่รับรอง</div>
-            <svg width="100%" viewBox="0 0 620 180">${bars}</svg>
-          </div>
+            <svg width="100%" viewBox="0 0 620 180">${bars}</svg></div>
         </div>
-
         <div class="panel">
           <h3>รายการที่ต้องดำเนินการ ${rk.length?`(${rk.length})`:''}</h3>
           <div class="cap">เรียงตามความเร่งด่วน — แดง = เกินกำหนดแล้ว, ส้ม = ใกล้ครบกำหนด</div>
-          ${rk.length?rk.slice(0,15).map(x=>`<div class="rk ${x.lv}"><span class="bar"></span><div style="flex:1"><div style="font-size:13px"><span class="co ${x.g}">${CO[x.g]}</span> ${esc(x.r.course)}</div><div class="msg">${esc(x.t)}${x.due?` · กำหนด ${fmtDMY(x.due)}`:''}</div></div></div>`).join('')+(rk.length>15?`<div class="cap" style="margin-top:8px">และอีก ${rk.length-15} รายการ — ดูทั้งหมดในหน้า DSD Tracker</div>`:''):'<div class="note" style="color:var(--ok)">ไม่มีรายการค้างดำเนินการ</div>'}
+          ${rk.length?rk.slice(0,12).map(x=>`<div class="rk ${x.lv}"><span class="bar"></span><div style="flex:1"><div style="font-size:13px"><span class="co ${x.r.co}">${CO[x.r.co]}</span> ${esc(x.r.course)}</div><div class="msg">${esc(x.t)}${x.due?` · กำหนด ${fmtDMY(x.due)}`:''}</div></div></div>`).join(''):'<div class="note" style="color:var(--ok)">ไม่มีรายการค้างดำเนินการ</div>'}
         </div>
       </div>`;
   }
@@ -1000,14 +305,248 @@ const Dash=(()=>{
   return {render,fil};
 })();
 
+/* ================= Training Tracker ================= */
+const Training=(()=>{
+  const STEPS=[{k:'vendor',nm:'เปิด Vendor'},{k:'register',nm:'สมัครอบรม'},{k:'hbi',nm:'อนุมัติใน HBI'},
+    {k:'pr',nm:'เปิด PR'},{k:'email',nm:'ส่งอีเมลยืนยัน'},{k:'payment',nm:'ทำจ่าย'},{k:'dsd',nm:'ยื่น DSD'}];
+  let gfil='ALL', openId=null;
+  const list=()=>state.courses.filter(c=>gfil==='ALL'||c.co===gfil);
+  function render(el){
+    if(openId)return detail(el);
+    const rows=list().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+    el.innerHTML=`
+      <div class="toolbar">
+        <div class="cofil"><button class="${gfil==='ALL'?'on':''}" onclick="Training.fil('ALL')">ทั้งหมด</button>${GENPOS.map(g=>`<button class="${gfil===g?'on':''}" onclick="Training.fil('${g}')">${CO[g]}</button>`).join('')}</div>
+        <span class="note">คลิกแถวเพื่อดูรายละเอียดและเปิดเอกสารใน SharePoint</span>
+      </div>
+      <table><thead><tr><th>Code</th><th>หลักสูตร / สถาบัน</th><th>วันอบรม</th><th>คน</th><th>ขั้นตอน</th></tr></thead><tbody>
+      ${rows.map(c=>`<tr onclick="Training.open('${esc(c.code)}')" style="cursor:pointer">
+        <td><span class="co ${c.co}">${CO[c.co]}</span><br><span class="code">${esc(c.code)}</span></td>
+        <td class="cname">${esc(c.name)}<br><span style="font-size:11.5px;color:var(--sub)">${esc(c.vendorName)}</span></td>
+        <td class="cdate">${fmtDMY(c.start)}${c.end!==c.start?' – '+fmtDMY(c.end):''}</td>
+        <td>${c.count}</td>
+        <td><div class="dots">${STEPS.map(s=>`<span class="dot ${c.steps[s.k]?'ok':'wait'}" title="${s.nm}"></span>`).join('')}</div></td></tr>`).join('')}
+      </tbody></table>`;
+  }
+  function detail(el){
+    const c=state.courses.find(x=>x.code===openId); if(!c){openId=null;return render(el);}
+    el.innerHTML=`
+      <div class="toolbar"><button class="btn btn-ghost" onclick="Training.close()">← กลับ</button>
+        <span class="co ${c.co}">${CO[c.co]}</span> <span class="code">${esc(c.code)}</span> <b>${esc(c.name)}</b></div>
+      <div class="two">
+        <div class="panel"><h3>ข้อมูลหลักสูตร</h3>
+          <div class="note" style="line-height:2">
+            สถาบัน: ${esc(c.vendorName)}<br>
+            วันอบรม: ${fmtDMY(c.start)}${c.end!==c.start?' – '+fmtDMY(c.end):''}<br>
+            จำนวน: ${c.count} คน<br>
+            เพิ่มโดย: ${esc(c.by)}</div>
+          <div class="sect" style="margin-top:14px"><h3>รายชื่อผู้เข้าอบรม และเอกสาร</h3>
+            <div class="note" style="margin-bottom:9px">รายชื่อผู้เข้าอบรมและไฟล์เอกสารทั้งหมดเก็บใน SharePoint ของบริษัท ไม่ได้เก็บในระบบนี้</div>
+            ${spButton(c.co,c.code)}</div>
+        </div>
+        <div class="panel"><h3>ขั้นตอนดำเนินการ</h3>
+          <div class="cap">ทดลองติ๊กได้ — เป็นการสาธิต ไม่มีการบันทึก</div>
+          ${STEPS.map(s=>`<div class="grow" style="display:flex;align-items:center;gap:10px">
+            <span style="flex:1;font-size:13px">${s.nm}</span>
+            <input type="checkbox" ${c.steps[s.k]?'checked':''} onchange="Training.toggle('${esc(c.code)}','${s.k}',this.checked)" style="width:16px;height:16px;accent-color:var(--red)"></div>`).join('')}
+        </div>
+      </div>`;
+  }
+  function fil(g){gfil=g;App.render();}
+  function open(code){openId=code;App.render();}
+  function close(){openId=null;App.render();}
+  function toggle(code,k,v){const c=state.courses.find(x=>x.code===code);if(c){c.steps[k]=v;App.render();}}
+  return {render,fil,open,close,toggle};
+})();
 
-const SEED=[], CAL_SEED=[];
+/* ================= DSD Tracker ================= */
+const DSD=(()=>{
+  const LEAD=30, REPORT=60;
+  const REQ={none:'ยังไม่ยื่นขอรับรอง',sent:'ยื่นแล้ว รอกรมรับรอง',ok:'รับรองหลักสูตรแล้ว'};
+  const STEPS=[{k:'report',nm:'ยื่นรายงานการฝึก'},{k:'dept',nm:'กรมพัฒฯ อนุมัติรายงาน'},{k:'receipt',nm:'ใบเสร็จ'},{k:'cert',nm:'หนังสือรับรอง'}];
+  let gfil='ALL', openId=null;
+  const list=()=>state.runs.filter(r=>gfil==='ALL'||r.co===gfil);
+  const endD=r=>r.dateEnd||r.date;
+  const isPast=r=>!!endD(r)&&endD(r)<todayISO();
+  const reqDue=r=>addD(r.date,-LEAD), reportDue=r=>addD(endD(r),REPORT);
+  function status(r){
+    const rq=r.req||'none';
+    if(rq==='none'){const d=daysTo(reqDue(r));
+      if(d!==null&&d<0)return{t:'เลยกำหนดยื่นขอรับรอง',cl:'alert'};return{t:'ยังไม่ยื่นขอรับรอง',cl:'alert'};}
+    if(rq==='sent')return{t:'รอกรมรับรอง',cl:'wait'};
+    if(!isPast(r))return{t:'รับรองแล้ว รออบรม',cl:'ok'};
+    if(!r.report){const d=daysTo(reportDue(r));
+      return d!==null&&d<0?{t:`เลยกำหนดยื่นรายงาน ${-d} วัน`,cl:'alert'}:{t:`ต้องยื่นรายงานใน ${d} วัน`,cl:'wait'};}
+    if(!r.dept)return{t:'รอกรมอนุมัติรายงาน',cl:'wait'};
+    if(!(r.receipt&&r.cert))return{t:'รอปิดเอกสาร',cl:'wait'};
+    return{t:'เสร็จสิ้น',cl:'ok'};
+  }
+  function render(el){
+    if(openId)return detail(el);
+    const R=list().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const ids=R.flatMap(r=>r.people||[]), uniq=new Set(ids).size;
+    el.innerHTML=`
+      <div class="toolbar">
+        <div class="cofil"><button class="${gfil==='ALL'?'on':''}" onclick="DSD.fil('ALL')">ทั้งหมด</button>${GENPOS.map(g=>`<button class="${gfil===g?'on':''}" onclick="DSD.fil('${g}')">${CO[g]}</button>`).join('')}</div>
+        <span class="note">รหัสพนักงานในหน้านี้เป็นข้อมูลสมมติ (EMP-xxxx)</span>
+      </div>
+      <div class="kpi" style="margin-bottom:14px">
+        <div class="kcard neutral"><b>${ids.length}</b><div class="lb">ยื่นทั้งหมด (คน·ครั้ง)</div></div>
+        <div class="kcard ok"><b>${uniq}</b><div class="lb">ไม่ซ้ำ (คน)</div></div>
+        <div class="kcard ${ids.length-uniq?'warn':'ok'}"><b>${ids.length-uniq}</b><div class="lb">ซ้ำ (ยื่นเกิน 1 ครั้ง)</div></div>
+      </div>
+      <table><thead><tr><th>บริษัท / Code</th><th>หลักสูตร</th><th>วันอบรม</th><th>คน</th><th>ขอรับรอง</th><th>สถานะ</th></tr></thead><tbody>
+      ${R.map(r=>{const st=status(r),rq=r.req||'none';
+        return `<tr onclick="DSD.open('${esc(r.id_)}')" style="cursor:pointer">
+        <td><span class="co ${r.co}">${CO[r.co]}</span><br><span class="code">${esc(r.code)}</span></td>
+        <td class="cname">${esc(r.course)}</td>
+        <td class="cdate">${fmtDMY(r.date)}${r.dateEnd!==r.date?' – '+fmtDMY(r.dateEnd):''}</td>
+        <td>${r.ppl??''}${(r.people||[]).length?`<br><span style="font-size:11px;color:var(--sub)">${r.people.length} id</span>`:''}</td>
+        <td>${rq==='ok'?`<span class="chip ok">✓ รับรองแล้ว</span><br><span style="font-size:11px;color:var(--sub)">ID ${esc(r.id)}</span>`:rq==='sent'?'<span class="chip wait">ยื่นแล้ว</span>':`<span class="chip alert">✕ ยังไม่ยื่น</span>${r.date?`<br><span style="font-size:11px;color:var(--sub)">ภายใน ${fmtDMY(reqDue(r))}</span>`:''}`}</td>
+        <td><span class="chip ${st.cl}">${st.t}</span></td></tr>`;}).join('')}
+      </tbody></table>`;
+  }
+  function detail(el){
+    const r=state.runs.find(x=>x.id_===openId); if(!r){openId=null;return render(el);}
+    el.innerHTML=`
+      <div class="toolbar"><button class="btn btn-ghost" onclick="DSD.close()">← กลับ</button>
+        <span class="co ${r.co}">${CO[r.co]}</span> <span class="code">${esc(r.code)}</span> <b>${esc(r.course)}</b></div>
+      <div class="two">
+        <div class="panel"><h3>ขอรับรองหลักสูตร (ก่อนอบรม ${LEAD} วัน)</h3>
+          <div class="note" style="line-height:2">สถานะ: <b>${REQ[r.req||'none']}</b><br>
+            ${r.id?`เลข ID รับรอง: <span class="code">${esc(r.id)}</span><br>`:''}
+            วันอบรม: ${fmtDMY(r.date)}${r.dateEnd!==r.date?' – '+fmtDMY(r.dateEnd):''}<br>
+            กำหนดยื่นขอรับรอง: ${fmtDMY(reqDue(r))}<br>
+            กำหนดยื่นรายงาน: ${fmtDMY(reportDue(r))}</div>
+          <div class="sect" style="margin-top:14px"><h3>รายชื่อผู้เข้าอบรม และเอกสาร</h3>
+            <div class="note" style="margin-bottom:9px">เก็บใน SharePoint ของบริษัท ไม่ได้เก็บในระบบนี้</div>
+            ${spButton(r.co,r.code)}</div>
+        </div>
+        <div class="panel"><h3>ขั้นตอนหลังอบรม</h3>
+          <div class="cap">ทดลองติ๊กได้ — เป็นการสาธิต ไม่มีการบันทึก</div>
+          ${STEPS.map(s=>`<div class="grow" style="display:flex;align-items:center;gap:10px">
+            <span style="flex:1;font-size:13px">${s.nm}</span>
+            <input type="checkbox" ${r[s.k]?'checked':''} onchange="DSD.toggle('${esc(r.id_)}','${s.k}',this.checked)" style="width:16px;height:16px;accent-color:var(--red)"></div>`).join('')}
+          <div class="note" style="margin-top:12px">รหัสพนักงานที่ยื่น: ${(r.people||[]).length} รายการ (ข้อมูลสมมติ)</div>
+        </div>
+      </div>`;
+  }
+  function fil(g){gfil=g;App.render();}
+  function open(id){openId=id;App.render();}
+  function close(){openId=null;App.render();}
+  function toggle(id,k,v){const r=state.runs.find(x=>x.id_===id);if(r){r[k]=v;App.render();}}
+  return {render,fil,open,close,toggle};
+})();
 
-/* ================= modal helpers ================= */
-function openModal(html){let m=document.getElementById('modal');if(!m){m=document.createElement('div');m.id='modal';m.className='modal';m.onclick=e=>{if(e.target===m)closeModal();};document.body.appendChild(m);}m.innerHTML=`<div class="mcard">${html}</div>`;m.classList.add('open');}
-function closeModal(){const m=document.getElementById('modal');if(m)m.classList.remove('open');}
+/* ================= Calendar ================= */
+const Calendar=(()=>{
+  const DOW=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  let cur=new Date(), gfil='ALL';
+  const kiOf=d=>(d.getMonth()>=3?d.getFullYear():d.getFullYear()-1)-1923;
+  const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  function render(el){
+    const y=cur.getFullYear(),m=cur.getMonth();
+    const start=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+    const ev=state.events.filter(e=>gfil==='ALL'||e.co===gfil);
+    const curKi=kiOf(cur),kis=[];for(let k=curKi-3;k<=curKi+3;k++)kis.push(k);
+    let cells='';for(let i=0;i<start;i++)cells+='<div class="cal-cell empty"></div>';
+    for(let d=1;d<=days;d++){const ds=ymd(new Date(y,m,d));const de=ev.filter(e=>e.date===ds);
+      cells+=`<div class="cal-cell${ds===todayISO()?' today':''}"><div class="cal-d">${d}</div>${de.map(e=>`<div class="cal-ev" title="${esc(e.title)}"><span class="dotco ${e.co}"></span>${esc(e.title)}</div>`).join('')}</div>`;}
+    const monthEv=ev.filter(e=>(e.date||'').slice(0,7)===`${y}-${String(m+1).padStart(2,'0')}`).sort((a,b)=>a.date.localeCompare(b.date));
+    el.innerHTML=`
+      <style>
+      .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+      .cal-dow{background:#FCFCFC;padding:7px 0;text-align:center;font-size:11px;color:var(--sub);font-weight:500}
+      .cal-cell{background:#fff;min-height:92px;padding:4px 5px;overflow:hidden}.cal-cell.empty{background:#FAFAFA}
+      .cal-cell.today{box-shadow:inset 0 0 0 2px var(--red)}
+      .cal-d{font-size:12px;color:var(--sub);margin-bottom:3px}
+      .cal-ev{font-size:11px;background:#F7F7F7;border-left:3px solid var(--ok);border-radius:3px;padding:2px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .dotco{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px}
+      .dotco.TH{background:var(--c-TH)}.dotco.HRST{background:var(--c-HRST)}.dotco.EGAS{background:var(--c-EGAS)}
+      .agenda{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px}
+      .ag-item{border-left:3px solid var(--ok);padding:6px 9px;margin-bottom:7px;background:#FAFAFA;border-radius:0 5px 5px 0}
+      </style>
+      <div class="toolbar">
+        <button class="btn btn-ghost" onclick="Calendar.move(-1)">‹</button>
+        <div style="font-size:18px;font-weight:600">${MTH[m]} ${y+543}</div>
+        <button class="btn btn-ghost" onclick="Calendar.move(1)">›</button>
+        <select style="width:auto" onchange="Calendar.jumpKi(+this.value)">${kis.map(k=>`<option value="${k}" ${k===curKi?'selected':''}>${k} Ki (เม.ย.${k+1923+543} – มี.ค.${k+1924+543})</option>`).join('')}</select>
+        <button class="btn btn-ghost" onclick="Calendar.today()">วันนี้</button>
+        <div class="cofil"><button class="${gfil==='ALL'?'on':''}" onclick="Calendar.fil('ALL')">ทั้งหมด</button>${GENPOS.map(g=>`<button class="${gfil===g?'on':''}" onclick="Calendar.fil('${g}')">${CO[g]}</button>`).join('')}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
+        <div class="cal-grid">${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${cells}</div>
+        <div class="agenda"><div class="cap" style="font-size:12px;color:var(--sub);margin-bottom:8px">กิจกรรมเดือนนี้ (${monthEv.length})</div>
+          ${monthEv.length?monthEv.map(e=>`<div class="ag-item"><b style="font-size:12.5px">${esc(e.title)}</b><div style="font-size:11px;color:var(--sub)"><span class="dotco ${e.co}"></span>${CO[e.co]} · ${fmtDMY(e.date)} · ${esc(e.time)}</div></div>`).join(''):'<div class="note">ไม่มีกิจกรรม</div>'}</div>
+      </div>`;
+  }
+  function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);App.render();}
+  function today(){cur=new Date();App.render();}
+  function jumpKi(k){cur=new Date(k+1923,3,1);App.render();}
+  function fil(g){gfil=g;App.render();}
+  return {render,move,today,jumpKi,fil};
+})();
 
-/* ================= boot ================= */
+/* ================= ตั้งค่าลิงก์ SharePoint ================= */
+const Settings=(()=>{
+  function render(el){
+    const cfg=spCfg();
+    el.innerHTML=`
+      <div class="okbox">
+        <b>ข้อมูลของคุณอยู่ที่ไหน</b><br>
+        ลิงก์ที่กรอกในหน้านี้ถูกเก็บไว้ใน <b>เบราว์เซอร์เครื่องนี้เท่านั้น</b> (localStorage)
+        ไม่มีการส่งออกไปยังเซิร์ฟเวอร์ใด ๆ — หน้าเว็บนี้ไม่มีการเชื่อมต่อออกภายนอกเลยแม้แต่จุดเดียว
+        ถ้าเปิดจากเครื่องอื่นหรือล้างข้อมูลเบราว์เซอร์ จะต้องกรอกใหม่
+      </div>
+      <div class="warnbox">
+        <b>ข้อควรระวัง</b><br>
+        อย่าพิมพ์ชื่อพนักงาน รหัสพนักงานจริง หรือข้อมูลภายในลงในหน้าเว็บสาธิตนี้
+        เอกสารและรายชื่อทั้งหมดควรอยู่ใน SharePoint ของบริษัทเท่านั้น
+      </div>
+      <div class="panel">
+        <h3>ลิงก์โฟลเดอร์ SharePoint แยกตามบริษัท</h3>
+        <div class="cap">วาง URL ของโฟลเดอร์แม่ที่เก็บเอกสารของแต่ละบริษัท ระบบจะต่อชื่อโฟลเดอร์ย่อยตาม Training Code ให้เอง<br>
+          เช่น วาง <span class="code">.../8.HRST</span> แล้วหลักสูตร <span class="code">HRST-001</span> จะลิงก์ไปที่ <span class="code">.../8.HRST/HRST-001</span><br>
+          รับเฉพาะ URL ที่ขึ้นต้นด้วย https:// เท่านั้น</div>
+        ${GENPOS.map(g=>`<div class="frow"><label>${CO[g]}</label>
+          <input id="sp_${g}" placeholder="https://..." value="${esc(cfg[g]||'')}"></div>`).join('')}
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-red" onclick="Settings.save()">บันทึกลิงก์</button>
+          <button class="btn btn-ghost" onclick="Settings.test()">ทดสอบเปิดลิงก์</button>
+          <button class="btn btn-ghost" style="color:var(--alert);border-color:var(--alert)" onclick="Settings.clear()">ล้างลิงก์ทั้งหมด</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h3>โหมดสาธิตนี้ตัดอะไรออกบ้าง</h3>
+        <div class="note" style="line-height:2">
+          ✕ ไม่มีเซิร์ฟเวอร์ ไม่มี API ไม่มีฐานข้อมูล — เปิดจากไฟล์เดียวจบ<br>
+          ✕ ไม่มีระบบล็อกอิน ไม่มีการเก็บรหัสผ่าน<br>
+          ✕ ไม่มีการอัปโหลดไฟล์ใด ๆ<br>
+          ✕ ไม่มีการเรียกออกอินเทอร์เน็ตเลย (ไม่มีแม้แต่ฟอนต์หรือรูปจากภายนอก)<br>
+          ✓ ข้อมูลที่แสดงทั้งหมดเป็นข้อมูลสมมติ<br>
+          ✓ สิ่งที่แก้ไขในหน้าเว็บจะหายทันทีที่ปิดหรือรีเฟรช
+        </div>
+      </div>`;
+  }
+  function read(){const o={};GENPOS.forEach(g=>{const v=document.getElementById('sp_'+g).value.trim();if(v)o[g]=v;});return o;}
+  function valid(u){try{return new URL(u).protocol==='https:'}catch(e){return false}}
+  function save(){
+    const o=read(); const bad=Object.entries(o).filter(([g,u])=>!valid(u)).map(([g])=>CO[g]);
+    if(bad.length){toast('ลิงก์ต้องขึ้นต้นด้วย https:// — '+bad.join(', '));return;}
+    spSave(o);toast('บันทึกลิงก์แล้ว (เก็บในเครื่องนี้เท่านั้น)');App.render();
+  }
+  function test(){
+    const o=read(); const g=GENPOS.find(x=>o[x]);
+    if(!g){toast('ยังไม่ได้กรอกลิงก์');return;}
+    if(!valid(o[g])){toast('ลิงก์ต้องขึ้นต้นด้วย https://');return;}
+    spSave(o); window.open(spLink(g,'ตัวอย่าง-CODE')||o[g],'_blank','noopener,noreferrer');
+  }
+  function clear(){if(!confirm('ล้างลิงก์ SharePoint ทั้งหมดออกจากเบราว์เซอร์นี้?'))return;
+    localStorage.removeItem(SP_KEY);toast('ล้างแล้ว');App.render();}
+  return {render,save,test,clear};
+})();
+
 App.boot();
 </script>
 </body>
