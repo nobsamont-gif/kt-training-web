@@ -1,0 +1,19 @@
+{
+  "events": [
+    {
+      "id": "mt2dx9ko_c",
+      "code": "TH-001",
+      "title": "Leadership",
+      "co": "TH",
+      "status": "confirmed",
+      "date": "2026-12-01",
+      "end": "2026-02-01",
+      "time": "",
+      "note": "สร้างจาก Training Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก Training โดย Nobsamon 21/08/2026"
+      ]
+    }
+  ]
+}
