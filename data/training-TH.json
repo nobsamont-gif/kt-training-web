@@ -15,9 +15,15 @@
       "vendor": "none",
       "pr": "none",
       "by": "Nobsamon",
-      "steps": {},
-      "stepTs": {},
-      "stepBy": {},
+      "steps": {
+        "register": true
+      },
+      "stepTs": {
+        "register": "21/08/2026"
+      },
+      "stepBy": {
+        "register": "Nobsamon"
+      },
       "stepRemark": {},
       "docs": {},
       "docBy": {}
