@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "username": "Nobsamon",
+      "passHash": "pbkdf2$100000$cVU2gRknOlWMC3nwyBkziw==$LT5qs961aLemG7MS/yWBBID4Y3k0NTmkqKGYnHGRs00=",
+      "type": "People Center",
+      "role": "Training Co",
+      "genpo": null,
+      "status": "active",
+      "admin": true,
+      "createdAt": "2026-08-21T03:21:42.308Z"
+    }
+  ]
+}
