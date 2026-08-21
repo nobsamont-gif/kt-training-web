@@ -273,7 +273,6 @@ const App=(()=>{
   const courseByCode=(code,g)=>(state.train[g]?state.train[g].courses:[]).find(c=>c.code===code);
   const dsdByCode=(code,g)=>(state.dsd[g]?state.dsd[g].runs:[]).find(r=>r.code===code);
   function creators(){const s=new Set();allCourses().forEach(({c})=>c.by&&s.add(c.by));for(const g in state.dsd)(state.dsd[g].runs||[]).forEach(r=>r.by&&s.add(r.by));(state.cal.events||[]).forEach(e=>e.by&&s.add(e.by));return [...s].sort();}
-  // เมื่อเพิ่มหลักสูตรใน Training → เพิ่มกิจกรรมใน Calendar อัตโนมัติ (เฉพาะผู้ที่โหลดปฏิทิน = People Center)
   async function calFromCourse(c){
     if(!state.profile.allAccess)return;
     if((state.cal.events||[]).some(e=>e.code===c.code))return;
@@ -282,7 +281,6 @@ const App=(()=>{
       history:['สร้างจาก Training โดย '+c.by+' '+new Date().toLocaleDateString('en-GB')]});
     try{await saveCal('cal from course '+c.code);}catch(e){}
   }
-  // เมื่อ DSD Cont กดยื่น (sent/ok) → อัปเดตขั้นตอน "ยื่น DSD" ใน Training ให้สอดคล้อง
   async function syncDsdToTraining(run,g){
     const c=courseByCode(run.code,g);if(!c)return;
     const submitted=(run.req==='sent'||run.req==='ok');
@@ -293,7 +291,7 @@ const App=(()=>{
 
   const VIEWS=()=>{const p=state.profile;
     if(!p.allAccess)return[['training','Training Tracker']];
-    const v=[['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
+    const v=[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
     if(p.admin)v.push(['admin','Admin']);return v;};
   function pendingBadge(){return 0;}
   function renderNav(){
@@ -304,7 +302,8 @@ const App=(()=>{
   }
   function go(v){state.view=v;renderNav();render();}
   function render(){const el=document.getElementById('app');
-    if(state.view==='training')Training.render(el);
+    if(state.view==='dashboard')Dashboard.render(el);
+    else if(state.view==='training')Training.render(el);
     else if(state.view==='dsd')DSD.render(el);
     else if(state.view==='calendar')Calendar.render(el);
     else if(state.view==='admin')Admin.render(el);}
@@ -564,7 +563,6 @@ const DSD=(()=>{
   function personStats(runs){const ids=runs.flatMap(r=>(r.people||[]).map(x=>String(x).trim()).filter(Boolean));const counts={};ids.forEach(id=>counts[id]=(counts[id]||0)+1);const unique=Object.keys(counts).length;return {total:ids.length,unique,dup:ids.length-unique,dupIds:Object.keys(counts).filter(id=>counts[id]>1)};}
   const TILES=[['ALL','ทั้งหมด',''],['noreq','ยังไม่ยื่นขอรับรอง','alert'],['waitapv','รอกรมรับรอง','wait'],['noreport','ค้างยื่นรายงาน','alert'],['waitdept','รอกรมอนุมัติรายงาน','wait'],['waitdoc','รอปิดเอกสาร','wait'],['ready','รออบรม','ok'],['done','เสร็จสิ้น','ok']];
 
-  // หลักสูตรจาก Training ที่ยังไม่ถูกดึงเข้า DSD (จับคู่ด้วย code)
   function unlinked(){const out=[];for(const {c,g} of App.allCourses()){if(cofil!=='ALL'&&c.co!==cofil)continue;if(!App.dsdByCode(c.code,g))out.push({c,g});}return out;}
 
   function render(el){
@@ -807,6 +805,178 @@ const Admin=(()=>{
   async function reset(u){const p=prompt('ตั้งรหัสผ่านใหม่ให้ '+u+' (อย่างน้อย 6 ตัว)');if(p===null)return;if(p.length<6){toast('รหัสผ่านอย่างน้อย 6 ตัว');return;}
     try{await api('POST','api/admin/reset',{username:u,newPassword:p});toast('รีเซตรหัสผ่านแล้ว');reload();}catch(e){toast(e.message);}}
   return {render,reload,approve,reject,suspend,reset};
+})();
+/* ================= Dashboard (ภาพรวมสำหรับผู้บริหาร) — เฉพาะ People Center ================= */
+const Dashboard=(()=>{
+  let cofil='ALL';
+  const C_OK='#1E8E3E', C_WAIT='#B26A00', C_ALERT='#D93025', C_NONE='#9AA0A6', C_PROG='#1f3a5f', C_RED='#CC0000';
+
+  /* ---- date helpers (สอดคล้องกับ Training/DSD) ---- */
+  const iso=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:null;
+  const today=()=>new Date().toISOString().slice(0,10);
+  const soon=()=>new Date(Date.now()+7*864e5).toISOString().slice(0,10);
+  const addD=(s,n)=>{if(!iso(s))return null;const d=new Date(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+  const daysToDate=d=>Math.round((d-new Date().setHours(0,0,0,0))/864e5);
+  const nextCutoff=day=>{const n=new Date();n.setHours(0,0,0,0);let d=new Date(n.getFullYear(),n.getMonth(),day);if(d<n)d=new Date(n.getFullYear(),n.getMonth()+1,day);return d;};
+
+  /* ---- Training: จัดหมวดต่อหลักสูตร ---- */
+  const tDone=c=>!!(c.steps&&c.steps.dsd);
+  function tLate(c){if(!c.steps)return false;
+    if(!c.steps.email&&c.start&&c.start<=soon()&&!c.steps.dsd)return true;
+    if(!c.steps.payment&&c.end&&c.end<today())return true;return false;}
+  function tCutoffNear(c){if(c.steps&&c.steps.payment)return false;
+    const miss=((c.pr||'none')==='wait')||!(c.docs&&c.docs.invoice);if(!miss)return false;
+    let day=null;if((c.payRound||'').includes('กลางเดือน'))day=7;else if((c.payRound||'').includes('ปลายเดือน'))day=21;
+    const target=day?nextCutoff(day):(daysToDate(nextCutoff(7))<=daysToDate(nextCutoff(21))?nextCutoff(7):nextCutoff(21));
+    return daysToDate(target)<=7;}
+  function tCat(c){if(tDone(c))return'done';if(tLate(c))return'late';return'prog';}
+
+  /* ---- DSD: bucket ต่อรุ่น ---- */
+  const endD=r=>iso(r.dateEnd)||iso(r.date);
+  const isPast=r=>!!endD(r)&&endD(r)<today();
+  function dBucket(r){if((r.req||'none')==='none')return'noreq';if(r.req==='sent')return'waitapv';
+    if(!r.report)return isPast(r)?'noreport':'ready';if(!r.dept)return'waitdept';if(!r.receipt||!r.cert)return'waitdoc';return'done';}
+  const reqDue=r=>addD(r.date,-30), reportDue=r=>addD(endD(r),60);
+  function personStats(runs){const ids=runs.flatMap(r=>(r.people||[]).map(x=>String(x).trim()).filter(Boolean));
+    const c={};ids.forEach(id=>c[id]=(c[id]||0)+1);const uniq=Object.keys(c).length;
+    return{total:ids.length,unique:uniq,dup:ids.length-uniq};}
+
+  /* ---- scope ตาม Genpo ---- */
+  function trainScope(){const o=[];for(const g of Object.keys(state.train)){if(cofil!=='ALL'&&g!==cofil)continue;for(const c of(state.train[g].courses||[]))o.push({c,g});}return o;}
+  function dsdScope(){const o=[];for(const g of Object.keys(state.dsd)){if(cofil!=='ALL'&&g!==cofil)continue;for(const r of(state.dsd[g].runs||[]))o.push({r,g});}return o;}
+
+  /* ---- donut chart (SVG ล้วน ไม่พึ่งไลบรารีภายนอก) ---- */
+  function donut(segs,{size=168,stroke=30,centerNum,centerLabel='รายการ'}={}){
+    const r=(size-stroke)/2,cx=size/2,cy=size/2,C=2*Math.PI*r;
+    const active=segs.filter(s=>s.value>0);
+    const total=active.reduce((a,s)=>a+s.value,0);
+    if(!total){return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ไม่มีข้อมูล">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EDEDED" stroke-width="${stroke}"/>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="${C_NONE}">ยังไม่มีข้อมูล</text></svg>`;}
+    let off=0,arcs='';
+    for(const s of active){const len=s.value/total*C;
+      arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${esc(s.label)}: ${s.value}</title></circle>`;
+      off+=len;}
+    const num=centerNum!==undefined?centerNum:total;
+    return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img">
+      ${arcs}
+      <text x="${cx}" y="${cy-5}" text-anchor="middle" dominant-baseline="central" font-size="30" font-weight="600" fill="var(--ink)">${esc(String(num))}</text>
+      <text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="11" fill="var(--sub)">${esc(centerLabel)}</text></svg>`;}
+  function legend(segs){const total=segs.reduce((a,s)=>a+s.value,0)||1;
+    return `<div class="dl">${segs.map(s=>`<div class="dl-row"><span class="dl-dot" style="background:${s.color}"></span><span class="dl-lb">${esc(s.label)}</span><b class="dl-vl">${s.value}</b><span class="dl-pc">${Math.round(s.value/total*100)}%</span></div>`).join('')}</div>`;}
+  function chartCard(title,sub,segs,opt){
+    return `<div class="dcard"><div class="dcard-h"><h3>${esc(title)}</h3>${sub?`<span class="dcard-s">${esc(sub)}</span>`:''}</div>
+      <div class="dcard-b"><div class="dchart">${donut(segs,opt)}</div>${legend(segs)}</div></div>`;}
+
+  function render(el){
+    const ts=trainScope(),ds=dsdScope();
+    /* Training หมวด */
+    let tD=0,tP=0,tL=0,tCut=0;
+    ts.forEach(({c})=>{const k=tCat(c);if(k==='done')tD++;else if(k==='late')tL++;else tP++;if(tCutoffNear(c))tCut++;});
+    /* DSD bucket */
+    const bc={noreq:0,waitapv:0,ready:0,noreport:0,waitdept:0,waitdoc:0,done:0};
+    ds.forEach(({r})=>bc[dBucket(r)]++);
+    const dGood=bc.ready+bc.done, dProg=bc.waitapv+bc.waitdept+bc.waitdoc, dRisk=bc.noreq+bc.noreport;
+    /* คน */
+    const ps=personStats(ds.map(x=>x.r));
+
+    /* รายการที่ต้องรีบจัดการ */
+    const concerns=[];
+    ts.forEach(({c,g})=>{
+      if(tLate(c))concerns.push({sev:3,g,kind:'Training',code:c.code,name:c.name,detail:'เลยกำหนด / ใกล้อบรมแต่ยังไม่ยืนยัน',date:c.start});
+      else if(tCutoffNear(c))concerns.push({sev:2,g,kind:'Training',code:c.code,name:c.name,detail:'ใกล้ cut off ทำจ่าย',date:c.start});
+    });
+    ds.forEach(({r,g})=>{const b=dBucket(r);
+      if(b==='noreport'){const d=daysToDate(new Date(reportDue(r)));concerns.push({sev:3,g,kind:'DSD',code:r.code,name:r.course,detail:d<0?`ค้างยื่นรายงาน · เลย ${-d} วัน`:`ค้างยื่นรายงาน · เหลือ ${d} วัน`,date:r.date});}
+      else if(b==='noreq'){const dd=r.date?daysToDate(new Date(reqDue(r))):null;concerns.push({sev:dd!==null&&dd<=0?3:2,g,kind:'DSD',code:r.code,name:r.course,detail:dd!==null?(dd<=0?'เลยกำหนดยื่นขอรับรอง':`ยังไม่ยื่นขอรับรอง · เหลือ ${dd} วัน`):'ยังไม่ยื่นขอรับรอง',date:r.date});}
+    });
+    concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
+
+    const cofilBtns=`<div class="cofil" id="dashCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
+
+    el.innerHTML=`
+    <style>
+      .dash-title{font-size:19px;font-weight:600;margin-bottom:2px}
+      .dash-sub{font-size:12px;color:var(--sub);margin-bottom:14px}
+      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:13px 16px;position:relative;overflow:hidden}
+      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+      .kpi.ok::before{background:${C_OK}}.kpi.wait::before{background:${C_WAIT}}.kpi.alert::before{background:${C_ALERT}}.kpi.red::before{background:${C_RED}}
+      .kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
+      .kpi.ok b{color:${C_OK}}.kpi.wait b{color:${C_WAIT}}.kpi.alert b{color:${C_ALERT}}
+      .kpi span{display:block;font-size:11.5px;color:var(--sub);margin-top:2px}
+      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:18px}
+      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
+      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:8px;margin-bottom:12px}
+      .dcard-h h3{font-size:13px;font-weight:600;color:var(--ink)}
+      .dcard-s{font-size:11px;color:var(--sub)}
+      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:14px;align-items:center}
+      @media(max-width:420px){.dcard-b{grid-template-columns:1fr;justify-items:center}.dl{width:100%}}
+      .dchart{display:flex;justify-content:center}
+      .dl{display:flex;flex-direction:column;gap:6px}
+      .dl-row{display:flex;align-items:center;gap:8px;font-size:12px}
+      .dl-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+      .dl-lb{flex:1;color:var(--ink)}.dl-vl{font-weight:600;min-width:26px;text-align:right}
+      .dl-pc{color:var(--sub);min-width:34px;text-align:right;font-size:11px}
+      .concern{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+      .concern-h{padding:13px 18px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
+      .concern-h h3{font-size:14px;font-weight:600;flex:1}
+      .concern-h .cnt{font-size:12px;color:var(--sub)}
+      .crow{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
+      .crow:last-child{border-bottom:none}
+      .crow.s3{border-left-color:${C_ALERT};background:#FEF7F7}.crow.s2{border-left-color:${C_WAIT};background:#FFFCF5}
+      .crow .ck{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0}
+      .crow .ck.Training{background:#E5EFFA;color:${C_PROG}}.crow .ck.DSD{background:#FDE7E7;color:${C_RED}}
+      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:13px;font-weight:500}
+      .crow .cnm .cd{font-size:11.5px;color:var(--sub)}
+      .crow .cdt{font-size:11.5px;color:var(--sub);white-space:nowrap}
+      .concern-empty{padding:26px;text-align:center;color:${C_OK};font-size:13px}
+    </style>
+    <div class="toolbar">
+      <div><div class="dash-title">ภาพรวมงานฝึกอบรม</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'ทุกบริษัท':CO[cofil]}</div></div>
+      <div class="spacer" style="flex:1"></div>
+      ${cofilBtns}
+      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi ok"><b>${tD}</b><span>อบรมเสร็จสิ้น (ครบขั้นตอน)</span></div>
+      <div class="kpi alert"><b>${tL}</b><span>รายการเสี่ยง / เลยกำหนด</span></div>
+      <div class="kpi wait"><b>${tCut}</b><span>ใกล้ cut off ทำจ่าย</span></div>
+      <div class="kpi alert"><b>${bc.noreq}</b><span>DSD ยังไม่ยื่นขอรับรอง</span></div>
+      <div class="kpi alert"><b>${bc.noreport}</b><span>DSD ค้างยื่นรายงาน</span></div>
+      <div class="kpi ok"><b>${ps.unique}</b><span>พนักงานที่อบรม (ไม่ซ้ำ)</span></div>
+    </div>
+
+    <div class="dgrid">
+      ${chartCard('ความคืบหน้า Training','แยกตามสถานะหลักสูตร',[
+        {label:'เสร็จสิ้น',value:tD,color:C_OK},
+        {label:'กำลังดำเนินการ',value:tP,color:C_PROG},
+        {label:'เสี่ยง / เลยกำหนด',value:tL,color:C_ALERT}],{centerLabel:'หลักสูตร'})}
+      ${chartCard('สถานะ DSD','รับรอง · ดำเนินการ · น่ากังวล',[
+        {label:'รับรองแล้ว / เสร็จสิ้น',value:dGood,color:C_OK},
+        {label:'กำลังดำเนินการ',value:dProg,color:C_WAIT},
+        {label:'ยังไม่รับรอง / ค้างรายงาน',value:dRisk,color:C_ALERT}],{centerLabel:'รุ่น'})}
+      ${chartCard('พนักงานที่ยื่น DSD','นับจากรหัสพนักงานทั้งหมด',[
+        {label:'ไม่ซ้ำ (คน)',value:ps.unique,color:C_OK},
+        {label:'ซ้ำ (ยื่นเกิน 1 ครั้ง)',value:ps.dup,color:C_ALERT}],{centerNum:ps.total,centerLabel:'คน·ครั้ง'})}
+    </div>
+
+    <div class="concern">
+      <div class="concern-h"><h3>⚠ รายการที่ต้องรีบจัดการ</h3><span class="cnt">${concerns.length} รายการ</span></div>
+      ${concerns.length?concerns.slice(0,15).map(c=>`
+        <div class="crow s${c.sev}">
+          <span class="ck ${c.kind}">${c.kind}</span>
+          <span class="co ${c.g}">${CO[c.g]}</span>
+          <div class="cnm"><b>${esc(c.code||'')} ${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div>
+          <span class="cdt">${c.date?fmtDMY(c.date):'—'}</span>
+        </div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">และอีก ${concerns.length-15} รายการ</div>`:'')
+      :'<div class="concern-empty">✓ ไม่มีรายการเร่งด่วน ทุกอย่างอยู่ในกำหนด</div>'}
+    </div>`;
+
+    el.querySelectorAll('#dashCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
+  }
+  return {render};
 })();
 
 /* ================= Import (นำเข้าข้อมูลเก่า) — เฉพาะ People Center ================= */
