@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "id_": "mt2dzlf5",
+      "code": "TH-001",
+      "co": "TH",
+      "course": "Leadership",
+      "date": "2026-12-01",
+      "dateEnd": "2026-02-01",
+      "dateText": "",
+      "ppl": 1,
+      "id": "",
+      "req": "none",
+      "reqDate": "",
+      "report": false,
+      "dept": false,
+      "receipt": false,
+      "cert": false,
+      "remark": "ดึงจาก Training",
+      "people": [],
+      "by": "Nobsamon",
+      "source": "training"
+    }
+  ]
+}
