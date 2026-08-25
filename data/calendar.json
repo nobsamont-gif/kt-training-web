@@ -15,6 +15,21 @@
         "สร้างจาก Training โดย Nobsamon 21/08/2026",
         "แก้ไขโดย Nobsamon 21/08/2026 10:26"
       ]
+    },
+    {
+      "id": "mt7ynsu0_c",
+      "code": "EGAS-001",
+      "title": "[Test] Course #1",
+      "co": "EGAS",
+      "status": "confirmed",
+      "date": "2026-08-28",
+      "end": "",
+      "time": "",
+      "note": "สร้างจาก Training Tracker",
+      "by": "ta008955",
+      "history": [
+        "สร้างจาก Training โดย ta008955 25/08/2026"
+      ]
     }
   ]
 }
