@@ -9,6 +9,16 @@
       "status": "active",
       "admin": true,
       "createdAt": "2026-08-21T03:21:42.308Z"
+    },
+    {
+      "username": "ta008955",
+      "passHash": "pbkdf2$100000$UE+LqGnYGoBtq8tg8M+s1g==$FpSHMkuM2JPq5Q37fNaJnmY2Htb21DrTkPkqfycZodI=",
+      "type": "People Center",
+      "role": "Training Co",
+      "genpo": null,
+      "status": "pending",
+      "admin": false,
+      "createdAt": "2026-08-25T00:57:37.561Z"
     }
   ]
 }
