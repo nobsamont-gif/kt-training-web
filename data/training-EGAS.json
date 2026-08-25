@@ -15,9 +15,15 @@
       "vendor": "none",
       "pr": "none",
       "by": "ta008955",
-      "steps": {},
-      "stepTs": {},
-      "stepBy": {},
+      "steps": {
+        "hbi": true
+      },
+      "stepTs": {
+        "hbi": "25/08/2026"
+      },
+      "stepBy": {
+        "hbi": "ta008955"
+      },
       "stepRemark": {},
       "docs": {},
       "docBy": {}
