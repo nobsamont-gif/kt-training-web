@@ -17,15 +17,18 @@
       "by": "ta008955",
       "steps": {
         "hbi": false,
-        "register": true
+        "register": true,
+        "email": true
       },
       "stepTs": {
         "hbi": null,
-        "register": "25/08/2026"
+        "register": "25/08/2026",
+        "email": "25/08/2026"
       },
       "stepBy": {
         "hbi": null,
-        "register": "ta008955"
+        "register": "ta008955",
+        "email": "ta008955"
       },
       "stepRemark": {},
       "docs": {},
