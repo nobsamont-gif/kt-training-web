@@ -13,7 +13,7 @@
       "cat": "Inhouse",
       "people": "",
       "vendor": "none",
-      "pr": "none",
+      "pr": "ok",
       "by": "ta008955",
       "steps": {
         "hbi": false,
@@ -29,7 +29,8 @@
       },
       "stepRemark": {},
       "docs": {},
-      "docBy": {}
+      "docBy": {},
+      "prBy": "ta008955"
     }
   ]
 }
