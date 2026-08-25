@@ -17,21 +17,21 @@
       "by": "ta008955",
       "steps": {
         "hbi": false,
-        "register": false,
+        "register": true,
         "email": false,
         "payment": true,
         "dsd": false
       },
       "stepTs": {
         "hbi": null,
-        "register": null,
+        "register": "25/08/2026",
         "email": null,
         "payment": "25/08/2026",
         "dsd": null
       },
       "stepBy": {
         "hbi": null,
-        "register": null,
+        "register": "ta008955",
         "email": null,
         "payment": "ta008955",
         "dsd": null
