@@ -1,0 +1,26 @@
+{
+  "courses": [
+    {
+      "id": "mt7ynr5u",
+      "no": 1,
+      "code": "EGAS-001",
+      "name": "[Test] Course #1",
+      "co": "EGAS",
+      "vendorName": "ABC",
+      "start": "2026-08-28",
+      "end": "2026-08-28",
+      "count": 30,
+      "cat": "Inhouse",
+      "people": "",
+      "vendor": "none",
+      "pr": "none",
+      "by": "ta008955",
+      "steps": {},
+      "stepTs": {},
+      "stepBy": {},
+      "stepRemark": {},
+      "docs": {},
+      "docBy": {}
+    }
+  ]
+}
