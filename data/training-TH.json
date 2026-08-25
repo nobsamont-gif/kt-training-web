@@ -16,13 +16,13 @@
       "pr": "none",
       "by": "Nobsamon",
       "steps": {
-        "register": true
+        "register": false
       },
       "stepTs": {
-        "register": "21/08/2026"
+        "register": null
       },
       "stepBy": {
-        "register": "Nobsamon"
+        "register": null
       },
       "stepRemark": {},
       "docs": {},
