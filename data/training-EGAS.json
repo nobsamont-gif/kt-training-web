@@ -41,7 +41,8 @@
       "docBy": {},
       "prBy": "ta008955",
       "price": 800,
-      "invoiceNo": "egas-1234/2026"
+      "invoiceNo": "egas-1234/2026",
+      "invoiceDue": "2026-08-28"
     }
   ]
 }
