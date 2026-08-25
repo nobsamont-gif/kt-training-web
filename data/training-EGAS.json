@@ -20,21 +20,21 @@
         "register": true,
         "email": true,
         "payment": true,
-        "dsd": true
+        "dsd": false
       },
       "stepTs": {
         "hbi": null,
         "register": "25/08/2026",
         "email": "25/08/2026",
         "payment": "25/08/2026",
-        "dsd": "25/08/2026"
+        "dsd": null
       },
       "stepBy": {
         "hbi": null,
         "register": "ta008955",
         "email": "ta008955",
         "payment": "ta008955",
-        "dsd": "ta008955"
+        "dsd": null
       },
       "stepRemark": {},
       "docs": {
