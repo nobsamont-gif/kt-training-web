@@ -16,13 +16,16 @@
       "pr": "none",
       "by": "Nobsamon",
       "steps": {
-        "register": false
+        "register": false,
+        "dsd": true
       },
       "stepTs": {
-        "register": null
+        "register": null,
+        "dsd": "25/08/2026"
       },
       "stepBy": {
-        "register": null
+        "register": null,
+        "dsd": "ta008955"
       },
       "stepRemark": {},
       "docs": {},
