@@ -16,21 +16,21 @@
       "pr": "ok",
       "by": "ta008955",
       "steps": {
-        "hbi": false,
+        "hbi": true,
         "register": true,
         "email": true,
         "payment": true,
         "dsd": false
       },
       "stepTs": {
-        "hbi": null,
+        "hbi": "25/08/2026",
         "register": "25/08/2026",
         "email": "25/08/2026",
         "payment": "25/08/2026",
         "dsd": null
       },
       "stepBy": {
-        "hbi": null,
+        "hbi": "ta008955",
         "register": "ta008955",
         "email": "ta008955",
         "payment": "ta008955",
