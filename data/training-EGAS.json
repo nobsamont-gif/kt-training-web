@@ -16,13 +16,16 @@
       "pr": "none",
       "by": "ta008955",
       "steps": {
-        "hbi": false
+        "hbi": false,
+        "register": true
       },
       "stepTs": {
-        "hbi": null
+        "hbi": null,
+        "register": "25/08/2026"
       },
       "stepBy": {
-        "hbi": null
+        "hbi": null,
+        "register": "ta008955"
       },
       "stepRemark": {},
       "docs": {},
