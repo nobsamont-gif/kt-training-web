@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "id_": "mt9tcz5y",
+      "code": "EGAS-001",
+      "co": "EGAS",
+      "course": "[Test] Course #1",
+      "date": "2026-08-28",
+      "dateEnd": "2026-08-28",
+      "dateText": "",
+      "ppl": 30,
+      "id": "",
+      "req": "none",
+      "reqDate": "",
+      "report": false,
+      "dept": false,
+      "receipt": false,
+      "cert": false,
+      "remark": "ดึงจาก Training",
+      "people": [],
+      "by": "Nobsamon",
+      "source": "training"
+    }
+  ]
+}
