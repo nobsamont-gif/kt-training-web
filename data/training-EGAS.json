@@ -38,10 +38,12 @@
       },
       "stepRemark": {},
       "docs": {
-        "payproof": "EGAS-001_หลักฐานการชำระเงิน.pdf"
+        "payproof": "EGAS-001_หลักฐานการชำระเงิน.pdf",
+        "invoice": "EGAS-001_Invoice.pdf"
       },
       "docBy": {
-        "payproof": "ta008955 25/08/2026"
+        "payproof": "ta008955 25/08/2026",
+        "invoice": "Nobsamon 27/08/2026"
       },
       "prBy": "ta008955",
       "price": 800,
