@@ -309,21 +309,26 @@ const App=(()=>{
     document.getElementById('appShell').classList.add('hide');document.getElementById('auth').classList.remove('hide');resetAuth();if(msg)renderAuth(msg);}
 
   /* ---------- data layer ---------- */
-  async function loadData(){
-    sync('กำลังโหลด…');const gs=scopeGenpos();
-    if(state.profile.deptNav==='VWP'){
-      state.vwp={};state.resign={};
-      for(const g of gs){const v=await api('GET','api/data?file=vwp-'+g);state.vwp[g]={people:(v.json&&v.json.people)||[],sha:v.sha};
-        const r=await api('GET','api/data?file=resign-'+g);state.resign[g]={items:(r.json&&r.json.items)||[],sha:r.sha};}
-      const c=await api('GET','api/data?file=calendar-vwp');state.vwpcal={events:(c.json&&c.json.events)||[],sha:c.sha};
-      sync('ซิงค์ล่าสุด '+nowStamp());return;
-    }
-    state.train={};state.dsd={};
+  async function loadTrainSide(){
+    const gs=scopeGenpos();state.train={};
     for(const g of gs){const t=await api('GET','api/data?file=training-'+g);state.train[g]={courses:(t.json&&t.json.courses)||[],sha:t.sha};}
     if(state.profile.allAccess){
+      state.dsd={};
       for(const g of gs){const d=await api('GET','api/data?file=dsd-'+g);state.dsd[g]={runs:(d.json&&d.json.runs)||[],sha:d.sha};}
       const c=await api('GET','api/data?file=calendar');state.cal={events:(c.json&&c.json.events)||[],sha:c.sha};
     }
+  }
+  async function loadVwpSide(){
+    const gs=scopeGenpos();state.vwp={};state.resign={};
+    for(const g of gs){const v=await api('GET','api/data?file=vwp-'+g);state.vwp[g]={people:(v.json&&v.json.people)||[],sha:v.sha};
+      const r=await api('GET','api/data?file=resign-'+g);state.resign[g]={items:(r.json&&r.json.items)||[],sha:r.sha};}
+    const c=await api('GET','api/data?file=calendar-vwp');state.vwpcal={events:(c.json&&c.json.events)||[],sha:c.sha};
+  }
+  async function loadData(){
+    sync('กำลังโหลด…');
+    if(state.profile.admin&&state.profile.allAccess){await loadTrainSide();await loadVwpSide();}
+    else if(state.profile.deptNav==='VWP'){await loadVwpSide();}
+    else{await loadTrainSide();}
     sync('ซิงค์ล่าสุด '+nowStamp());
   }
   async function reloadGenpo(app,g){const r=await api('GET','api/data?file='+app+'-'+g);
@@ -394,9 +399,11 @@ const App=(()=>{
 
   const VIEWS=()=>{const p=state.profile;
     if(!p.allAccess)return[['training','Training Tracker']];
-    if(p.deptNav==='VWP'){const v=[['vwpdash','Dashboard'],['vwp','Visa & Work Permit'],['resign','Resignation / Retirement'],['vwpcal','Calendar']];if(p.admin)v.push(['admin','Admin']);return v;}
-    const v=[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];
-    if(p.admin)v.push(['admin','Admin']);return v;};
+    if(p.admin){return[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar'],
+      ['vwpdash','VWP Dashboard'],['vwp','Visa & Work Permit'],['resign','Resignation / Retirement'],['vwpcal','VWP Calendar'],
+      ['admin','Admin']];}
+    if(p.deptNav==='VWP')return[['vwpdash','Dashboard'],['vwp','Visa & Work Permit'],['resign','Resignation / Retirement'],['vwpcal','Calendar']];
+    return[['dashboard','Dashboard'],['training','Training Tracker'],['dsd','DSD Tracker'],['calendar','Calendar']];};
   function pendingBadge(){return 0;}
   function renderNav(){
     document.getElementById('nav').innerHTML=VIEWS().map(([k,t])=>`<button class="${state.view===k?'on':''}" onclick="App.go('${k}')">${t}</button>`).join('');
