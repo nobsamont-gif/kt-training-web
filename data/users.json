@@ -28,9 +28,11 @@
       "type": "Training & Engagement",
       "role": "Training Co",
       "genpo": null,
-      "status": "pending",
+      "status": "active",
       "admin": false,
-      "createdAt": "2026-08-27T12:16:43.580Z"
+      "createdAt": "2026-08-27T12:16:43.580Z",
+      "approvedBy": "Nobsamon",
+      "approvedAt": "2026-08-27T12:16:58.334Z"
     }
   ]
 }
