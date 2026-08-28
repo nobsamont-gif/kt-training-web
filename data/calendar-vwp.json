@@ -53,6 +53,19 @@
       "history": [
         "สร้างจาก สัญญาที่พัก โดย Nobsamon 28/08/2026"
       ]
+    },
+    {
+      "id": "mtciytlu_re0cl",
+      "kind": "resignation",
+      "refId": "mtciysh1",
+      "title": "ลาออก: Tanaka Yama",
+      "co": "TH",
+      "date": "2026-10-30",
+      "note": "สร้างจาก Resignation/Retirement Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างโดย Nobsamon 28/08/2026"
+      ]
     }
   ]
 }
