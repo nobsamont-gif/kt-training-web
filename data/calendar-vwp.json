@@ -25,6 +25,32 @@
       "history": [
         "สร้างจาก สัญญาที่พัก โดย Nobsamon 28/08/2026"
       ]
+    },
+    {
+      "id": "mtcix2op_visa4xtb",
+      "kind": "visa",
+      "refId": "mtcix1rg",
+      "title": "Visa/WP หมดอายุ: Satori Ito",
+      "co": "TH",
+      "date": "2026-12-12",
+      "note": "สร้างจาก Visa & Work Permit Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก Visa/Work Permit โดย Nobsamon 28/08/2026"
+      ]
+    },
+    {
+      "id": "mtcix2op_apartment17dk",
+      "kind": "apartment",
+      "refId": "mtcix1rg",
+      "title": "ที่พักหมดสัญญา: Satori Ito",
+      "co": "TH",
+      "date": "2028-01-30",
+      "note": "สร้างจาก Visa & Work Permit Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก สัญญาที่พัก โดย Nobsamon 28/08/2026"
+      ]
     }
   ]
 }
