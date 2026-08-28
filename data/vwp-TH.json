@@ -1,0 +1,21 @@
+{
+  "people": [
+    {
+      "id": "mtciujh7",
+      "no": 1,
+      "name": "Yamada Ito",
+      "empType": "employee",
+      "relatedTo": "",
+      "co": "TH",
+      "position": "Staff",
+      "visaNo": "",
+      "visaExpiry": "2027-12-12",
+      "visaRemark": "",
+      "aptAddress": "",
+      "aptExpiry": "2028-01-30",
+      "aptRemark": "",
+      "remark": "",
+      "by": "Nobsamon"
+    }
+  ]
+}
