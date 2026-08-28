@@ -1,0 +1,30 @@
+{
+  "events": [
+    {
+      "id": "mtciukky_visa97of",
+      "kind": "visa",
+      "refId": "mtciujh7",
+      "title": "Visa/WP หมดอายุ: Yamada Ito",
+      "co": "TH",
+      "date": "2027-12-12",
+      "note": "สร้างจาก Visa & Work Permit Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก Visa/Work Permit โดย Nobsamon 28/08/2026"
+      ]
+    },
+    {
+      "id": "mtciukl0_apartmentrkye",
+      "kind": "apartment",
+      "refId": "mtciujh7",
+      "title": "ที่พักหมดสัญญา: Yamada Ito",
+      "co": "TH",
+      "date": "2028-01-30",
+      "note": "สร้างจาก Visa & Work Permit Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก สัญญาที่พัก โดย Nobsamon 28/08/2026"
+      ]
+    }
+  ]
+}
