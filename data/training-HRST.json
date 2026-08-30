@@ -1,0 +1,26 @@
+{
+  "courses": [
+    {
+      "id": "mtfgcxd7",
+      "no": 1,
+      "code": "HRST-001",
+      "name": "Leadership",
+      "co": "HRST",
+      "vendorName": "NNN",
+      "start": "",
+      "end": "",
+      "count": 1,
+      "cat": "Public",
+      "people": "cc",
+      "vendor": "none",
+      "pr": "none",
+      "by": "Nobsamon",
+      "steps": {},
+      "stepTs": {},
+      "stepBy": {},
+      "stepRemark": {},
+      "docs": {},
+      "docBy": {}
+    }
+  ]
+}
