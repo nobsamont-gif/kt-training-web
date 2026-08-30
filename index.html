@@ -31,6 +31,17 @@ label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px}
 .co.TH{background:#E5EFFA;color:var(--c-TH)}.co.HRST{background:#FDE7E7;color:var(--red)}.co.EGAS{background:#E6F4EA;color:var(--c-EGAS)}
 .by{font-size:10.5px;color:var(--none)}
 
+/* ---- participant "chip" box (Training tracker attendee list) ---- */
+.chipbox{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--line);border-radius:4px;padding:6px 8px;background:#fff;min-height:40px}
+.chipbox:focus-within{outline:2px solid var(--red);outline-offset:-1px;border-color:transparent}
+.chip.person{display:inline-flex;align-items:center;gap:5px;background:#E5EFFA;color:var(--c-TH);padding:3px 4px 3px 10px;font-size:12px;font-weight:400;border-radius:12px;white-space:nowrap}
+.chip.person .cplbl{cursor:pointer}
+.chip.person .cplbl:hover{text-decoration:underline}
+.chipx{background:none;border:none;color:inherit;opacity:.55;cursor:pointer;font-size:14px;line-height:1;padding:2px 4px}
+.chipx:hover{opacity:1}
+.chipbox input{border:none;outline:none;flex:1;min-width:140px;padding:4px 2px;font-size:13px;background:transparent}
+.chiphint{font-size:11px;color:var(--sub);margin-top:4px}
+
 #auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .authcard{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--red);border-radius:8px;width:min(420px,100%);padding:26px 30px;box-shadow:0 10px 40px rgba(0,0,0,.06)}
 .authlogo{height:30px;margin-bottom:12px}
@@ -145,7 +156,7 @@ tbody tr.late{box-shadow:inset 3px 0 0 var(--alert)}
 <aside id="drawer"></aside>
 <div id="toast"></div>
 <script>
-const LOGO="data:image/png;base64,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";
+const LOGO="data:image/png;base64,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"
 const API_KEY='kt_api', TOK_KEY='kt_token', PROF_KEY='kt_profile';
 const GENPOS=['TH','HRST','EGAS'], CO={TH:'TH',HRST:'HRS-T',EGAS:'EG-AS'};
 /* ---- Departments & roles ---- */
@@ -172,13 +183,13 @@ function expiryStatus(dateIso){
 }
 /* ---- shared dashboard colors / chart helpers (used by Dashboard & VWPDashboard) ---- */
 const C_OK='#1E8E3E', C_WAIT='#B26A00', C_ALERT='#D93025', C_NONE='#9AA0A6', C_PROG='#1f3a5f', C_RED='#CC0000';
-function donut(segs,{size=168,stroke=30,centerNum,centerLabel='รายการ'}={}){
+function donut(segs,{size=168,stroke=30,centerNum,centerLabel='Items'}={}){
   const r=(size-stroke)/2,cx=size/2,cy=size/2,C=2*Math.PI*r;
   const active=segs.filter(s=>s.value>0);
   const total=active.reduce((a,s)=>a+s.value,0);
-  if(!total){return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ไม่มีข้อมูล">
+  if(!total){return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="No data">
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EDEDED" stroke-width="${stroke}"/>
-    <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="${C_NONE}">ยังไม่มีข้อมูล</text></svg>`;}
+    <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${C_NONE}">No data yet</text></svg>`;}
   let off=0,arcs='';
   for(const s of active){const len=s.value/total*C;
     arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${esc(s.label)}: ${s.value}</title></circle>`;
@@ -186,8 +197,8 @@ function donut(segs,{size=168,stroke=30,centerNum,centerLabel='รายกา�
   const num=centerNum!==undefined?centerNum:total;
   return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img">
     ${arcs}
-    <text x="${cx}" y="${cy-5}" text-anchor="middle" dominant-baseline="central" font-size="30" font-weight="600" fill="var(--ink)">${esc(String(num))}</text>
-    <text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="11" fill="var(--sub)">${esc(centerLabel)}</text></svg>`;}
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" dominant-baseline="central" font-size="33" font-weight="600" fill="var(--ink)">${esc(String(num))}</text>
+    <text x="${cx}" y="${cy+19}" text-anchor="middle" font-size="12" fill="var(--sub)">${esc(centerLabel)}</text></svg>`;}
 function legend(segs){const total=segs.reduce((a,s)=>a+s.value,0)||1;
   return `<div class="dl">${segs.map(s=>`<div class="dl-row"><span class="dl-dot" style="background:${s.color}"></span><span class="dl-lb">${esc(s.label)}</span><b class="dl-vl">${s.value}</b><span class="dl-pc">${Math.round(s.value/total*100)}%</span></div>`).join('')}</div>`;}
 function chartCard(title,sub,segs,opt){
@@ -232,7 +243,6 @@ async function api(method,ep,body){
   return j;
 }
 const scopeGenpos=()=>state.profile.allAccess?[...GENPOS]:[state.profile.genpo];
-
 /* ================= App: auth, shell, data layer ================= */
 const App=(()=>{
   let authStep={type:null,role:null,genpo:null,mode:'login'};
@@ -433,7 +443,6 @@ const App=(()=>{
     allCourses,courseByCode,dsdByCode,creators,calFromCourse,syncDsdToTraining,
     allVwp,allResignItems,vwpCalFromPerson,vwpCalFromResign};
 })();
-
 /* ================= Training Tracker ================= */
 const Training=(()=>{
   const VTXT={none:'ไม่ต้องเปิด',wait_docs:'รอเอกสารจาก Vendor',review:'พิจารณาเอกสาร',ok:'เสร็จสิ้น'};
@@ -475,6 +484,85 @@ E-Mail : nobsatha@honda.th.com`;
   function riskScore(c){let r=0;if(isLate(c))r+=100;const i=cutoffInfo(c);if(i)r+=i.days<=0?80:i.days<=3?60:i.days<=7?40:10;if(!c.steps.dsd&&!r)r+=1;return r;}
   const dr=c=>c.start===c.end?fmtDMY(c.start):(fmtDMY(c.start)+' – '+fmtDMY(c.end));
 
+  /* ---- ผู้เข้าอบรม: เก็บเป็น array ของชื่อ (แทน textarea เดิม) เพื่อให้นับจำนวนได้ + ใช้ค้นประวัติรายบุคคล ---- */
+  function peopleArr(c){
+    if(Array.isArray(c.people))return c.people;
+    if(typeof c.people==='string')return c.people.split('\n').map(s=>s.trim()).filter(Boolean);
+    return [];
+  }
+  let addPeople=[];
+  function chipsHtml(arr,removeFn,clickable){
+    return arr.map((p,i)=>clickable
+      ?`<span class="chip person" data-name="${esc(p)}"><span class="cplbl" onclick="Training.chipView(this)" title="ดูประวัติการอบรม">${esc(p)}</span><button type="button" class="chipx" onclick="${removeFn}(${i})">×</button></span>`
+      :`<span class="chip person"><span>${esc(p)}</span><button type="button" class="chipx" onclick="${removeFn}(${i})">×</button></span>`
+    ).join('');
+  }
+  function renderAddPeople(){
+    const box=document.getElementById('aPeopleBox');if(!box)return;
+    const keepInp=document.getElementById('aPeopleInput');const keep=keepInp?keepInp.value:'';
+    box.innerHTML=chipsHtml(addPeople,'Training.removeAddPerson',false)
+      +`<input type="text" id="aPeopleInput" placeholder="พิมพ์ชื่อแล้วกด Enter หรือ ," value="${esc(keep)}" onkeydown="Training.addPersonKey(event)">`;
+    const cnt=document.getElementById('aPeopleCount');if(cnt)cnt.textContent=addPeople.length;
+    const inp=document.getElementById('aPeopleInput');if(inp)inp.focus();
+  }
+  function addPersonKey(e){
+    if(e.key==='Enter'||e.key===','){e.preventDefault();
+      const v=e.target.value.trim().replace(/,$/,'');
+      if(v)addPeople.push(v);
+      renderAddPeople();
+    }
+  }
+  function removeAddPerson(i){addPeople.splice(i,1);renderAddPeople();}
+  function renderCurPeople(){
+    const c=cur();if(!c)return;
+    const box=document.getElementById('cPeopleBox');if(!box)return;
+    const keepInp=document.getElementById('cPeopleInput');const keep=keepInp?keepInp.value:'';
+    box.innerHTML=chipsHtml(peopleArr(c),'Training.removeCoursePerson',true)
+      +`<input type="text" id="cPeopleInput" placeholder="พิมพ์ชื่อแล้วกด Enter หรือ ," value="${esc(keep)}" onkeydown="Training.addCoursePersonKey(event)">`;
+    const cnt=document.getElementById('cPeopleCount');if(cnt)cnt.textContent=peopleArr(c).length;
+    const inp=document.getElementById('cPeopleInput');if(inp)inp.focus();
+  }
+  async function addCoursePersonKey(e){
+    if(e.key==='Enter'||e.key===','){e.preventDefault();
+      const v=e.target.value.trim().replace(/,$/,'');if(!v)return;
+      const c=cur();if(!c)return;
+      c.people=peopleArr(c);c.people.push(v);
+      renderCurPeople();
+      try{await App.saveTrain(currentG,'add person');App.render();}catch(err){}
+    }
+  }
+  async function removeCoursePerson(i){
+    const c=cur();if(!c)return;
+    c.people=peopleArr(c);c.people.splice(i,1);
+    renderCurPeople();
+    try{await App.saveTrain(currentG,'remove person');App.render();}catch(err){}
+  }
+  function chipView(el){const name=el.closest('.chip').dataset.name;openPersonSearch(name);}
+  function allParticipantNames(){const set=new Set();allCourses().forEach(({c})=>peopleArr(c).forEach(p=>p&&set.add(p)));return[...set].sort((a,b)=>a.localeCompare(b,'th'));}
+  function personRecord(name){
+    return allCourses().filter(({c})=>peopleArr(c).includes(name))
+      .map(({c,g})=>({g,c}))
+      .sort((a,b)=>(b.c.start||'').localeCompare(a.c.start||''));
+  }
+  function openPersonSearch(prefill){
+    openModal(`<h2><span>ประวัติ</span>การอบรมรายบุคคล</h2>
+      <div class="frow"><label>ชื่อพนักงาน</label><input id="prName" list="prList" value="${esc(prefill||'')}" oninput="Training.prSearch()" placeholder="พิมพ์หรือเลือกชื่อ"></div>
+      <datalist id="prList">${allParticipantNames().map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+      <div id="prResult"></div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ปิด</button></div>`);
+    if(prefill)prSearch();
+  }
+  function prSearch(){
+    const inp=document.getElementById('prName');const nm=inp?inp.value.trim():'';
+    const el=document.getElementById('prResult');if(!el)return;
+    if(!nm){el.innerHTML='';return;}
+    const rows=personRecord(nm);
+    if(!rows.length){el.innerHTML=`<p class="note" style="margin-top:8px">ไม่พบประวัติการอบรมของ "${esc(nm)}"</p>`;return;}
+    el.innerHTML=`<p class="note" style="margin:8px 0"><b>${rows.length}</b> หลักสูตรที่พบสำหรับ <b>${esc(nm)}</b></p>
+      <table><thead><tr><th>บริษัท</th><th>Code</th><th>หลักสูตร</th><th>ประเภท</th><th>วันอบรม</th><th>สถานะ</th></tr></thead>
+      <tbody>${rows.map(({c,g})=>`<tr><td><span class="co ${g}">${CO[g]}</span></td><td class="code">${esc(c.code||'')}</td><td>${esc(c.name)}</td><td>${esc(c.cat||'')}</td><td class="cdate">${dr(c)}</td><td><span class="chip ${lastStatus(c).cl}">${esc(lastStatus(c).t)}</span></td></tr>`).join('')}</tbody></table>`;
+  }
+
   function render(el){
     const cofilBtns=state.profile.allAccess
       ?`<div class="cofil" id="tCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`
@@ -494,6 +582,7 @@ E-Mail : nobsatha@honda.th.com`;
           <option value="no" ${mode==='no'?'selected':''}>เรียง: ลำดับ</option></select>
         <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
         <button class="btn btn-ghost" onclick="Training.exportCSV()">Excel</button>
+        <button class="btn btn-ghost" onclick="Training.openPersonSearch()">🔍 ประวัติการอบรมรายบุคคล</button>
         ${state.profile.allAccess?`<button class="btn btn-ghost" onclick="Import.open('training')">นำเข้าข้อมูล</button>`:''}
       </div>
       ${(lateN||cutN)?`<div class="tiles"><span class="tile alert"><b>${lateN}</b><span>รายการเสี่ยง</span></span><span class="tile wait"><b>${cutN}</b><span>ใกล้ cut off ทำจ่าย</span></span></div>`:''}
@@ -504,26 +593,31 @@ E-Mail : nobsatha@honda.th.com`;
     tb.innerHTML=rows.map(({c,g})=>{const st=lastStatus(c),late=isLate(c),co=cutoffInfo(c);
       const coChip=co&&co.days<=7?`<br><span class="chip ${co.days<=3?'alert':'wait'}" style="margin-top:3px">cut off ${fmtDM(co.target)} · ขาด ${co.miss.join('+')}</span>`:'';
       const dots=STEPS.map(s=>{let cl;if(s.k==='vendor')cl=vendorDone(c)?'ok':'wait';else if(s.k==='pr')cl=prDone(c)?'ok':'wait';else cl=c.steps[s.k]?'ok':(prevDone(c,s.k)?'wait':'');return`<span class="dot ${cl}" title="${s.nm}"></span>`;}).join('');
+      const pn=peopleArr(c).length;
       return`<tr class="${late?'late':''}" onclick="Training.openDrawer('${g}','${c.id}')">
         <td><span class="co ${g}">${CO[g]}</span><br><span class="code">${esc(c.code||'')}</span></td>
         <td class="cname">${esc(c.name)} <span class="chip" style="font-size:10px">${esc(c.cat||'')}</span><br><span style="font-size:11.5px;color:var(--sub)">${esc(c.vendorName||'')}</span>${c.by?`<br><span class="by">เพิ่มโดย ${esc(c.by)}</span>`:''}</td>
-        <td class="cdate">${dr(c)}</td><td>${c.count||''}</td>
+        <td class="cdate">${dr(c)}</td><td>${c.count||''}${pn?`<br><span style="font-size:11px;color:var(--sub)">${pn} รายชื่อ</span>`:''}</td>
         <td><div class="dots">${dots}</div></td>
         <td><span class="chip ${late?'alert':st.cl}">${late?'⚠ ':''}${st.t}</span>${coChip}</td></tr>`;}).join('');
   }
 
   function openAdd(){
+    addPeople=[];
     const genpoField=state.profile.allAccess?`<div class="frow"><label>บริษัท (Genpo)</label><select id="aCo">${GENPOS.map(g=>`<option value="${g}">${CO[g]}</option>`).join('')}</select></div>`:`<input type="hidden" id="aCo" value="${state.profile.genpo}">`;
     openModal(`<h2><span>เพิ่ม</span>รายการ</h2>${genpoField}
       <div class="frow"><label>ชื่อหลักสูตร</label><input id="aName"></div>
       <div class="frow"><label>สถาบัน / Vendor</label><input id="aVendor"></div>
       <div class="grid2"><div class="frow"><label>วันที่เริ่ม</label>${dateInput('','','aStart')}</div><div class="frow"><label>วันที่สิ้นสุด</label>${dateInput('','','aEnd')}</div></div>
-      <div class="grid2"><div class="frow"><label>จำนวนคน</label><input id="aCount" type="number" min="1" value="1"></div>
+      <div class="grid2"><div class="frow"><label>จำนวนคน (ที่นั่ง)</label><input id="aCount" type="number" min="1" value="1"></div>
         <div class="frow"><label>ประเภท</label><select id="aCat">${CATS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
       <div class="frow"><label>สถานะ Vendor เริ่มต้น</label><select id="aVstat"><option value="none">มี Vendor อยู่แล้ว</option><option value="wait_docs">ต้องขอเปิด Vendor</option></select></div>
-      <div class="frow"><label>รายชื่อผู้เข้าอบรม (บรรทัดละคน)</label><textarea id="aPeople" rows="3"></textarea></div>
+      <div class="frow"><label>รายชื่อผู้เข้าอบรม <span class="note">(<span id="aPeopleCount">0</span> คน)</span></label>
+        <div class="chipbox" id="aPeopleBox"><input type="text" id="aPeopleInput" placeholder="พิมพ์ชื่อแล้วกด Enter หรือ ," onkeydown="Training.addPersonKey(event)"></div>
+        <div class="chiphint">พิมพ์ชื่อแล้วกด Enter เพื่อเพิ่มเป็นกล่องรายชื่อ ระบบจะใช้นับจำนวนและค้นประวัติรายบุคคลได้ทันที</div></div>
       <p class="note">ระบบจะสร้าง Training Code ให้อัตโนมัติ และเพิ่มหลักสูตรนี้เข้า Calendar + แจ้งฝั่ง DSD ให้ดึงไปยื่นต่อ</p>
       <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Training.addCourse()">บันทึก</button></div>`);
+    renderAddPeople();
   }
   async function addCourse(){
     const g=document.getElementById('aCo').value;const name=document.getElementById('aName').value.trim();
@@ -531,7 +625,7 @@ E-Mail : nobsatha@honda.th.com`;
     const s=state.train[g];const no=Math.max(0,...s.courses.map(c=>c.no||0))+1;const code=g+'-'+String(no).padStart(3,'0');
     const c={id:Date.now().toString(36),no,code,name,co:g,vendorName:document.getElementById('aVendor').value.trim(),
       start:parseDMY(document.getElementById('aStart').value),end:parseDMY(document.getElementById('aEnd').value)||parseDMY(document.getElementById('aStart').value),
-      count:+document.getElementById('aCount').value||1,cat:document.getElementById('aCat').value,people:document.getElementById('aPeople').value.trim(),
+      count:+document.getElementById('aCount').value||1,cat:document.getElementById('aCat').value,people:addPeople.slice(),
       vendor:document.getElementById('aVstat').value,pr:'none',by:state.profile.username,steps:{},stepTs:{},stepBy:{},stepRemark:{},docs:{},docBy:{}};
     s.courses.push(c);
     try{await App.saveTrain(g,'add course: '+name);await App.calFromCourse(c);closeModal();App.render();toast('เพิ่มแล้ว — Code '+code);}catch(e){}
@@ -565,10 +659,12 @@ E-Mail : nobsatha@honda.th.com`;
           <div class="frow"><label>Training Code</label><input value="${esc(c.code||'')}" onchange="Training.editField('code',this.value.trim())"></div>
           <div class="frow"><label>สถาบัน / Vendor</label><input value="${esc(c.vendorName||'')}" onchange="Training.editField('vendorName',this.value)"></div>
           <div class="frow"><label>ประเภท</label><select onchange="Training.editField('cat',this.value)">${CATS.map(x=>`<option ${c.cat===x?'selected':''}>${x}</option>`).join('')}</select></div>
-          <div class="frow"><label>จำนวนคน</label><input type="number" value="${c.count||1}" onchange="Training.editField('count',+this.value)"></div>
+          <div class="frow"><label>จำนวนคน (ที่นั่ง)</label><input type="number" value="${c.count||1}" onchange="Training.editField('count',+this.value)"></div>
           <div class="frow"><label>วันที่เริ่ม</label>${dateInput(c.start,"Training.editDate('start',this.value)")}</div>
           <div class="frow"><label>วันที่สิ้นสุด</label>${dateInput(c.end,"Training.editDate('end',this.value)")}</div></div>
-          <div class="frow"><label>ผู้เข้าอบรม (บรรทัดละคน)</label><textarea rows="3" onchange="Training.editField('people',this.value)">${esc(c.people||'')}</textarea></div>
+          <div class="frow"><label>ผู้เข้าอบรม <span class="note">(<span id="cPeopleCount">0</span> คน)</span></label>
+            <div class="chipbox" id="cPeopleBox"></div>
+            <div class="chiphint">คลิกชื่อเพื่อดูประวัติการอบรมของคนนั้น (Individual Training Record) หรือกด × เพื่อลบ</div></div>
           ${c.by?`<p class="by">เพิ่มโดย ${esc(c.by)}</p>`:''}</div>
         <div class="sect"><h3>ขั้นตอน</h3>${stepRows}</div>
         <div class="sect"><h3>Invoice / ค่าใช้จ่าย</h3><div class="grid2">
@@ -581,7 +677,7 @@ E-Mail : nobsatha@honda.th.com`;
         <div class="sect"><h3>เอกสาร PDF</h3>${docRows}${certRow}</div>
         <div class="sect"><button class="mini" style="color:var(--alert);border-color:var(--alert)" onclick="Training.delCourse()">ลบหลักสูตรนี้</button></div>
       </div>`;
-    document.getElementById('ov').classList.add('open');document.getElementById('drawer').classList.add('open');calcInv();
+    document.getElementById('ov').classList.add('open');document.getElementById('drawer').classList.add('open');calcInv();renderCurPeople();
   }
   function calcInv(){const c=cur();if(!c)return;const el=document.getElementById('invSum');if(!el)return;
     const price=+((document.getElementById('ivPrice')||{}).value)||0,vatOn=((document.getElementById('ivVat')||{}).value??'1')==='1',wht=+((document.getElementById('ivWht')||{}).value)||0,n=c.count||1;
@@ -623,7 +719,7 @@ E-Mail : nobsatha@honda.th.com`;
       <div class="grid2"><div class="frow"><label>เรียนถึง</label><input id="eTo" value="${esc(c._to||'')}"></div><div class="frow"><label>เวลา</label><input id="eTime" value="09:00 - 16:30"></div></div>
       <div class="frow"><label>ชื่อหลักสูตร</label><input id="eCourse" value="${esc(c.name)}"></div>
       <div class="frow"><label>สถานที่</label><input id="eVenue" value="${esc(c._venue||'')}"></div>
-      <div class="frow"><label>ผู้เข้าอบรม</label><input id="ePeople" value="${esc((c.people||'').split('\n').filter(Boolean).join(', '))}"></div>
+      <div class="frow"><label>ผู้เข้าอบรม</label><input id="ePeople" value="${esc(peopleArr(c).join(', '))}"></div>
       <div class="frow"><label>Remark</label><textarea id="eRemark" rows="2"></textarea></div>
       <div class="frow"><label>ข้อความ</label><textarea id="emailOut" readonly></textarea></div>
       <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ปิด</button><button class="btn btn-red" onclick="Training.copyEmail()">คัดลอกอีเมล</button></div>`);
@@ -643,15 +739,15 @@ E-Mail : nobsatha@honda.th.com`;
     const c=cur();if(c){c._to=document.getElementById('eTo').value;c._venue=document.getElementById('eVenue').value;try{await App.saveTrain(currentG,'email meta');}catch(e){}}toast('คัดลอกแล้ว');}
 
   function exportCSV(){const q=s=>`"${String(s??'').replace(/"/g,'""')}"`;
-    const head=['Code','Genpo','หลักสูตร','ประเภท','สถาบัน','เริ่ม','สิ้นสุด','คน','สถานะ','เพิ่มโดย'];
+    const head=['Code','Genpo','หลักสูตร','ประเภท','สถาบัน','เริ่ม','สิ้นสุด','คน','รายชื่อผู้เข้าอบรม','สถานะ','เพิ่มโดย'];
     const rows=allCourses().filter(({c})=>state.profile.allAccess?(cofil==='ALL'||c.co===cofil):true).sort((a,b)=>(a.c.start||'').localeCompare(b.c.start||''))
-      .map(({c,g})=>[c.code,CO[g],c.name,c.cat,c.vendorName,fmtDMY(c.start),fmtDMY(c.end),c.count,lastStatus(c).t,c.by||''].map(q).join(','));
+      .map(({c,g})=>[c.code,CO[g],c.name,c.cat,c.vendorName,fmtDMY(c.start),fmtDMY(c.end),c.count,peopleArr(c).join('; '),lastStatus(c).t,c.by||''].map(q).join(','));
     const blob=new Blob(['\uFEFF'+head.map(q).join(',')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='training_'+dstamp()+'.csv';a.click();URL.revokeObjectURL(a.href);toast('ส่งออกแล้ว');}
 
-  return {render,openAdd,addCourse,openDrawer,close,setStep,setVendor,setPr,setRemark,editField,editDate,delCourse,calcInv,upDoc,delCert,dlFile,openEmail,setLang,copyEmail,exportCSV};
+  return {render,openAdd,addCourse,openDrawer,close,setStep,setVendor,setPr,setRemark,editField,editDate,delCourse,calcInv,upDoc,delCert,dlFile,openEmail,setLang,copyEmail,exportCSV,
+    addPersonKey,removeAddPerson,addCoursePersonKey,removeCoursePerson,chipView,openPersonSearch,prSearch};
 })();
-
 /* ================= DSD Tracker ================= */
 const DSD=(()=>{
   const LEAD=30, REPORT=60;
@@ -805,7 +901,6 @@ const DSD=(()=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dsd_'+dstamp()+'.csv';a.click();URL.revokeObjectURL(a.href);toast('ส่งออกแล้ว');}
   return {render,setB,search,pull,openDrawer,close,setReq,setId,setStep,setPeople,editField,editDate,delRun,moveGenpo,openAdd,addRun,exportCSV};
 })();
-
 /* ================= Calendar (Ki fiscal) ================= */
 const Calendar=(()=>{
   const STA={confirmed:{t:'ยืนยัน',c:'var(--ok)'},tentative:{t:'ชั่วคราว',c:'var(--wait)'},postponed:{t:'เลื่อน',c:'#B26A00'},cancelled:{t:'ยกเลิก',c:'var(--none)'}};
@@ -892,7 +987,6 @@ const Calendar=(()=>{
   async function del(){if(!confirm('ลบกิจกรรมนี้?'))return;state.cal.events=evs().filter(x=>x.id!==editId);try{await App.saveCal('delete event');closeModal();App.render();}catch(e){}}
   return {render,move,today,jumpKi,fil,byFil,syncTraining,add,open,save,del};
 })();
-
 /* ================= Admin (จัดการผู้ใช้ + รีเซตรหัส) ================= */
 const Admin=(()=>{
   let users=[];
@@ -962,13 +1056,13 @@ const Dashboard=(()=>{
   function dsdScope(){const o=[];for(const g of Object.keys(state.dsd)){if(cofil!=='ALL'&&g!==cofil)continue;for(const r of(state.dsd[g].runs||[]))o.push({r,g});}return o;}
 
   /* ---- donut chart (SVG ล้วน ไม่พึ่งไลบรารีภายนอก) ---- */
-  function donut(segs,{size=168,stroke=30,centerNum,centerLabel='รายการ'}={}){
+  function donut(segs,{size=168,stroke=30,centerNum,centerLabel='Items'}={}){
     const r=(size-stroke)/2,cx=size/2,cy=size/2,C=2*Math.PI*r;
     const active=segs.filter(s=>s.value>0);
     const total=active.reduce((a,s)=>a+s.value,0);
-    if(!total){return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ไม่มีข้อมูล">
+    if(!total){return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="No data">
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EDEDED" stroke-width="${stroke}"/>
-      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="${C_NONE}">ยังไม่มีข้อมูล</text></svg>`;}
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${C_NONE}">No data yet</text></svg>`;}
     let off=0,arcs='';
     for(const s of active){const len=s.value/total*C;
       arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-linecap="butt" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${esc(s.label)}: ${s.value}</title></circle>`;
@@ -976,8 +1070,8 @@ const Dashboard=(()=>{
     const num=centerNum!==undefined?centerNum:total;
     return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="${size}" preserveAspectRatio="xMidYMid meet" role="img">
       ${arcs}
-      <text x="${cx}" y="${cy-5}" text-anchor="middle" dominant-baseline="central" font-size="30" font-weight="600" fill="var(--ink)">${esc(String(num))}</text>
-      <text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="11" fill="var(--sub)">${esc(centerLabel)}</text></svg>`;}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" dominant-baseline="central" font-size="33" font-weight="600" fill="var(--ink)">${esc(String(num))}</text>
+      <text x="${cx}" y="${cy+19}" text-anchor="middle" font-size="12" fill="var(--sub)">${esc(centerLabel)}</text></svg>`;}
   function legend(segs){const total=segs.reduce((a,s)=>a+s.value,0)||1;
     return `<div class="dl">${segs.map(s=>`<div class="dl-row"><span class="dl-dot" style="background:${s.color}"></span><span class="dl-lb">${esc(s.label)}</span><b class="dl-vl">${s.value}</b><span class="dl-pc">${Math.round(s.value/total*100)}%</span></div>`).join('')}</div>`;}
   function chartCard(title,sub,segs,opt){
@@ -999,102 +1093,101 @@ const Dashboard=(()=>{
     /* รายการที่ต้องรีบจัดการ */
     const concerns=[];
     ts.forEach(({c,g})=>{
-      if(tLate(c))concerns.push({sev:3,g,kind:'Training',code:c.code,name:c.name,detail:'เลยกำหนด / ใกล้อบรมแต่ยังไม่ยืนยัน',date:c.start});
-      else if(tCutoffNear(c))concerns.push({sev:2,g,kind:'Training',code:c.code,name:c.name,detail:'ใกล้ cut off ทำจ่าย',date:c.start});
+      if(tLate(c))concerns.push({sev:3,g,kind:'Training',code:c.code,name:c.name,detail:'Overdue / training soon but not confirmed',date:c.start});
+      else if(tCutoffNear(c))concerns.push({sev:2,g,kind:'Training',code:c.code,name:c.name,detail:'Approaching payment cutoff',date:c.start});
     });
     ds.forEach(({r,g})=>{const b=dBucket(r);
-      if(b==='noreport'){const d=daysToDate(new Date(reportDue(r)));concerns.push({sev:3,g,kind:'DSD',code:r.code,name:r.course,detail:d<0?`ค้างยื่นรายงาน · เลย ${-d} วัน`:`ค้างยื่นรายงาน · เหลือ ${d} วัน`,date:r.date});}
-      else if(b==='noreq'){const dd=r.date?daysToDate(new Date(reqDue(r))):null;concerns.push({sev:dd!==null&&dd<=0?3:2,g,kind:'DSD',code:r.code,name:r.course,detail:dd!==null?(dd<=0?'เลยกำหนดยื่นขอรับรอง':`ยังไม่ยื่นขอรับรอง · เหลือ ${dd} วัน`):'ยังไม่ยื่นขอรับรอง',date:r.date});}
+      if(b==='noreport'){const d=daysToDate(new Date(reportDue(r)));concerns.push({sev:3,g,kind:'DSD',code:r.code,name:r.course,detail:d<0?`Report overdue by ${-d} day(s)`:`Report due in ${d} day(s)`,date:r.date});}
+      else if(b==='noreq'){const dd=r.date?daysToDate(new Date(reqDue(r))):null;concerns.push({sev:dd!==null&&dd<=0?3:2,g,kind:'DSD',code:r.code,name:r.course,detail:dd!==null?(dd<=0?'Certification request overdue':`Not yet submitted for certification · ${dd} day(s) left`):'Not yet submitted for certification',date:r.date});}
     });
     concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
 
-    const cofilBtns=`<div class="cofil" id="dashCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
+    const cofilBtns=`<div class="cofil" id="dashCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
 
     el.innerHTML=`
     <style>
-      .dash-title{font-size:19px;font-weight:600;margin-bottom:2px}
-      .dash-sub{font-size:12px;color:var(--sub);margin-bottom:14px}
-      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:13px 16px;position:relative;overflow:hidden}
-      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+      .dash-title{font-size:23px;font-weight:600;margin-bottom:2px}
+      .dash-sub{font-size:13.5px;color:var(--sub);margin-bottom:16px}
+      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:20px}
+      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;overflow:hidden}
+      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
       .kpi.ok::before{background:${C_OK}}.kpi.wait::before{background:${C_WAIT}}.kpi.alert::before{background:${C_ALERT}}.kpi.red::before{background:${C_RED}}
-      .kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
+      .kpi b{display:block;font-size:32px;font-weight:600;line-height:1.1}
       .kpi.ok b{color:${C_OK}}.kpi.wait b{color:${C_WAIT}}.kpi.alert b{color:${C_ALERT}}
-      .kpi span{display:block;font-size:11.5px;color:var(--sub);margin-top:2px}
-      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:18px}
-      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
-      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:8px;margin-bottom:12px}
-      .dcard-h h3{font-size:13px;font-weight:600;color:var(--ink)}
-      .dcard-s{font-size:11px;color:var(--sub)}
-      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:14px;align-items:center}
+      .kpi span{display:block;font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.4}
+      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:20px}
+      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px}
+      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:10px;margin-bottom:14px}
+      .dcard-h h3{font-size:15px;font-weight:600;color:var(--ink)}
+      .dcard-s{font-size:12px;color:var(--sub)}
+      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
       @media(max-width:420px){.dcard-b{grid-template-columns:1fr;justify-items:center}.dl{width:100%}}
       .dchart{display:flex;justify-content:center}
-      .dl{display:flex;flex-direction:column;gap:6px}
-      .dl-row{display:flex;align-items:center;gap:8px;font-size:12px}
-      .dl-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+      .dl{display:flex;flex-direction:column;gap:8px}
+      .dl-row{display:flex;align-items:center;gap:8px;font-size:13px}
+      .dl-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
       .dl-lb{flex:1;color:var(--ink)}.dl-vl{font-weight:600;min-width:26px;text-align:right}
-      .dl-pc{color:var(--sub);min-width:34px;text-align:right;font-size:11px}
+      .dl-pc{color:var(--sub);min-width:38px;text-align:right;font-size:12px}
       .concern{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-      .concern-h{padding:13px 18px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
-      .concern-h h3{font-size:14px;font-weight:600;flex:1}
-      .concern-h .cnt{font-size:12px;color:var(--sub)}
-      .crow{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
+      .concern-h{padding:15px 20px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
+      .concern-h h3{font-size:16px;font-weight:600;flex:1}
+      .concern-h .cnt{font-size:13px;color:var(--sub)}
+      .crow{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
       .crow:last-child{border-bottom:none}
       .crow.s3{border-left-color:${C_ALERT};background:#FEF7F7}.crow.s2{border-left-color:${C_WAIT};background:#FFFCF5}
-      .crow .ck{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0}
+      .crow .ck{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;flex-shrink:0}
       .crow .ck.Training{background:#E5EFFA;color:${C_PROG}}.crow .ck.DSD{background:#FDE7E7;color:${C_RED}}
-      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:13px;font-weight:500}
-      .crow .cnm .cd{font-size:11.5px;color:var(--sub)}
-      .crow .cdt{font-size:11.5px;color:var(--sub);white-space:nowrap}
-      .concern-empty{padding:26px;text-align:center;color:${C_OK};font-size:13px}
+      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:14px;font-weight:500}
+      .crow .cnm .cd{font-size:12.5px;color:var(--sub);margin-top:2px}
+      .crow .cdt{font-size:12.5px;color:var(--sub);white-space:nowrap}
+      .concern-empty{padding:28px;text-align:center;color:${C_OK};font-size:14px}
     </style>
     <div class="toolbar">
-      <div><div class="dash-title">ภาพรวมงานฝึกอบรม</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'ทุกบริษัท':CO[cofil]}</div></div>
+      <div><div class="dash-title">Training Overview</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'All Companies':CO[cofil]}</div></div>
       <div class="spacer" style="flex:1"></div>
       ${cofilBtns}
-      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
+      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">Refresh</button>
     </div>
 
     <div class="kpis">
-      <div class="kpi ok"><b>${tD}</b><span>อบรมเสร็จสิ้น (ครบขั้นตอน)</span></div>
-      <div class="kpi alert"><b>${tL}</b><span>รายการเสี่ยง / เลยกำหนด</span></div>
-      <div class="kpi wait"><b>${tCut}</b><span>ใกล้ cut off ทำจ่าย</span></div>
-      <div class="kpi alert"><b>${bc.noreq}</b><span>DSD ยังไม่ยื่นขอรับรอง</span></div>
-      <div class="kpi alert"><b>${bc.noreport}</b><span>DSD ค้างยื่นรายงาน</span></div>
-      <div class="kpi ok"><b>${ps.unique}</b><span>พนักงานที่อบรม (ไม่ซ้ำ)</span></div>
+      <div class="kpi ok"><b>${tD}</b><span>Completed Trainings (all steps)</span></div>
+      <div class="kpi alert"><b>${tL}</b><span>At Risk / Overdue</span></div>
+      <div class="kpi wait"><b>${tCut}</b><span>Near Payment Cutoff</span></div>
+      <div class="kpi alert"><b>${bc.noreq}</b><span>DSD Not Yet Submitted</span></div>
+      <div class="kpi alert"><b>${bc.noreport}</b><span>DSD Report Overdue</span></div>
+      <div class="kpi ok"><b>${ps.unique}</b><span>Unique Trainees</span></div>
     </div>
 
     <div class="dgrid">
-      ${chartCard('ความคืบหน้า Training','แยกตามสถานะหลักสูตร',[
-        {label:'เสร็จสิ้น',value:tD,color:C_OK},
-        {label:'กำลังดำเนินการ',value:tP,color:C_PROG},
-        {label:'เสี่ยง / เลยกำหนด',value:tL,color:C_ALERT}],{centerLabel:'หลักสูตร'})}
-      ${chartCard('สถานะ DSD','รับรอง · ดำเนินการ · น่ากังวล',[
-        {label:'รับรองแล้ว / เสร็จสิ้น',value:dGood,color:C_OK},
-        {label:'กำลังดำเนินการ',value:dProg,color:C_WAIT},
-        {label:'ยังไม่รับรอง / ค้างรายงาน',value:dRisk,color:C_ALERT}],{centerLabel:'รุ่น'})}
-      ${chartCard('พนักงานที่ยื่น DSD','นับจากรหัสพนักงานทั้งหมด',[
-        {label:'ไม่ซ้ำ (คน)',value:ps.unique,color:C_OK},
-        {label:'ซ้ำ (ยื่นเกิน 1 ครั้ง)',value:ps.dup,color:C_ALERT}],{centerNum:ps.total,centerLabel:'คน·ครั้ง'})}
+      ${chartCard('Training Progress','By course status',[
+        {label:'Completed',value:tD,color:C_OK},
+        {label:'In Progress',value:tP,color:C_PROG},
+        {label:'At Risk / Overdue',value:tL,color:C_ALERT}],{centerLabel:'Courses'})}
+      ${chartCard('DSD Status','Certified · In progress · Concerning',[
+        {label:'Certified / Completed',value:dGood,color:C_OK},
+        {label:'In Progress',value:dProg,color:C_WAIT},
+        {label:'Not Certified / Report Overdue',value:dRisk,color:C_ALERT}],{centerLabel:'Batches'})}
+      ${chartCard('DSD Submissions by Employee','Counted from all employee IDs',[
+        {label:'Unique (Employees)',value:ps.unique,color:C_OK},
+        {label:'Duplicate (Submitted more than once)',value:ps.dup,color:C_ALERT}],{centerNum:ps.total,centerLabel:'Entries'})}
     </div>
 
     <div class="concern">
-      <div class="concern-h"><h3>⚠ รายการที่ต้องรีบจัดการ</h3><span class="cnt">${concerns.length} รายการ</span></div>
+      <div class="concern-h"><h3>⚠ Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
       ${concerns.length?concerns.slice(0,15).map(c=>`
         <div class="crow s${c.sev}">
           <span class="ck ${c.kind}">${c.kind}</span>
           <span class="co ${c.g}">${CO[c.g]}</span>
           <div class="cnm"><b>${esc(c.code||'')} ${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div>
           <span class="cdt">${c.date?fmtDMY(c.date):'—'}</span>
-        </div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">และอีก ${concerns.length-15} รายการ</div>`:'')
-      :'<div class="concern-empty">✓ ไม่มีรายการเร่งด่วน ทุกอย่างอยู่ในกำหนด</div>'}
+        </div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">and ${concerns.length-15} more</div>`:'')
+      :'<div class="concern-empty">✓ No urgent items. Everything is on schedule.</div>'}
     </div>`;
 
     el.querySelectorAll('#dashCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
   }
   return {render};
 })();
-
 /* ================= Visa & Work Permit Tracker ================= */
 const VWP=(()=>{
   const TYPE_TXT={employee:'พนักงาน',family:'ครอบครัว'};
@@ -1212,7 +1305,6 @@ const VWP=(()=>{
     xlsxExport('visa_work_permit_'+dstamp()+'.xlsx',['Genpo','ชื่อ','ประเภท','ครอบครัวของ','ตำแหน่ง','เลขที่ Visa/WP','วันหมดอายุ Visa/WP','สถานะ Visa/WP','ที่พัก','วันหมดอายุที่พัก','สถานะที่พัก','หมายเหตุ','เพิ่มโดย'],rows);toast('ส่งออกแล้ว');}
   return {render,setT,search,openAdd,addPerson,openDrawer,close,editField,editDate,delPerson,exportXlsx};
 })();
-
 /* ================= Resignation / Retirement Tracker ================= */
 const Resign=(()=>{
   const KIND_TXT={resignation:'ลาออก',retirement:'เกษียณอายุ'};
@@ -1290,10 +1382,16 @@ const Resign=(()=>{
     xlsxExport('resignation_retirement_'+dstamp()+'.xlsx',['Genpo','ชื่อ','ตำแหน่ง','ประเภท','วันที่','หมายเหตุ','เพิ่มโดย'],rows);toast('ส่งออกแล้ว');}
   return {render,setK,openAdd,addItem,openDrawer,close,editField,editDate,delItem,exportXlsx};
 })();
-
 /* ================= Visa & Work Permit Dashboard ================= */
 const VWPDashboard=(()=>{
   let cofil='ALL';
+  function expiryStatusEN(dateIso){
+    const st=expiryStatus(dateIso);
+    if(st.cl==='none')return{...st,label:'No data'};
+    if(st.cl==='alert')return{...st,label:`Overdue by ${-st.days} day(s)`};
+    if(st.cl==='wait')return{...st,label:`${st.days} day(s) left`};
+    return{...st,label:`Normal (${st.days} days left)`};
+  }
   function scope(){return{
     people:App.allVwp().filter(({p})=>cofil==='ALL'||p.co===cofil),
     items:App.allResignItems().filter(({it})=>cofil==='ALL'||it.co===cofil)};}
@@ -1306,80 +1404,79 @@ const VWPDashboard=(()=>{
     const resignCount=items.filter(({it})=>it.kind==='resignation').length;
     const retireCount=items.filter(({it})=>it.kind==='retirement').length;
     const concerns=[];
-    people.forEach(({p,g})=>{const vs=expiryStatus(p.visaExpiry);if(vs.cl==='alert'||vs.cl==='wait')concerns.push({sev:vs.cl==='alert'?3:2,g,kind:'visa',klabel:'Visa/WP',name:p.name,detail:vs.label,date:p.visaExpiry});
-      const as=expiryStatus(p.aptExpiry);if(as.cl==='alert'||as.cl==='wait')concerns.push({sev:as.cl==='alert'?3:2,g,kind:'apt',klabel:'ที่พัก',name:p.name,detail:as.label,date:p.aptExpiry});});
+    people.forEach(({p,g})=>{const vs=expiryStatusEN(p.visaExpiry);if(vs.cl==='alert'||vs.cl==='wait')concerns.push({sev:vs.cl==='alert'?3:2,g,kind:'visa',klabel:'Visa/WP',name:p.name,detail:vs.label,date:p.visaExpiry});
+      const as=expiryStatusEN(p.aptExpiry);if(as.cl==='alert'||as.cl==='wait')concerns.push({sev:as.cl==='alert'?3:2,g,kind:'apt',klabel:'Housing',name:p.name,detail:as.label,date:p.aptExpiry});});
     concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
-    const cofilBtns=`<div class="cofil" id="vdCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">ทั้งหมด</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
+    const cofilBtns=`<div class="cofil" id="vdCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
     el.innerHTML=`
     <style>
-      .dash-title{font-size:19px;font-weight:600;margin-bottom:2px}
-      .dash-sub{font-size:12px;color:var(--sub);margin-bottom:14px}
-      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:13px 16px;position:relative;overflow:hidden}
-      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+      .dash-title{font-size:23px;font-weight:600;margin-bottom:2px}
+      .dash-sub{font-size:13.5px;color:var(--sub);margin-bottom:16px}
+      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:20px}
+      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;overflow:hidden}
+      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
       .kpi.ok::before{background:${C_OK}}.kpi.wait::before{background:${C_WAIT}}.kpi.alert::before{background:${C_ALERT}}.kpi.red::before{background:${C_RED}}
-      .kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
+      .kpi b{display:block;font-size:32px;font-weight:600;line-height:1.1}
       .kpi.ok b{color:${C_OK}}.kpi.wait b{color:${C_WAIT}}.kpi.alert b{color:${C_ALERT}}
-      .kpi span{display:block;font-size:11.5px;color:var(--sub);margin-top:2px}
-      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:18px}
-      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
-      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:8px;margin-bottom:12px}
-      .dcard-h h3{font-size:13px;font-weight:600;color:var(--ink)}
-      .dcard-s{font-size:11px;color:var(--sub)}
-      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:14px;align-items:center}
+      .kpi span{display:block;font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.4}
+      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:20px}
+      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px}
+      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:10px;margin-bottom:14px}
+      .dcard-h h3{font-size:15px;font-weight:600;color:var(--ink)}
+      .dcard-s{font-size:12px;color:var(--sub)}
+      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
       @media(max-width:420px){.dcard-b{grid-template-columns:1fr;justify-items:center}.dl{width:100%}}
       .dchart{display:flex;justify-content:center}
-      .dl{display:flex;flex-direction:column;gap:6px}
-      .dl-row{display:flex;align-items:center;gap:8px;font-size:12px}
-      .dl-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+      .dl{display:flex;flex-direction:column;gap:8px}
+      .dl-row{display:flex;align-items:center;gap:8px;font-size:13px}
+      .dl-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
       .dl-lb{flex:1;color:var(--ink)}.dl-vl{font-weight:600;min-width:26px;text-align:right}
-      .dl-pc{color:var(--sub);min-width:34px;text-align:right;font-size:11px}
+      .dl-pc{color:var(--sub);min-width:38px;text-align:right;font-size:12px}
       .concern{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-      .concern-h{padding:13px 18px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
-      .concern-h h3{font-size:14px;font-weight:600;flex:1}
-      .concern-h .cnt{font-size:12px;color:var(--sub)}
-      .crow{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
+      .concern-h{padding:15px 20px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
+      .concern-h h3{font-size:16px;font-weight:600;flex:1}
+      .concern-h .cnt{font-size:13px;color:var(--sub)}
+      .crow{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
       .crow:last-child{border-bottom:none}
       .crow.s3{border-left-color:${C_ALERT};background:#FEF7F7}.crow.s2{border-left-color:${C_WAIT};background:#FFFCF5}
-      .crow .ck{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0}
+      .crow .ck{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;flex-shrink:0}
       .crow .ck.visa{background:#FDE7E7;color:${C_RED}}.crow .ck.apt{background:#E5EFFA;color:${C_PROG}}
-      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:13px;font-weight:500}
-      .crow .cnm .cd{font-size:11.5px;color:var(--sub)}
-      .crow .cdt{font-size:11.5px;color:var(--sub);white-space:nowrap}
-      .concern-empty{padding:26px;text-align:center;color:${C_OK};font-size:13px}
+      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:14px;font-weight:500}
+      .crow .cnm .cd{font-size:12.5px;color:var(--sub);margin-top:2px}
+      .crow .cdt{font-size:12.5px;color:var(--sub);white-space:nowrap}
+      .concern-empty{padding:28px;text-align:center;color:${C_OK};font-size:14px}
     </style>
     <div class="toolbar">
-      <div><div class="dash-title">ภาพรวม Visa &amp; Work Permit</div><div class="dash-sub">${cofil==='ALL'?'ทุกบริษัท':CO[cofil]}</div></div>
+      <div><div class="dash-title">Visa &amp; Work Permit Overview</div><div class="dash-sub">${cofil==='ALL'?'All Companies':CO[cofil]}</div></div>
       <div class="spacer" style="flex:1"></div>${cofilBtns}
-      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">รีเฟรช</button>
+      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">Refresh</button>
     </div>
     <div class="kpis">
-      <div class="kpi"><b>${people.length}</b><span>รายชื่อที่ติดตามทั้งหมด</span></div>
-      <div class="kpi alert"><b>${visaAlert}</b><span>Visa/WP เลยกำหนด</span></div>
-      <div class="kpi wait"><b>${visaWait}</b><span>Visa/WP ใกล้ครบกำหนด</span></div>
-      <div class="kpi alert"><b>${aptAlert}</b><span>ที่พักเลยกำหนด</span></div>
-      <div class="kpi wait"><b>${aptWait}</b><span>ที่พักใกล้ครบกำหนด</span></div>
+      <div class="kpi"><b>${people.length}</b><span>Total Tracked Records</span></div>
+      <div class="kpi alert"><b>${visaAlert}</b><span>Visa/WP Overdue</span></div>
+      <div class="kpi wait"><b>${visaWait}</b><span>Visa/WP Expiring Soon</span></div>
+      <div class="kpi alert"><b>${aptAlert}</b><span>Housing Overdue</span></div>
+      <div class="kpi wait"><b>${aptWait}</b><span>Housing Expiring Soon</span></div>
     </div>
-    <div class="kpis" style="margin-bottom:18px">
-      <div class="kpi"><b>${resignCount}</b><span>ลาออก (ทั้งหมด)</span></div>
-      <div class="kpi"><b>${retireCount}</b><span>เกษียณอายุ (ทั้งหมด)</span></div>
+    <div class="kpis" style="margin-bottom:20px">
+      <div class="kpi"><b>${resignCount}</b><span>Resignations (Total)</span></div>
+      <div class="kpi"><b>${retireCount}</b><span>Retirements (Total)</span></div>
     </div>
     <div class="dgrid">
-      ${chartCard('สถานะ Visa / Work Permit','ตามรายชื่อที่ติดตาม',[{label:'ปกติ',value:visaOk,color:C_OK},{label:'ใกล้ครบกำหนด',value:visaWait,color:C_WAIT},{label:'เลยกำหนด',value:visaAlert,color:C_ALERT}],{centerLabel:'คน'})}
-      ${chartCard('สถานะสัญญาที่พัก','ตามรายชื่อที่ติดตาม',[{label:'ปกติ',value:aptOk,color:C_OK},{label:'ใกล้ครบกำหนด',value:aptWait,color:C_WAIT},{label:'เลยกำหนด',value:aptAlert,color:C_ALERT}],{centerLabel:'คน'})}
+      ${chartCard('Visa / Work Permit Status','By tracked records',[{label:'Normal',value:visaOk,color:C_OK},{label:'Expiring Soon',value:visaWait,color:C_WAIT},{label:'Overdue',value:visaAlert,color:C_ALERT}],{centerLabel:'People'})}
+      ${chartCard('Housing Contract Status','By tracked records',[{label:'Normal',value:aptOk,color:C_OK},{label:'Expiring Soon',value:aptWait,color:C_WAIT},{label:'Overdue',value:aptAlert,color:C_ALERT}],{centerLabel:'People'})}
     </div>
     <div class="concern">
-      <div class="concern-h"><h3>⚠ รายการที่ต้องรีบจัดการ</h3><span class="cnt">${concerns.length} รายการ</span></div>
+      <div class="concern-h"><h3>⚠ Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
       ${concerns.length?concerns.slice(0,15).map(c=>`
         <div class="crow s${c.sev}"><span class="ck ${c.kind}">${esc(c.klabel)}</span><span class="co ${c.g}">${CO[c.g]}</span>
-        <div class="cnm"><b>${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div><span class="cdt">${c.date?fmtDMY(c.date):'—'}</span></div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">และอีก ${concerns.length-15} รายการ</div>`:'')
-      :'<div class="concern-empty">✓ ไม่มีรายการเร่งด่วน ทุกอย่างอยู่ในกำหนด</div>'}
+        <div class="cnm"><b>${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div><span class="cdt">${c.date?fmtDMY(c.date):'—'}</span></div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">and ${concerns.length-15} more</div>`:'')
+      :'<div class="concern-empty">✓ No urgent items. Everything is on schedule.</div>'}
     </div>`;
     el.querySelectorAll('#vdCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
   }
   return {render};
 })();
-
 /* ================= Visa & Work Permit Calendar ================= */
 const VWPCalendar=(()=>{
   const KIND={visa:{t:'Visa/Work Permit',c:'#CC0000'},apartment:{t:'สัญญาที่พัก',c:'#1f3a5f'},resignation:{t:'ลาออก',c:'#B26A00'},retirement:{t:'เกษียณอายุ',c:'#6B6B6B'},other:{t:'อื่นๆ',c:'#3f6f68'}};
@@ -1465,7 +1562,6 @@ const VWPCalendar=(()=>{
   async function del(){if(!confirm('ลบกิจกรรมนี้?'))return;state.vwpcal.events=evs().filter(x=>x.id!==editId);try{await App.saveVwpCal('delete event');closeModal();App.render();}catch(e){}}
   return {render,move,today,fil,filK,syncAll,add,open,save,del};
 })();
-
 /* ================= Import (นำเข้าข้อมูลเก่า) — เฉพาะ People Center ================= */
 const Import=(()=>{
   let app='training',pending=null;
@@ -1556,7 +1652,6 @@ const Import=(()=>{
     }catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message);}}
   return {open,check,run,fromFile};
 })();
-
 /* ================= seed (ว่าง — ข้อมูลเดิมนำเข้าผ่านปุ่ม "นำเข้าข้อมูล") ================= */
 const SEED=[], CAL_SEED=[];
 
