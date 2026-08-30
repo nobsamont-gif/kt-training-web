@@ -156,7 +156,7 @@ tbody tr.late{box-shadow:inset 3px 0 0 var(--alert)}
 <aside id="drawer"></aside>
 <div id="toast"></div>
 <script>
-const LOGO="data:image/png;base64,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"
+const LOGO="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20210%2046%27%3E%3Ctext%20x=%270%27%20y=%2736%27%20font-family=%27Arial,%20Helvetica,%20sans-serif%27%20font-weight=%27800%27%20font-style=%27italic%27%20font-size=%2738%27%20fill=%27%23CC0000%27%20letter-spacing=%27-1%27%3EHONDA%3C/text%3E%3C/svg%3E"
 const API_KEY='kt_api', TOK_KEY='kt_token', PROF_KEY='kt_profile';
 const GENPOS=['TH','HRST','EGAS'], CO={TH:'TH',HRST:'HRS-T',EGAS:'EG-AS'};
 /* ---- Departments & roles ---- */
@@ -182,7 +182,7 @@ function expiryStatus(dateIso){
   return{cl:'ok',label:`ปกติ (เหลือ ${days} วัน)`,days};
 }
 /* ---- shared dashboard colors / chart helpers (used by Dashboard & VWPDashboard) ---- */
-const C_OK='#1E8E3E', C_WAIT='#B26A00', C_ALERT='#D93025', C_NONE='#9AA0A6', C_PROG='#1f3a5f', C_RED='#CC0000';
+const C_OK='#30B355', C_WAIT='#FF9500', C_ALERT='#FF3B30', C_NONE='#AEAEB2', C_PROG='#007AFF', C_RED='#CC0000';
 function donut(segs,{size=168,stroke=30,centerNum,centerLabel='Items'}={}){
   const r=(size-stroke)/2,cx=size/2,cy=size/2,C=2*Math.PI*r;
   const active=segs.filter(s=>s.value>0);
@@ -1019,7 +1019,7 @@ const Admin=(()=>{
 /* ================= Dashboard (ภาพรวมสำหรับผู้บริหาร) — เฉพาะ People Center ================= */
 const Dashboard=(()=>{
   let cofil='ALL';
-  const C_OK='#1E8E3E', C_WAIT='#B26A00', C_ALERT='#D93025', C_NONE='#9AA0A6', C_PROG='#1f3a5f', C_RED='#CC0000';
+  const C_OK='#30B355', C_WAIT='#FF9500', C_ALERT='#FF3B30', C_NONE='#AEAEB2', C_PROG='#007AFF', C_RED='#CC0000';
 
   /* ---- date helpers (สอดคล้องกับ Training/DSD) ---- */
   const iso=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:null;
@@ -1102,51 +1102,57 @@ const Dashboard=(()=>{
     });
     concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
 
-    const cofilBtns=`<div class="cofil" id="dashCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
+    const cofilBtns=`<div class="seg" id="dashCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
 
     el.innerHTML=`
     <style>
-      .dash-title{font-size:23px;font-weight:600;margin-bottom:2px}
-      .dash-sub{font-size:13.5px;color:var(--sub);margin-bottom:16px}
-      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:20px}
-      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;overflow:hidden}
-      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
-      .kpi.ok::before{background:${C_OK}}.kpi.wait::before{background:${C_WAIT}}.kpi.alert::before{background:${C_ALERT}}.kpi.red::before{background:${C_RED}}
-      .kpi b{display:block;font-size:32px;font-weight:600;line-height:1.1}
-      .kpi.ok b{color:${C_OK}}.kpi.wait b{color:${C_WAIT}}.kpi.alert b{color:${C_ALERT}}
-      .kpi span{display:block;font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.4}
-      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:20px}
-      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px}
-      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:10px;margin-bottom:14px}
-      .dcard-h h3{font-size:15px;font-weight:600;color:var(--ink)}
-      .dcard-s{font-size:12px;color:var(--sub)}
-      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
-      @media(max-width:420px){.dcard-b{grid-template-columns:1fr;justify-items:center}.dl{width:100%}}
-      .dchart{display:flex;justify-content:center}
-      .dl{display:flex;flex-direction:column;gap:8px}
-      .dl-row{display:flex;align-items:center;gap:8px;font-size:13px}
-      .dl-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
-      .dl-lb{flex:1;color:var(--ink)}.dl-vl{font-weight:600;min-width:26px;text-align:right}
-      .dl-pc{color:var(--sub);min-width:38px;text-align:right;font-size:12px}
-      .concern{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-      .concern-h{padding:15px 20px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
-      .concern-h h3{font-size:16px;font-weight:600;flex:1}
-      .concern-h .cnt{font-size:13px;color:var(--sub)}
-      .crow{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
-      .crow:last-child{border-bottom:none}
-      .crow.s3{border-left-color:${C_ALERT};background:#FEF7F7}.crow.s2{border-left-color:${C_WAIT};background:#FFFCF5}
-      .crow .ck{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;flex-shrink:0}
-      .crow .ck.Training{background:#E5EFFA;color:${C_PROG}}.crow .ck.DSD{background:#FDE7E7;color:${C_RED}}
-      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:14px;font-weight:500}
-      .crow .cnm .cd{font-size:12.5px;color:var(--sub);margin-top:2px}
-      .crow .cdt{font-size:12.5px;color:var(--sub);white-space:nowrap}
-      .concern-empty{padding:28px;text-align:center;color:${C_OK};font-size:14px}
+      .ios-dash{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1C1C1E;-webkit-font-smoothing:antialiased}
+      .ios-dash .dash-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px}
+      .ios-dash .dash-title{font-size:28px;font-weight:700;letter-spacing:-.4px;margin-bottom:3px;color:#1C1C1E}
+      .ios-dash .dash-sub{font-size:14px;color:#8A8A8E;font-weight:500}
+      .ios-dash .segwrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+      .ios-dash .seg{display:inline-flex;background:#E9E9EE;border-radius:9px;padding:2px;gap:2px}
+      .ios-dash .seg button{border:none;background:transparent;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;color:#3C3C43}
+      .ios-dash .seg button.on{background:#fff;color:${C_RED};box-shadow:0 1px 3px rgba(0,0,0,.14);font-weight:600}
+      .ios-dash .ios-btn{border:none;background:#E9E9EE;color:#1C1C1E;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:500}
+      .ios-dash .ios-btn:hover{background:#DFDFE4}
+      .ios-dash .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:22px}
+      .ios-dash .kpi{background:#fff;border-radius:16px;padding:18px 18px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .kpi b{display:block;font-size:30px;font-weight:700;letter-spacing:-.5px;line-height:1.1;color:#1C1C1E}
+      .ios-dash .kpi.ok b{color:${C_OK}}.ios-dash .kpi.wait b{color:${C_WAIT}}.ios-dash .kpi.alert b{color:${C_ALERT}}
+      .ios-dash .kpi span{display:block;font-size:12.5px;color:#8A8A8E;font-weight:500;margin-top:5px;line-height:1.4}
+      .ios-dash .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:22px}
+      .ios-dash .dcard{background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .dcard-h{border-bottom:none;padding-bottom:0;margin-bottom:14px}
+      .ios-dash .dcard-h h3{font-size:16px;font-weight:600;color:#1C1C1E;letter-spacing:-.2px}
+      .ios-dash .dcard-s{font-size:12.5px;color:#8A8A8E;font-weight:500}
+      .ios-dash .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
+      @media(max-width:420px){.ios-dash .dcard-b{grid-template-columns:1fr;justify-items:center}.ios-dash .dl{width:100%}}
+      .ios-dash .dchart{display:flex;justify-content:center}
+      .ios-dash .dl{display:flex;flex-direction:column;gap:9px}
+      .ios-dash .dl-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+      .ios-dash .dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+      .ios-dash .dl-lb{flex:1;color:#3C3C43}.ios-dash .dl-vl{font-weight:700;min-width:26px;text-align:right;color:#1C1C1E}
+      .ios-dash .dl-pc{color:#8A8A8E;min-width:38px;text-align:right;font-size:12px}
+      .ios-dash .concern{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .concern-h{padding:18px 22px 12px;border-bottom:none;display:flex;align-items:center;gap:8px}
+      .ios-dash .concern-h h3{font-size:17px;font-weight:700;flex:1;letter-spacing:-.2px;color:#1C1C1E}
+      .ios-dash .concern-h .cnt{font-size:13px;color:#8A8A8E;font-weight:500}
+      .ios-dash .crow{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid #F0F0F2;border-left:none;background:transparent}
+      .ios-dash .crow:last-child{border-bottom:none}
+      .ios-dash .crow .sevdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+      .ios-dash .crow.s3 .sevdot{background:${C_ALERT}}.ios-dash .crow.s2 .sevdot{background:${C_WAIT}}
+      .ios-dash .crow .ck{font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;flex-shrink:0}
+      .ios-dash .crow .ck.Training{background:#E8F1FF;color:${C_PROG}}.ios-dash .crow .ck.DSD{background:#FFE9E7;color:${C_RED}}
+      .ios-dash .crow .cnm{flex:1;min-width:0}.ios-dash .crow .cnm b{font-size:14.5px;font-weight:600;color:#1C1C1E}
+      .ios-dash .crow .cnm .cd{font-size:12.5px;color:#8A8A8E;margin-top:2px;font-weight:500}
+      .ios-dash .crow .cdt{font-size:12.5px;color:#8A8A8E;white-space:nowrap;font-weight:500}
+      .ios-dash .concern-empty{padding:34px;text-align:center;color:${C_OK};font-size:14.5px;font-weight:600}
     </style>
-    <div class="toolbar">
+    <div class="ios-dash">
+    <div class="dash-top">
       <div><div class="dash-title">Training Overview</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'All Companies':CO[cofil]}</div></div>
-      <div class="spacer" style="flex:1"></div>
-      ${cofilBtns}
-      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">Refresh</button>
+      <div class="segwrap">${cofilBtns}<button class="ios-btn" onclick="App.loadData().then(App.render)">Refresh</button></div>
     </div>
 
     <div class="kpis">
@@ -1173,15 +1179,17 @@ const Dashboard=(()=>{
     </div>
 
     <div class="concern">
-      <div class="concern-h"><h3>⚠ Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
+      <div class="concern-h"><h3>Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
       ${concerns.length?concerns.slice(0,15).map(c=>`
         <div class="crow s${c.sev}">
+          <span class="sevdot"></span>
           <span class="ck ${c.kind}">${c.kind}</span>
           <span class="co ${c.g}">${CO[c.g]}</span>
           <div class="cnm"><b>${esc(c.code||'')} ${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div>
           <span class="cdt">${c.date?fmtDMY(c.date):'—'}</span>
-        </div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">and ${concerns.length-15} more</div>`:'')
+        </div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:#8A8A8E">and ${concerns.length-15} more</div>`:'')
       :'<div class="concern-empty">✓ No urgent items. Everything is on schedule.</div>'}
+    </div>
     </div>`;
 
     el.querySelectorAll('#dashCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
@@ -1407,49 +1415,56 @@ const VWPDashboard=(()=>{
     people.forEach(({p,g})=>{const vs=expiryStatusEN(p.visaExpiry);if(vs.cl==='alert'||vs.cl==='wait')concerns.push({sev:vs.cl==='alert'?3:2,g,kind:'visa',klabel:'Visa/WP',name:p.name,detail:vs.label,date:p.visaExpiry});
       const as=expiryStatusEN(p.aptExpiry);if(as.cl==='alert'||as.cl==='wait')concerns.push({sev:as.cl==='alert'?3:2,g,kind:'apt',klabel:'Housing',name:p.name,detail:as.label,date:p.aptExpiry});});
     concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
-    const cofilBtns=`<div class="cofil" id="vdCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
+    const cofilBtns=`<div class="seg" id="vdCofil"><button data-c="ALL" class="${cofil==='ALL'?'on':''}">All</button>${GENPOS.map(g=>`<button data-c="${g}" class="${cofil===g?'on':''}">${CO[g]}</button>`).join('')}</div>`;
     el.innerHTML=`
     <style>
-      .dash-title{font-size:23px;font-weight:600;margin-bottom:2px}
-      .dash-sub{font-size:13.5px;color:var(--sub);margin-bottom:16px}
-      .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:20px}
-      .kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;overflow:hidden}
-      .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
-      .kpi.ok::before{background:${C_OK}}.kpi.wait::before{background:${C_WAIT}}.kpi.alert::before{background:${C_ALERT}}.kpi.red::before{background:${C_RED}}
-      .kpi b{display:block;font-size:32px;font-weight:600;line-height:1.1}
-      .kpi.ok b{color:${C_OK}}.kpi.wait b{color:${C_WAIT}}.kpi.alert b{color:${C_ALERT}}
-      .kpi span{display:block;font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.4}
-      .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:20px}
-      .dcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px}
-      .dcard-h{border-bottom:1px solid var(--line2);padding-bottom:10px;margin-bottom:14px}
-      .dcard-h h3{font-size:15px;font-weight:600;color:var(--ink)}
-      .dcard-s{font-size:12px;color:var(--sub)}
-      .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
-      @media(max-width:420px){.dcard-b{grid-template-columns:1fr;justify-items:center}.dl{width:100%}}
-      .dchart{display:flex;justify-content:center}
-      .dl{display:flex;flex-direction:column;gap:8px}
-      .dl-row{display:flex;align-items:center;gap:8px;font-size:13px}
-      .dl-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
-      .dl-lb{flex:1;color:var(--ink)}.dl-vl{font-weight:600;min-width:26px;text-align:right}
-      .dl-pc{color:var(--sub);min-width:38px;text-align:right;font-size:12px}
-      .concern{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-      .concern-h{padding:15px 20px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px}
-      .concern-h h3{font-size:16px;font-weight:600;flex:1}
-      .concern-h .cnt{font-size:13px;color:var(--sub)}
-      .crow{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line2);border-left:3px solid transparent}
-      .crow:last-child{border-bottom:none}
-      .crow.s3{border-left-color:${C_ALERT};background:#FEF7F7}.crow.s2{border-left-color:${C_WAIT};background:#FFFCF5}
-      .crow .ck{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;flex-shrink:0}
-      .crow .ck.visa{background:#FDE7E7;color:${C_RED}}.crow .ck.apt{background:#E5EFFA;color:${C_PROG}}
-      .crow .cnm{flex:1;min-width:0}.crow .cnm b{font-size:14px;font-weight:500}
-      .crow .cnm .cd{font-size:12.5px;color:var(--sub);margin-top:2px}
-      .crow .cdt{font-size:12.5px;color:var(--sub);white-space:nowrap}
-      .concern-empty{padding:28px;text-align:center;color:${C_OK};font-size:14px}
+      .ios-dash{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1C1C1E;-webkit-font-smoothing:antialiased}
+      .ios-dash .dash-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px}
+      .ios-dash .dash-title{font-size:28px;font-weight:700;letter-spacing:-.4px;margin-bottom:3px;color:#1C1C1E}
+      .ios-dash .dash-sub{font-size:14px;color:#8A8A8E;font-weight:500}
+      .ios-dash .segwrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+      .ios-dash .seg{display:inline-flex;background:#E9E9EE;border-radius:9px;padding:2px;gap:2px}
+      .ios-dash .seg button{border:none;background:transparent;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;color:#3C3C43}
+      .ios-dash .seg button.on{background:#fff;color:${C_RED};box-shadow:0 1px 3px rgba(0,0,0,.14);font-weight:600}
+      .ios-dash .ios-btn{border:none;background:#E9E9EE;color:#1C1C1E;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:500}
+      .ios-dash .ios-btn:hover{background:#DFDFE4}
+      .ios-dash .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:22px}
+      .ios-dash .kpi{background:#fff;border-radius:16px;padding:18px 18px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .kpi b{display:block;font-size:30px;font-weight:700;letter-spacing:-.5px;line-height:1.1;color:#1C1C1E}
+      .ios-dash .kpi.ok b{color:${C_OK}}.ios-dash .kpi.wait b{color:${C_WAIT}}.ios-dash .kpi.alert b{color:${C_ALERT}}
+      .ios-dash .kpi span{display:block;font-size:12.5px;color:#8A8A8E;font-weight:500;margin-top:5px;line-height:1.4}
+      .ios-dash .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:22px}
+      .ios-dash .dcard{background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .dcard-h{border-bottom:none;padding-bottom:0;margin-bottom:14px}
+      .ios-dash .dcard-h h3{font-size:16px;font-weight:600;color:#1C1C1E;letter-spacing:-.2px}
+      .ios-dash .dcard-s{font-size:12.5px;color:#8A8A8E;font-weight:500}
+      .ios-dash .dcard-b{display:grid;grid-template-columns:168px 1fr;gap:16px;align-items:center}
+      @media(max-width:420px){.ios-dash .dcard-b{grid-template-columns:1fr;justify-items:center}.ios-dash .dl{width:100%}}
+      .ios-dash .dchart{display:flex;justify-content:center}
+      .ios-dash .dl{display:flex;flex-direction:column;gap:9px}
+      .ios-dash .dl-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+      .ios-dash .dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+      .ios-dash .dl-lb{flex:1;color:#3C3C43}.ios-dash .dl-vl{font-weight:700;min-width:26px;text-align:right;color:#1C1C1E}
+      .ios-dash .dl-pc{color:#8A8A8E;min-width:38px;text-align:right;font-size:12px}
+      .ios-dash .concern{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 8px rgba(0,0,0,.05)}
+      .ios-dash .concern-h{padding:18px 22px 12px;border-bottom:none;display:flex;align-items:center;gap:8px}
+      .ios-dash .concern-h h3{font-size:17px;font-weight:700;flex:1;letter-spacing:-.2px;color:#1C1C1E}
+      .ios-dash .concern-h .cnt{font-size:13px;color:#8A8A8E;font-weight:500}
+      .ios-dash .crow{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid #F0F0F2;border-left:none;background:transparent}
+      .ios-dash .crow:last-child{border-bottom:none}
+      .ios-dash .crow .sevdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+      .ios-dash .crow.s3 .sevdot{background:${C_ALERT}}.ios-dash .crow.s2 .sevdot{background:${C_WAIT}}
+      .ios-dash .crow .ck{font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;flex-shrink:0}
+      .ios-dash .crow .ck.visa{background:#FFE9E7;color:${C_RED}}.ios-dash .crow .ck.apt{background:#E8F1FF;color:${C_PROG}}
+      .ios-dash .crow .cnm{flex:1;min-width:0}.ios-dash .crow .cnm b{font-size:14.5px;font-weight:600;color:#1C1C1E}
+      .ios-dash .crow .cnm .cd{font-size:12.5px;color:#8A8A8E;margin-top:2px;font-weight:500}
+      .ios-dash .crow .cdt{font-size:12.5px;color:#8A8A8E;white-space:nowrap;font-weight:500}
+      .ios-dash .concern-empty{padding:34px;text-align:center;color:${C_OK};font-size:14.5px;font-weight:600}
     </style>
-    <div class="toolbar">
+    <div class="ios-dash">
+    <div class="dash-top">
       <div><div class="dash-title">Visa &amp; Work Permit Overview</div><div class="dash-sub">${cofil==='ALL'?'All Companies':CO[cofil]}</div></div>
-      <div class="spacer" style="flex:1"></div>${cofilBtns}
-      <button class="btn btn-ghost" onclick="App.loadData().then(App.render)">Refresh</button>
+      <div class="segwrap">${cofilBtns}<button class="ios-btn" onclick="App.loadData().then(App.render)">Refresh</button></div>
     </div>
     <div class="kpis">
       <div class="kpi"><b>${people.length}</b><span>Total Tracked Records</span></div>
@@ -1458,7 +1473,7 @@ const VWPDashboard=(()=>{
       <div class="kpi alert"><b>${aptAlert}</b><span>Housing Overdue</span></div>
       <div class="kpi wait"><b>${aptWait}</b><span>Housing Expiring Soon</span></div>
     </div>
-    <div class="kpis" style="margin-bottom:20px">
+    <div class="kpis" style="margin-bottom:22px">
       <div class="kpi"><b>${resignCount}</b><span>Resignations (Total)</span></div>
       <div class="kpi"><b>${retireCount}</b><span>Retirements (Total)</span></div>
     </div>
@@ -1467,11 +1482,12 @@ const VWPDashboard=(()=>{
       ${chartCard('Housing Contract Status','By tracked records',[{label:'Normal',value:aptOk,color:C_OK},{label:'Expiring Soon',value:aptWait,color:C_WAIT},{label:'Overdue',value:aptAlert,color:C_ALERT}],{centerLabel:'People'})}
     </div>
     <div class="concern">
-      <div class="concern-h"><h3>⚠ Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
+      <div class="concern-h"><h3>Items Needing Attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
       ${concerns.length?concerns.slice(0,15).map(c=>`
-        <div class="crow s${c.sev}"><span class="ck ${c.kind}">${esc(c.klabel)}</span><span class="co ${c.g}">${CO[c.g]}</span>
-        <div class="cnm"><b>${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div><span class="cdt">${c.date?fmtDMY(c.date):'—'}</span></div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:var(--sub)">and ${concerns.length-15} more</div>`:'')
+        <div class="crow s${c.sev}"><span class="sevdot"></span><span class="ck ${c.kind}">${esc(c.klabel)}</span><span class="co ${c.g}">${CO[c.g]}</span>
+        <div class="cnm"><b>${esc(c.name)}</b><div class="cd">${esc(c.detail)}</div></div><span class="cdt">${c.date?fmtDMY(c.date):'—'}</span></div>`).join('')+(concerns.length>15?`<div class="crow" style="justify-content:center;color:#8A8A8E">and ${concerns.length-15} more</div>`:'')
       :'<div class="concern-empty">✓ No urgent items. Everything is on schedule.</div>'}
+    </div>
     </div>`;
     el.querySelectorAll('#vdCofil button').forEach(b=>b.onclick=()=>{cofil=b.dataset.c;App.render();});
   }
