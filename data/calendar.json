@@ -31,6 +31,21 @@
         "สร้างจาก Training โดย ta008955 25/08/2026",
         "แก้ไขโดย ta008955 25/08/2026 08:03"
       ]
+    },
+    {
+      "id": "mtfgd2iw_c",
+      "code": "HRST-001",
+      "title": "Leadership",
+      "co": "HRST",
+      "status": "confirmed",
+      "date": "",
+      "end": "",
+      "time": "",
+      "note": "สร้างจาก Training Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างจาก Training โดย Nobsamon 30/08/2026"
+      ]
     }
   ]
 }
