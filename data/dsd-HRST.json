@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "id_": "mtfgfm42",
+      "code": "HRST-001",
+      "co": "HRST",
+      "course": "Leadership",
+      "date": "",
+      "dateEnd": "",
+      "dateText": "",
+      "ppl": 1,
+      "id": "",
+      "req": "none",
+      "reqDate": "",
+      "report": false,
+      "dept": false,
+      "receipt": false,
+      "cert": false,
+      "remark": "ดึงจาก Training",
+      "people": [],
+      "by": "Nobsamon",
+      "source": "training"
+    }
+  ]
+}
