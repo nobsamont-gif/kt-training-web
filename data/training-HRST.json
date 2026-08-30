@@ -12,7 +12,7 @@
       "count": 1,
       "cat": "Public",
       "people": "cc",
-      "vendor": "none",
+      "vendor": "ok",
       "pr": "none",
       "by": "Nobsamon",
       "steps": {},
@@ -20,7 +20,8 @@
       "stepBy": {},
       "stepRemark": {},
       "docs": {},
-      "docBy": {}
+      "docBy": {},
+      "vendorBy": "Nobsamon"
     }
   ]
 }
