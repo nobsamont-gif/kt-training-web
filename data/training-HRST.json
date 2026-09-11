@@ -16,13 +16,16 @@
       "pr": "none",
       "by": "Nobsamon",
       "steps": {
-        "register": true
+        "register": true,
+        "hbi": true
       },
       "stepTs": {
-        "register": "30/08/2026"
+        "register": "30/08/2026",
+        "hbi": "11/09/2026"
       },
       "stepBy": {
-        "register": "Nobsamon"
+        "register": "Nobsamon",
+        "hbi": "Nobsamon"
       },
       "stepRemark": {},
       "docs": {},
