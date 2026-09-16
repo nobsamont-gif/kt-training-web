@@ -33,6 +33,16 @@
       "createdAt": "2026-08-27T12:16:43.580Z",
       "approvedBy": "Nobsamon",
       "approvedAt": "2026-08-27T12:16:58.334Z"
+    },
+    {
+      "username": "Joy",
+      "passHash": "pbkdf2$100000$hMZNGMON64QCGsfyEgqmWA==$lNykegRJD08auv559izXOG2zvFTXwTpeHFOxWzTmtRE=",
+      "type": "Training & Engagement",
+      "role": "Training Co",
+      "genpo": null,
+      "status": "pending",
+      "admin": false,
+      "createdAt": "2026-09-16T08:33:26.368Z"
     }
   ]
 }
