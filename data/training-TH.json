@@ -30,28 +30,6 @@
       "stepRemark": {},
       "docs": {},
       "docBy": {}
-    },
-    {
-      "id": "mu3tvag2",
-      "no": 2,
-      "code": "TH-002",
-      "name": "AA",
-      "co": "TH",
-      "vendorName": "AA",
-      "start": "2026-12-01",
-      "end": "2026-12-01",
-      "count": 1,
-      "cat": "Public",
-      "people": [],
-      "vendor": "none",
-      "pr": "none",
-      "by": "Nobsamon",
-      "steps": {},
-      "stepTs": {},
-      "stepBy": {},
-      "stepRemark": {},
-      "docs": {},
-      "docBy": {}
     }
   ]
 }
