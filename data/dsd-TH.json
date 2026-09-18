@@ -17,7 +17,9 @@
       "receipt": true,
       "cert": false,
       "remark": "ดึงจาก Training",
-      "people": [],
+      "people": [
+        "Babee Lee"
+      ],
       "by": "Nobsamon",
       "source": "manual",
       "by2": {
