@@ -82,17 +82,20 @@
       "steps": {
         "register": true,
         "hbi": true,
-        "email": true
+        "email": true,
+        "payment": true
       },
       "stepTs": {
         "register": "18/09/2026",
         "hbi": "18/09/2026",
-        "email": "18/09/2026"
+        "email": "18/09/2026",
+        "payment": "18/09/2026"
       },
       "stepBy": {
         "register": "Nobsamon",
         "hbi": "Nobsamon",
-        "email": "Nobsamon"
+        "email": "Nobsamon",
+        "payment": "Nobsamon"
       },
       "stepRemark": {},
       "docs": {},
