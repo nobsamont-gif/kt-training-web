@@ -103,7 +103,8 @@
       "vendorBy": "Nobsamon",
       "vendorReadyAt": "18/09/2026",
       "vendorNotify": true,
-      "vendorAck": false
+      "vendorAck": false,
+      "payRound": "ทำจ่ายรอบปลายเดือน"
     }
   ]
 }
