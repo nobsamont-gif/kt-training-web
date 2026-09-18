@@ -79,9 +79,15 @@
       "pr": "none",
       "by": "Nobsamon",
       "createdAt": "18/09/2026",
-      "steps": {},
-      "stepTs": {},
-      "stepBy": {},
+      "steps": {
+        "register": true
+      },
+      "stepTs": {
+        "register": "18/09/2026"
+      },
+      "stepBy": {
+        "register": "Nobsamon"
+      },
       "stepRemark": {},
       "docs": {},
       "docBy": {}
