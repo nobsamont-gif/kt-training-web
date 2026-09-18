@@ -11,7 +11,9 @@
       "end": "2026-09-28",
       "count": 30,
       "cat": "Inhouse",
-      "people": "",
+      "people": [
+        "Babee Kids"
+      ],
       "vendor": "none",
       "pr": "ok",
       "by": "ta008955",
