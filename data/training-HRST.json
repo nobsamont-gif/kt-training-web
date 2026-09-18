@@ -81,15 +81,18 @@
       "createdAt": "18/09/2026",
       "steps": {
         "register": true,
-        "hbi": true
+        "hbi": true,
+        "email": true
       },
       "stepTs": {
         "register": "18/09/2026",
-        "hbi": "18/09/2026"
+        "hbi": "18/09/2026",
+        "email": "18/09/2026"
       },
       "stepBy": {
         "register": "Nobsamon",
-        "hbi": "Nobsamon"
+        "hbi": "Nobsamon",
+        "email": "Nobsamon"
       },
       "stepRemark": {},
       "docs": {},
