@@ -71,12 +71,13 @@
       "vendorBy": "Nobsamon",
       "vendorReadyAt": "18/09/2026",
       "vendorNotify": true,
-      "vendorAck": false,
+      "vendorAck": true,
       "payRound": "ทำจ่ายรอบปลายเดือน",
       "price": 2700,
       "invoiceNo": "INV20260909",
       "whtPct": 3,
-      "invoiceDue": "2026-09-15"
+      "invoiceDue": "2026-09-15",
+      "vendorAckBy": "Nobsamon 18/09/2026"
     }
   ]
 }
