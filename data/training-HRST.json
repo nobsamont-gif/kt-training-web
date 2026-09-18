@@ -108,7 +108,8 @@
       "vendorNotify": true,
       "vendorAck": false,
       "payRound": "ทำจ่ายรอบปลายเดือน",
-      "price": 200000
+      "price": 200000,
+      "invoiceNo": "INV20260909"
     }
   ]
 }
