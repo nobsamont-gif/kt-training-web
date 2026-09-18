@@ -1,41 +1,6 @@
 {
   "courses": [
     {
-      "id": "mtfgcxd7",
-      "no": 1,
-      "code": "HRST-001",
-      "name": "Leadership",
-      "co": "HRST",
-      "vendorName": "NNN",
-      "start": "",
-      "end": "",
-      "count": 1,
-      "cat": "Public",
-      "people": [],
-      "vendor": "ok",
-      "pr": "none",
-      "by": "Nobsamon",
-      "steps": {
-        "register": true,
-        "hbi": true
-      },
-      "stepTs": {
-        "register": "30/08/2026",
-        "hbi": "11/09/2026"
-      },
-      "stepBy": {
-        "register": "Nobsamon",
-        "hbi": "Nobsamon"
-      },
-      "stepRemark": {},
-      "docs": {},
-      "docBy": {},
-      "vendorBy": "Nobsamon",
-      "_to": "",
-      "_venue": "",
-      "price": 0
-    },
-    {
       "id": "mu6soqlb",
       "no": 2,
       "code": "HRST-002",
