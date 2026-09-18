@@ -33,7 +33,7 @@
       "id": "1238869812",
       "req": "ok",
       "reqDate": "2026-08-01",
-      "report": true,
+      "report": false,
       "dept": true,
       "receipt": false,
       "cert": false,
@@ -46,7 +46,7 @@
       "seenBy": "Nobsamon",
       "by2": {
         "dept": "Nobsamon",
-        "report": "Nobsamon"
+        "report": null
       }
     }
   ]
