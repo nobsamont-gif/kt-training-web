@@ -41,8 +41,9 @@
       "people": [],
       "by": "Nobsamon",
       "source": "training",
-      "isNew": true,
-      "createdAt": "18/09/2026"
+      "isNew": false,
+      "createdAt": "18/09/2026",
+      "seenBy": "Nobsamon"
     }
   ]
 }
