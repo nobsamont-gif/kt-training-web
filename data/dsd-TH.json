@@ -11,7 +11,7 @@
       "ppl": 1,
       "id": "",
       "req": "none",
-      "reqDate": "",
+      "reqDate": "2026-08-10",
       "report": false,
       "dept": false,
       "receipt": false,
@@ -19,7 +19,7 @@
       "remark": "ดึงจาก Training",
       "people": [],
       "by": "Nobsamon",
-      "source": "training"
+      "source": "manual"
     },
     {
       "id_": "mu3u2w4z",
