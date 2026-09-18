@@ -1,3 +1,29 @@
 {
-  "courses": []
+  "courses": [
+    {
+      "id": "mu6t0tb9",
+      "no": 1,
+      "code": "TH-001",
+      "name": "Strategic Consultant",
+      "co": "TH",
+      "vendorName": "ABC Training Center",
+      "start": "2026-10-10",
+      "end": "2026-10-10",
+      "count": 1,
+      "cat": "Public",
+      "people": [
+        "Babee Kids"
+      ],
+      "vendor": "none",
+      "pr": "none",
+      "by": "Nobsamon",
+      "createdAt": "18/09/2026",
+      "steps": {},
+      "stepTs": {},
+      "stepBy": {},
+      "stepRemark": {},
+      "docs": {},
+      "docBy": {}
+    }
+  ]
 }
