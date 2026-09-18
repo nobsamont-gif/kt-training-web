@@ -75,7 +75,7 @@
         "Patrita Elle",
         "Bajour Eyes"
       ],
-      "vendor": "none",
+      "vendor": "ok",
       "pr": "none",
       "by": "Nobsamon",
       "createdAt": "18/09/2026",
@@ -90,7 +90,11 @@
       },
       "stepRemark": {},
       "docs": {},
-      "docBy": {}
+      "docBy": {},
+      "vendorBy": "Nobsamon",
+      "vendorReadyAt": "18/09/2026",
+      "vendorNotify": true,
+      "vendorAck": false
     }
   ]
 }
