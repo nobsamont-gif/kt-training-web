@@ -34,7 +34,7 @@
       "req": "ok",
       "reqDate": "2026-08-01",
       "report": false,
-      "dept": false,
+      "dept": true,
       "receipt": false,
       "cert": false,
       "remark": "",
@@ -43,7 +43,10 @@
       "source": "manual",
       "isNew": false,
       "createdAt": "18/09/2026",
-      "seenBy": "Nobsamon"
+      "seenBy": "Nobsamon",
+      "by2": {
+        "dept": "Nobsamon"
+      }
     }
   ]
 }
