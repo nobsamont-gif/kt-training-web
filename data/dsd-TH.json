@@ -13,15 +13,17 @@
       "req": "ok",
       "reqDate": "2026-08-10",
       "report": true,
-      "dept": false,
-      "receipt": false,
+      "dept": true,
+      "receipt": true,
       "cert": false,
       "remark": "ดึงจาก Training",
       "people": [],
       "by": "Nobsamon",
       "source": "manual",
       "by2": {
-        "report": "Nobsamon"
+        "report": "Nobsamon",
+        "dept": "Nobsamon",
+        "receipt": "Nobsamon"
       }
     },
     {
