@@ -20,6 +20,29 @@
       "people": [],
       "by": "Nobsamon",
       "source": "training"
+    },
+    {
+      "id_": "mu6sorzfuk61",
+      "code": "HRST-002",
+      "co": "HRST",
+      "course": "Proactive Mindsets for Planning and Time Management",
+      "date": "2026-09-30",
+      "dateEnd": "2026-09-30",
+      "dateText": "",
+      "ppl": 28,
+      "id": "",
+      "req": "none",
+      "reqDate": "",
+      "report": false,
+      "dept": false,
+      "receipt": false,
+      "cert": false,
+      "remark": "",
+      "people": [],
+      "by": "Nobsamon",
+      "source": "training",
+      "isNew": true,
+      "createdAt": "18/09/2026"
     }
   ]
 }
