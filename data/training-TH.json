@@ -1,35 +1,3 @@
 {
-  "courses": [
-    {
-      "id": "mt2dx8e2",
-      "no": 1,
-      "code": "TH-001",
-      "name": "Leadership",
-      "co": "TH",
-      "vendorName": "ABC",
-      "start": "2026-12-01",
-      "end": "2026-02-01",
-      "count": 1,
-      "cat": "Public",
-      "people": "Somsak L.",
-      "vendor": "none",
-      "pr": "none",
-      "by": "Nobsamon",
-      "steps": {
-        "register": true,
-        "dsd": true
-      },
-      "stepTs": {
-        "register": "26/08/2026",
-        "dsd": "25/08/2026"
-      },
-      "stepBy": {
-        "register": "Nobsamon",
-        "dsd": "ta008955"
-      },
-      "stepRemark": {},
-      "docs": {},
-      "docBy": {}
-    }
-  ]
+  "courses": []
 }
