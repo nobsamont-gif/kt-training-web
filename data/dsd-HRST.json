@@ -32,7 +32,7 @@
       "ppl": 28,
       "id": "",
       "req": "none",
-      "reqDate": "",
+      "reqDate": "2026-08-01",
       "report": false,
       "dept": false,
       "receipt": false,
@@ -40,7 +40,7 @@
       "remark": "",
       "people": [],
       "by": "Nobsamon",
-      "source": "training",
+      "source": "manual",
       "isNew": false,
       "createdAt": "18/09/2026",
       "seenBy": "Nobsamon"
