@@ -91,6 +91,22 @@
       "history": [
         "สร้างอัตโนมัติจาก Training 18/09/2026"
       ]
+    },
+    {
+      "id": "mu6t0uj6ziti",
+      "code": "ASH-001",
+      "src": "training",
+      "title": "Strategic Consultant",
+      "co": "ASH",
+      "status": "confirmed",
+      "date": "2026-10-10",
+      "end": "",
+      "time": "",
+      "note": "จาก Training Tracker",
+      "by": "Nobsamon",
+      "history": [
+        "สร้างอัตโนมัติจาก Training 18/09/2026"
+      ]
     }
   ]
 }
