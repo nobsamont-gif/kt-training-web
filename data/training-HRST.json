@@ -107,7 +107,8 @@
       "vendorReadyAt": "18/09/2026",
       "vendorNotify": true,
       "vendorAck": false,
-      "payRound": "ทำจ่ายรอบปลายเดือน"
+      "payRound": "ทำจ่ายรอบปลายเดือน",
+      "price": 200000
     }
   ]
 }
