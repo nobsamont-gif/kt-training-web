@@ -267,6 +267,32 @@ button.tile:hover{border-color:var(--sub)}.tile.on{border-color:var(--red);box-s
 .stepper .u{min-width:96px;padding:0 10px;font-size:var(--fs-sm);color:var(--sub)}
 .set-row.changed{background:#FFFBF2}
 .set-foot{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:6px}
+
+/* ================= Survey / Records / Pending (โมดูลใหม่) ================= */
+.mcard.wide{width:min(1060px,100%)}
+.inl{display:inline-flex!important;align-items:center;gap:6px;margin:0!important;white-space:nowrap;color:var(--ink)!important}
+.inl input{width:auto}
+.bulkbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-bottom:8px;background:#FBFBFC;border:1px solid var(--line);border-radius:var(--radius)}
+.minisel{width:auto;font-size:var(--fs-xs);padding:4px 6px}
+a.mini{text-decoration:none;color:inherit;display:inline-block}
+.qin{width:64px;text-align:right;padding:5px 7px;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.seg button{padding:5px 11px;font-size:var(--fs-xs);border-right:1px solid var(--line);color:var(--sub)}
+.seg button:last-child{border-right:none}.seg button:hover{background:#F5F5F6;color:var(--ink)}
+.seg button.on.attended{background:var(--ok);color:#fff}.seg button.on.partial{background:var(--wait);color:#fff}
+.seg button.on.noshow{background:var(--alert);color:#fff}.seg button.on.cancelled{background:var(--sub);color:#fff}
+.svgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:860px){.svgrid{grid-template-columns:1fr}}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 11px;font-size:var(--fs-sm)}
+.pill.on{border-color:var(--red);background:#FFF5F5;color:var(--red);font-weight:600}.pill:disabled{cursor:default;opacity:.8}
+.checklist{display:grid;gap:4px;border:1px solid var(--line);border-radius:5px;padding:8px 10px;max-height:240px;overflow:auto;margin-bottom:10px}
+.ckrow{display:flex!important;align-items:center;gap:8px;margin:0!important;color:var(--ink)!important;font-size:var(--fs-sm)!important}
+.ckrow input{width:auto}
+table.plain{width:100%;border-collapse:collapse;background:transparent}
+table.plain td{padding:5px 6px;border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}table.plain tr:last-child td{border-bottom:none}
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.qhead .stepper button{width:30px;height:30px}.qhead .stepper input{width:48px;padding:4px}
+.panel h4 .by{font-weight:400}
 </style>
 </head>
 <body>
@@ -326,13 +352,14 @@ function applyDept(p){const d=deptOf(p);p.allAccess=d.allAccess||!!p.admin;p.dep
 const roleIs=r=>state.profile&&state.profile.role===r;
 
 /* ---- ค่าตั้งต้นการแจ้งเตือน (ค่าเดิมของ HRST) — แต่ละ Genpo แก้เองได้ในหน้า ⚙ ตั้งค่า ---- */
-const DEF_SET={visaNotice:60,aptNotice:60,trainWarn:7,dsdLead:30,dsdReport:60,payMid:7,payEnd:21};
+const DEF_SET={visaNotice:60,aptNotice:60,trainWarn:7,dsdLead:30,dsdReport:60,payMid:7,payEnd:21,surveyCap:30};
 
 const state={ apiBase:localStorage.getItem(API_KEY)||'', token:localStorage.getItem(TOK_KEY)||'',
   profile:JSON.parse(localStorage.getItem(PROF_KEY)||'null'),
   view:'training', ws:localStorage.getItem('pch_ws')||'TR',
   train:{}, dsd:{}, cal:{events:[],skip:[],sha:null},
   vwp:{}, resign:{}, housing:{}, vwpcal:{events:[],skip:[],sha:null}, safety:{},
+  emp:{}, survey:{}, rec:{},
   settings:{genpos:{}}, settingsSha:null, missing:new Set() };
 function cfg(g){return Object.assign({},DEF_SET,((state.settings||{}).genpos||{})[g]||{});}
 
@@ -466,7 +493,7 @@ const housingLabel=c=>c.name||('Expat No. '+String(c.no||'').split('.')[0]);
 /* ---- drawer / modal ---- */
 function openDrawer(html){$('drawer').innerHTML=html;$('ov').classList.add('open');$('drawer').classList.add('open');}
 function closeDrawer(){$('ov').classList.remove('open');$('drawer').classList.remove('open');}
-function openModal(html){let m=$('modal');if(!m){m=document.createElement('div');m.id='modal';m.className='modal';m.onclick=e=>{if(e.target===m)closeModal();};document.body.appendChild(m);}m.innerHTML=`<div class="mcard">${html}</div>`;m.classList.add('open');}
+function openModal(html,cls){let m=$('modal');if(!m){m=document.createElement('div');m.id='modal';m.className='modal';m.onclick=e=>{if(e.target===m)closeModal();};document.body.appendChild(m);}m.innerHTML=`<div class="mcard ${cls||''}">${html}</div>`;m.classList.add('open');}
 function closeModal(){const m=$('modal');if(m)m.classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeDrawer();}});
 /* =====================================================================
@@ -542,24 +569,27 @@ const App=(()=>{
       await enterApp();
     }catch(e){renderAuth(e.message)}}
   function logout(msg){clearInterval(pollT);state.token='';state.profile=null;localStorage.removeItem(TOK_KEY);localStorage.removeItem(PROF_KEY);
-    for(const k of ['train','dsd','vwp','resign','housing','safety'])state[k]={};
+    for(const k of ['train','dsd','vwp','resign','housing','safety','emp','survey','rec'])state[k]={};
     state.cal={events:[],skip:[],sha:null};state.vwpcal={events:[],skip:[],sha:null};
     closeDrawer();closeModal();$('appShell').classList.add('hide');$('auth').classList.remove('hide');resetAuth();if(msg)renderAuth(msg);}
 
   /* ---------- 4) DATA LAYER ----------
      ตอนนี้ยังเก็บผ่าน Worker → GitHub (ย้ายไป Server ภายในบริษัทภายหลังได้ โดยแก้แค่ api()/getFile())
      ไฟล์: training-<G>, dsd-<G>, calendar, vwp-<G>, resign-<G>, housing-<G>, calendar-vwp, safety-<G>, settings */
-  const FILES={train:['training-','courses'],dsd:['dsd-','runs'],vwp:['vwp-','people'],resign:['resign-','items'],housing:['housing-','contracts'],safety:['safety-','records']};
-  async function loadKind(kind,gs){const[pre,key]=FILES[kind];
-    await Promise.all(gs.map(async g=>{const r=await getFile(pre+g);state[kind][g]={[key]:(r.json&&r.json[key])||[],skip:(r.json&&r.json.skip)||[],sha:r.sha};}));}
+  const FILES={train:['training-','courses'],dsd:['dsd-','runs'],vwp:['vwp-','people'],resign:['resign-','items'],housing:['housing-','contracts'],safety:['safety-','records'],
+    /* ใหม่: ทะเบียนพนักงาน / Survey + Nomination / Training Record (key ที่ 3 = รายการเพิ่มเติมในไฟล์เดียวกัน) */
+    emp:['employees-','employees',['depts','imports']],survey:['survey-','surveys',['nominations']],rec:['records-','records']};
+  async function loadKind(kind,gs){const[pre,key,extra=[]]=FILES[kind];
+    await Promise.all(gs.map(async g=>{const r=await getFile(pre+g),j=r.json||{};
+      state[kind][g]={[key]:j[key]||[],...Object.fromEntries(extra.map(k=>[k,j[k]||[]])),skip:j.skip||[],sha:r.sha};}));}
   async function loadCal(which){const r=await getFile(which==='cal'?'calendar':'calendar-vwp');state[which]={events:(r.json&&r.json.events)||[],skip:(r.json&&r.json.skip)||[],sha:r.sha};}
   async function loadSettings(){const r=await getFile('settings');state.settings=(r.json&&r.json.genpos)?r.json:{genpos:{}};state.settingsSha=r.sha;}
   function sides(){const p=state.profile;if(p.admin)return{tr:true,vwp:true,oth:true};return{tr:p.deptNav==='TR',vwp:p.deptNav==='VWP',oth:p.deptNav==='OTH'};}
   async function loadData(silent){
     if(!silent)sync('กำลังโหลด…');
-    const next={train:{},dsd:{},vwp:{},resign:{},housing:{},safety:{}};Object.assign(state,next);state.missing=new Set();
+    const next={train:{},dsd:{},vwp:{},resign:{},housing:{},safety:{},emp:{},survey:{},rec:{}};Object.assign(state,next);state.missing=new Set();
     const p=state.profile,gs=scopeGenpos(),s=sides(),jobs=[loadSettings()];
-    if(s.tr)jobs.push(loadKind('train',gs),loadKind('dsd',gs),loadCal('cal'));
+    if(s.tr)jobs.push(loadKind('train',gs),loadKind('dsd',gs),loadCal('cal'),loadKind('emp',gs),loadKind('survey',gs),loadKind('rec',gs));
     if(s.vwp)jobs.push(loadKind('vwp',gs),loadKind('resign',gs),loadKind('housing',gs),loadCal('vwpcal'));
     if(s.oth){if(p.admin)jobs.push(loadKind('safety',gs));else if(roleIs('Safety'))jobs.push(loadKind('safety',gs));else jobs.push(loadKind('train',gs));}
     await Promise.all(jobs);
@@ -567,9 +597,10 @@ const App=(()=>{
     sync((state.missing.size?`⚠ ยังโหลดไม่ได้ ${state.missing.size} ไฟล์ (ตรวจสิทธิ์ไฟล์บน Worker) · `:'')+'ซิงค์ล่าสุด '+nowStamp());
   }
   async function reloadKind(kind,g){await loadKind(kind,[g]);}
-  async function saveKind(kind,g,msg){const s=state[kind][g];const[pre,key]=FILES[kind];
-    const content={[key]:s[key]};if(s.skip&&s.skip.length)content.skip=s.skip;
-    try{const r=await api('PUT','api/data?file='+encodeURIComponent(pre+g),{content,sha:s.sha,msg});s.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
+  async function saveKind(kind,g,msg){const s=state[kind][g];const[pre,key,extra=[]]=FILES[kind];
+    if(!s)throw new Error('ยังโหลดข้อมูล '+(CO[g]||g)+' ไม่ได้');
+    const content={[key]:s[key]};extra.forEach(k=>content[k]=s[k]||[]);if(s.skip&&s.skip.length)content.skip=s.skip;
+    try{const r=await api('PUT','api/data?file='+encodeURIComponent(pre+g),{content,sha:s.sha,msg});s.sha=r.sha;state.missing.delete(pre+g);sync('บันทึกแล้ว '+nowStamp());}
     catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดข้อมูลล่าสุดแล้ว กรุณาทำซ้ำ');await reloadKind(kind,g);render();}else toast('บันทึกไม่สำเร็จ: '+e.message);throw e;}}
   async function saveCalendar(which,msg){const c=state[which];const name=which==='cal'?'calendar':'calendar-vwp';
     const content={events:c.events};if(c.skip&&c.skip.length)content.skip=c.skip;
@@ -634,7 +665,7 @@ const App=(()=>{
       try{await saveTrain(g,'sync dsd step '+run.code);}catch(e){}}}
 
   /* ---------- 3) NAV ---------- */
-  const WS={TR:[['dashboard','Dashboard'],['training','Training'],['dsd','DSD'],['calendar','Calendar']],
+  const WS={TR:[['dashboard','Dashboard'],['training','Training'],['survey','Survey'],['records','Records'],['dsd','DSD'],['calendar','Calendar']],
     VWP:[['vwpdash','Dashboard'],['vwp','Visa / WP'],['housing','Housing'],['resign','Outboarding'],['vwpcal','Calendar']],
     OTH:[['accounting','Accounting'],['purchasing','Purchasing'],['safety','Safety']],
     ADM:[['admin','Users']]};
@@ -647,6 +678,7 @@ const App=(()=>{
     return[['accounting','Accounting']];}
   function badge(v){
     if(v==='dsd'){let n=0;for(const g in state.dsd)n+=(state.dsd[g].runs||[]).filter(r=>r.isNew).length;return n;}
+    if(v==='survey'){let n=0;for(const g in state.survey)n+=(state.survey[g].nominations||[]).filter(x=>x.status==='pending').length;return n;}
     if(v==='accounting')return allCourses().filter(({c})=>c.vendorNotify&&!c.vendorAck).length;
     if(v==='purchasing')return allCourses().filter(({c})=>c.vendor==='wait_docs'||c.vendor==='review').length;
     return 0;}
@@ -658,7 +690,7 @@ const App=(()=>{
     $('hdrLogo').src=LOGO;}
   function setWs(w){state.ws=w;localStorage.setItem('pch_ws',w);state.view=VIEWS()[0][0];renderNav();render();}
   function go(v){state.view=v;closeDrawer();renderNav();render();window.scrollTo(0,0);}
-  function render(){const el=$('app');const M={dashboard:Dashboard,training:Training,dsd:DSD,calendar:Calendar,vwpdash:VWPDashboard,vwp:VWP,housing:Housing,
+  function render(){const el=$('app');const M={dashboard:Dashboard,training:Training,survey:Survey,records:Records,dsd:DSD,calendar:Calendar,vwpdash:VWPDashboard,vwp:VWP,housing:Housing,
       resign:Resign,vwpcal:VWPCalendar,admin:Admin,accounting:Accounting,purchasing:Purchasing,safety:Safety,settings:Settings}[state.view];
     if(M)M.render(el);renderNavBadges();}
   function renderNavBadges(){if(!state.profile)return;document.querySelectorAll('#nav button').forEach((b,i)=>{const v=VIEWS()[i];if(!v)return;const n=badge(v[0]);let s=b.querySelector('.badge');
@@ -752,7 +784,7 @@ const Training=(()=>{
         <select onchange="localStorage.setItem('t_sort',this.value);App.render()">
           <option value="date" ${mode==='date'?'selected':''}>เรียง: วันอบรม</option><option value="risk" ${mode==='risk'?'selected':''}>เรียง: ความเสี่ยงสูง→ต่ำ</option><option value="no" ${mode==='no'?'selected':''}>เรียง: ลำดับ</option></select>
         <span style="flex:1"></span>
-        <button class="btn btn-ghost" onclick="Training.openPersonSearch()">ประวัติรายบุคคล</button>
+        <button class="btn btn-ghost" onclick="App.go('records')">ประวัติรายบุคคล</button>
         <button class="btn btn-ghost" onclick="Training.exportExcel()">Export Excel</button>
         <button class="btn btn-ghost" onclick="Import.open('training')">Import Excel</button>
       </div>
@@ -767,7 +799,7 @@ const Training=(()=>{
       return`<tr class="clk ${late?'late':''}" onclick="Training.openDrawer('${g}','${c.id}')">
         <td><span class="co ${g}">${CO[g]}</span><br><span class="code">${esc(c.code||'')}</span></td>
         <td class="cname">${esc(c.name)} <span class="chip" style="font-size:10.5px">${esc(c.cat||'')}</span><br><span style="font-size:var(--fs-xs);color:var(--sub)">${esc(c.vendorName||'')}</span>${c.by?`<br><span class="by">เพิ่มโดย ${esc(c.by)}</span>`:''}</td>
-        <td class="cdate">${courseRange(c)}</td><td>${c.count||''}${pn?`<br><span style="font-size:var(--fs-xs);color:var(--sub)">${pn} รายชื่อ</span>`:''}</td>
+        <td class="cdate">${courseRange(c)}</td><td>${c.count||''}${Nom.countLine(g,c)}${pn?`<br><span style="font-size:var(--fs-xs);color:var(--sub)">${pn} รายชื่อเดิม</span>`:''}</td>
         <td><div class="dots">${dots}</div></td>
         <td><span class="chip ${late?'alert':st.cl}">${late?'⚠ ':''}${esc(st.t)}</span>${coChip}</td></tr>`;}).join('');
   }
@@ -827,11 +859,13 @@ const Training=(()=>{
           <div class="frow"><label>สถาบัน / Vendor</label><input value="${esc(c.vendorName||'')}" onchange="Training.editField('vendorName',this.value)"></div>
           <div class="frow"><label>ประเภท</label><select onchange="Training.editField('cat',this.value)">${catsFor(g,c.cat).map(x=>`<option ${c.cat===x?'selected':''}>${esc(x)}</option>`).join('')}</select></div>
           <div class="frow"><label>จำนวนที่นั่ง</label><input type="number" value="${c.count||1}" onchange="Training.editField('count',+this.value)"></div>
+          <div class="frow"><label data-tip="ใช้เป็นชั่วโมงตั้งต้นของ Training Record ทุกคนในรอบนี้">ชั่วโมงอบรม/คน ⓘ</label><input type="number" min="0" step="0.5" value="${c.hours??''}" onchange="Training.editField('hours',+this.value||0)"></div>
           <div class="frow"><label>วันที่เริ่ม</label>${dateInput(c.start,"Training.editDate('start',this.value)")}</div>
           <div class="frow"><label>วันที่สิ้นสุด</label>${dateInput(c.end,"Training.editDate('end',this.value)")}</div></div>
-          <div class="frow"><label>ผู้เข้าอบรม (<span id="cPeopleCount">0</span> คน)</label><div class="chipbox" id="cPeopleBox"></div>
-            <div class="chiphint">คลิกชื่อเพื่อดูประวัติการอบรมของคนนั้น</div></div>
+          <div class="frow"><label>รายชื่อแบบเดิม — พิมพ์ชื่อ (<span id="cPeopleCount">0</span> คน)</label><div class="chipbox" id="cPeopleBox"></div>
+            <div class="chiphint">ข้อมูลเดิมก่อนมีรหัสพนักงาน · ย้ายเข้า Training Record ได้ที่หน้า Records → ย้ายข้อมูลเดิม</div></div>
           ${c.by?`<p class="by">เพิ่มโดย ${esc(c.by)}${c.createdAt?' · '+esc(c.createdAt):''}</p>`:''}</div>
+        <div class="sect"><h3>ผู้เข้าอบรม (รหัสพนักงาน) · Pending list</h3>${Nom.summary(g,c)}</div>
         <div class="sect"><h3>ขั้นตอน</h3>${stepRows}</div>
         <div class="sect"><h3>Invoice / ค่าใช้จ่าย</h3><div class="grid2">
           <div class="frow"><label>ราคา/หัว ก่อน VAT</label><input id="ivPrice" type="number" min="0" step="0.01" value="${c.price??''}" oninput="Training.calcInv()" onchange="Training.editField('price',+this.value||0)"></div>
@@ -852,9 +886,10 @@ const Training=(()=>{
   async function setVendor(v){const c=cur();c.vendor=v;c.vendorBy=state.profile.username;if(v==='ok'&&!c.vendorReadyAt){c.vendorReadyAt=todayDMY();c.vendorNotify=true;c.vendorAck=false;}await saveCur('vendor '+v);}
   async function setPr(v){const c=cur();c.pr=v;c.prBy=state.profile.username;await saveCur('pr '+v);}
   async function setRemark(k,v){const c=cur();c.stepRemark=c.stepRemark||{};c.stepRemark[k]=v.trim();try{await App.saveTrain(currentG,'remark '+k);}catch(e){}}
-  async function editField(f,v){const c=cur();c[f]=v;try{await App.saveTrain(currentG,'edit '+f);if(['name','start','end','code'].includes(f))await App.propagateCourse(c,currentG);App.render();if(['vatOn','whtPct'].includes(f))calcInv();}catch(e){}}
+  async function editField(f,v){const c=cur();c[f]=v;try{await App.saveTrain(currentG,'edit '+f);if(['name','start','end','code'].includes(f))await App.propagateCourse(c,currentG);
+    if(['name','start','end','code','cat','hours'].includes(f))await Records.syncCourse(c,currentG);App.render();if(['vatOn','whtPct'].includes(f))calcInv();}catch(e){}}
   function editDate(f,dmy){const iso=dmy?parseDMY(dmy):'';if(dmy&&!iso){toast('วันที่ต้องเป็น dd/mm/yyyy');openDetail(currentG,currentId);return;}editField(f,iso);}
-  async function delCourse(){if(!confirm('ลบหลักสูตรนี้?'))return;const s=state.train[currentG];s.courses=s.courses.filter(x=>x.id!==currentId);try{await App.saveTrain(currentG,'delete');closeDrawer();App.render();}catch(e){}}
+  async function delCourse(){const nr=Records.bySession(currentG,currentId).length;if(!confirm(nr?`ลบหลักสูตรนี้? (มี Training Record ${nr} คน — ประวัติรายบุคคลยังเก็บไว้)`:'ลบหลักสูตรนี้?'))return;const s=state.train[currentG];s.courses=s.courses.filter(x=>x.id!==currentId);try{await App.saveTrain(currentG,'delete');closeDrawer();App.render();}catch(e){}}
   async function upDoc(k){const c=cur(),g=currentG;try{if(await uploadCourseDoc(g,c,k)){await App.saveTrain(g,'doc '+k);toast('อัปโหลดสำเร็จ');App.render();openDetail(g,c.id);}}catch(e){toast('อัปโหลดไม่สำเร็จ: '+e.message);}}
   async function delCert(fn){const c=cur();c.docs.cert=(c.docs.cert||[]).filter(x=>x!==fn);await saveCur('del cert');}
 
@@ -1213,6 +1248,14 @@ const Dashboard=(()=>{
       else if(b==='noreq'){const d=r.date?daysUntil(DSD.reqDue(r)):null;concerns.push({sev:d!==null&&d<=0?3:2,g,kind:'DSD',code:r.code,name:r.course,detail:d===null?'Not yet submitted for certification':d<=0?'Certification request overdue':`Not yet submitted · ${d} day(s) left`,date:r.date});}});
     concerns.sort((a,b)=>b.sev-a.sev||(a.date||'9999').localeCompare(b.date||'9999'));
     const byG={};ts.forEach(({g})=>byG[g]=(byG[g]||0)+1);
+    /* Survey + Training Record */
+    const gsD=Object.keys(state.survey).filter(g=>cofil==='ALL'||g===cofil);
+    const pendN=gsD.reduce((a,g)=>a+(state.survey[g].nominations||[]).filter(n=>n.status==='pending').length,0);
+    const openS=gsD.reduce((a,g)=>a+(state.survey[g].surveys||[]).filter(x=>x.status==='open').length,0);
+    const k=kiCur(),dh=[];gsD.forEach(g=>{const E=People.emps(g).filter(e=>e.status!=='Inactive');if(!E.length)return;const H={},N={};
+      E.forEach(e=>{N[e.dept]=(N[e.dept]||0)+1;});People.recs(g).forEach(r=>{if(!People.done(r)||kiOfISO(r.start)!==k)return;const e=People.emp(g,r.empId);if(e&&e.status!=='Inactive')H[e.dept]=(H[e.dept]||0)+(+r.hours||0);});
+      Object.keys(N).forEach(d=>dh.push({g,d,n:N[d],avg:(H[d]||0)/N[d]}));});
+    dh.sort((a,b)=>b.n-a.n);const dTop=dh.slice(0,10).sort((a,b)=>a.avg-b.avg),dMax=Math.max(1,...dTop.map(x=>x.avg));
     el.innerHTML=`<div class="dash">
       <div class="dash-top"><div><div class="dash-title">Training overview</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'All Genpo':CO[cofil]}</div></div>
         <select onchange="Dashboard.setCo(this.value)">${genpoOptions(cofil,{all:true})}</select></div>
@@ -1223,11 +1266,14 @@ const Dashboard=(()=>{
         <div class="kpi wait"><b>${tCut}</b><span>Near payment cut-off</span></div>
         <div class="kpi alert"><b>${bc.noreq}</b><span>DSD not yet submitted</span>${newN?`<small>${newN} new from Training</small>`:''}</div>
         <div class="kpi alert"><b>${bc.noreport}</b><span>DSD report overdue</span></div>
+        <div class="kpi ${pendN?'wait':''}"><b>${pendN}</b><span>Nominations to review</span>${openS?`<small>${openS} survey(s) open</small>`:''}</div>
       </div>
       <div class="dgrid">
         ${chartCard('Training progress','By course status',[{label:'Completed',value:tD,color:C_OK},{label:'In progress',value:tP,color:C_PROG},{label:'At risk / overdue',value:tL,color:C_ALERT}],{centerLabel:'Courses'})}
         ${chartCard('DSD status','Certified · in progress · needs action',[{label:'Certified / completed',value:bc.ready+bc.done,color:C_OK},{label:'In progress',value:bc.waitapv+bc.waitdept+bc.waitdoc,color:C_WAIT},{label:'Not certified / report overdue',value:bc.noreq+bc.noreport,color:C_ALERT}],{centerLabel:'Batches'})}
         <div class="dcard"><div class="dcard-h"><h3>Courses by Genpo</h3><span class="dcard-s">Share of all tracked courses</span></div>${hbars(GENPOS.filter(g=>byG[g]).map(g=>({label:CO[g],value:byG[g],color:gcolor(g),cls:g})).sort((a,b)=>b.value-a.value))}</div>
+        ${dTop.length?`<div class="dcard"><div class="dcard-h"><h3>Training hours per head</h3><span class="dcard-s">${k} Ki · 10 largest departments · lowest first</span></div>
+          ${dTop.map(x=>`<div class="hbar" style="grid-template-columns:130px 1fr 42px" title="${esc(People.deptName(x.g,x.d))}: ${hrs(x.avg)} h/head (${x.n} people)"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cofil==='ALL'?`<span class="dotco ${x.g}"></span>`:''}${esc(People.deptName(x.g,x.d))}</span><div class="trk"><div class="fil" style="width:${(x.avg/dMax*100).toFixed(1)}%;background:${C_PROG}"></div></div><span class="pc">${hrs(x.avg)}</span></div>`).join('')}</div>`:''}
       </div>
       <div class="concern"><div class="concern-h"><h3>Items needing attention</h3><span class="cnt">${concerns.length} item(s)</span></div>
         ${concerns.length?concerns.slice(0,15).map(c=>`<div class="crow s${c.sev}"><span class="sevdot"></span><span class="ck2">${c.kind}</span><span class="co ${c.g}">${CO[c.g]}</span>
@@ -1691,8 +1737,9 @@ const Settings=(()=>{
     payMid:{t:'ตัดรอบทำจ่ายกลางเดือน',d:'วันที่ของเดือนที่ต้องส่งเอกสารครบสำหรับรอบกลางเดือน',u:'วันที่',min:1,max:28},
     payEnd:{t:'ตัดรอบทำจ่ายปลายเดือน',d:'วันที่ของเดือนที่ต้องส่งเอกสารครบสำหรับรอบปลายเดือน',u:'วันที่',min:1,max:31},
     visaNotice:{t:'แจ้งเตือน Visa / Work Permit ใกล้หมดอายุ',d:'เริ่มขึ้นสีส้มในตารางและ Dashboard',u:'วันล่วงหน้า',min:7,max:365},
-    aptNotice:{t:'แจ้งเตือนสัญญาที่พักใกล้หมด',d:'เริ่มขึ้นสีส้มในหน้า Housing และลงปฏิทิน',u:'วันล่วงหน้า',min:7,max:365}};
-  const GROUPS={training:{t:'Training & DSD',h:'ใช้ในหน้า Training, DSD และ Dashboard',k:['trainWarn','dsdLead','dsdReport']},
+    aptNotice:{t:'แจ้งเตือนสัญญาที่พักใกล้หมด',d:'เริ่มขึ้นสีส้มในหน้า Housing และลงปฏิทิน',u:'วันล่วงหน้า',min:7,max:365},
+    surveyCap:{t:'เพดานสัดส่วนต่อฝ่ายใน Survey (โหมด Auto)',d:'ฝ่ายเดียวได้ที่นั่งไม่เกินกี่ % ของแต่ละรอบ',u:'% ของห้อง',min:10,max:100}};
+  const GROUPS={training:{t:'Training & DSD',h:'ใช้ในหน้า Training, Survey, DSD และ Dashboard',k:['trainWarn','dsdLead','dsdReport','surveyCap']},
     pay:{t:'รอบทำจ่าย',h:'ใช้คำนวณ cut off ในหน้า Training และ Accounting',k:['payMid','payEnd']},
     vwp:{t:'Visa & ที่พัก',h:'ใช้ในหน้า Visa & Work Permit, Housing และ Dashboard',k:['visaNotice','aptNotice']}};
   let g=null,draft={};
@@ -1793,6 +1840,772 @@ const Import=(()=>{
       closeModal();await App.autoLink();App.render();toast('นำเข้า '+pending.length+' รายการแล้ว');
     }catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message);}}
   return {open,fromFile,check,run};
+})();
+
+/* =====================================================================
+   11) EMPLOYEE MASTER · TRAINING RECORD · TRAINING SURVEY
+   ไฟล์ใหม่ (แยกต่อ Genpo): employees-<G> · survey-<G> · records-<G>
+   โครงสร้างตรงกับตาราง Dataverse ใน Design Spec
+     employees-<G>.employees  → Employee        .depts → Department     .imports → Import Batch
+     survey-<G>.surveys       → Survey (+Quota)  .nominations → Nomination
+     records-<G>.records      → Training Record (1 แถว = 1 คน × 1 รอบอบรม)
+   รอบอบรม (Session) = 1 แถวใน Training Tracker เดิม · Course = ชื่อหลักสูตร (courseKey)
+   ===================================================================== */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const ckey=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/\s+/g,' ').trim();
+const nkey=s=>String(s??'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}\p{M}]/gu,'');
+const kiOfISO=iso=>{if(!isISO(iso))return null;const y=+iso.slice(0,4),m=+iso.slice(5,7);return (m>=4?y:y-1)-1923;};
+const kiCur=()=>kiOfISO(todayISO());
+const kiLabel=k=>`${k} Ki (Apr ${k+1923} – Mar ${k+1924})`;
+const hrs=n=>{n=+n||0;return Number.isInteger(n)?String(n):n.toFixed(1);};
+const overlap=(a1,a2,b1,b2)=>isISO(a1)&&isISO(b1)&&a1<=(isISO(b2)?b2:b1)&&b1<=(isISO(a2)?a2:a1);
+const stampTxt=t=>`${todayDMY()} ${state.profile?state.profile.username:''}: ${t}`;
+const hist=(o,t)=>{o.history=o.history||[];o.history.push(stampTxt(t));if(o.history.length>30)o.history=o.history.slice(-30);};
+const courseById=(g,id)=>((state.train[g]||{}).courses||[]).find(c=>c.id===id)||null;
+const TICK=['✓','✔','1','y','yes','x','/','ใช่','เลือก','true','o','⭕'];
+
+/* ---------- ข้อมูลกลาง: พนักงาน / ฝ่าย / Record / Nomination ---------- */
+const People=(()=>{
+  const emps=g=>(state.emp[g]||{}).employees||[];
+  const recs=g=>(state.rec[g]||{}).records||[];
+  const noms=g=>(state.survey[g]||{}).nominations||[];
+  const surveys=g=>(state.survey[g]||{}).surveys||[];
+  function emp(g,id){id=String(id??'').trim();return id?emps(g).find(e=>e.empId===id)||null:null;}
+  const nameOf=e=>e?(e.nameTh||e.nameEn||e.empId):'';
+  function deptList(g,{activeOnly=true}={}){const m=new Map();
+    ((state.emp[g]||{}).depts||[]).forEach(d=>m.set(d.code,{...d,n:0}));
+    emps(g).forEach(e=>{if(!e.dept)return;if(!m.has(e.dept))m.set(e.dept,{code:e.dept,name:e.deptName||'',n:0});const d=m.get(e.dept);
+      if(!activeOnly||e.status!=='Inactive')d.n++;if(!d.name&&e.deptName)d.name=e.deptName;});
+    return[...m.values()].filter(d=>!activeOnly||d.n>0).sort((a,b)=>String(a.name||a.code).localeCompare(String(b.name||b.code),'th'));}
+  function dept(g,code){return deptList(g,{activeOnly:false}).find(d=>d.code===code)||{code,name:'',n:0};}
+  const deptName=(g,code)=>{if(!code)return '—';const d=dept(g,code);return d.name||code;};
+  const levels=g=>[...new Set(emps(g).filter(e=>e.status!=='Inactive'&&e.level).map(e=>String(e.level)))].sort();
+  const REC={enrolled:{t:'ลงทะเบียน',cl:'info'},attended:{t:'เข้าอบรมแล้ว',cl:'ok'},partial:{t:'เข้าบางส่วน',cl:'wait'},noshow:{t:'ไม่มา',cl:'alert'},cancelled:{t:'ยกเลิก',cl:''}};
+  const done=r=>r.status==='attended'||r.status==='partial';
+  /* index เพื่อเช็กเร็ว: เคยเรียนหลักสูตรนี้แล้ว / ลงทะเบียนค้างอยู่ */
+  function index(g){const att=new Map(),enr=new Map();
+    for(const r of recs(g)){const m=done(r)?att:r.status==='enrolled'?enr:null;if(!m)continue;const k=r.courseKey+'|'+r.empId;if(!m.has(k)||(r.start||'')>(m.get(k).start||''))m.set(k,r);}
+    return{att:(id,key)=>att.get(key+'|'+id)||null,enr:(id,key)=>enr.get(key+'|'+id)||null};}
+  const recFor=(g,sessionId,empId)=>recs(g).find(r=>r.sessionId===sessionId&&r.empId===empId)||null;
+  const snapshot=c=>({sessionId:c.id,code:c.code||'',courseName:c.name,courseKey:ckey(c.name),cat:c.cat||'',start:c.start||'',end:c.end||c.start||'',provider:c.vendorName||''});
+  function enroll(g,c,empId,nom){const R=state.rec[g];if(!R)throw new Error('ยังโหลด records-'+g+' ไม่ได้');
+    let r=recFor(g,c.id,empId);
+    if(r){Object.assign(r,snapshot(c));if(r.status!=='enrolled'&&!done(r)){r.status='enrolled';hist(r,'ลงทะเบียนอีกครั้ง');}if(nom)r.nominationId=nom.id;return r;}
+    r={id:uid(),empId,...snapshot(c),hours:+c.hours||0,hoursSet:false,status:'enrolled',nominationId:nom?nom.id:'',source:nom&&nom.surveyId?'survey':'manual',
+      remark:'',by:state.profile.username,at:todayISO()};hist(r,'ลงทะเบียน');R.records.push(r);return r;}
+  function unenroll(g,sessionId,empId){const R=state.rec[g];const r=recFor(g,sessionId,empId);if(!r)return true;if(r.status!=='enrolled')return false;
+    R.records=R.records.filter(x=>x!==r);return true;}
+  /* เข้าอบรมแล้ว → เพิ่มรหัสใน DSD รุ่นที่ Code ตรงกัน (เอาออกเฉพาะรหัสที่ระบบเป็นคนเพิ่ม) */
+  function syncDsd(g,r){if(!r.code)return false;const run=App.dsdByCode(r.code,g);if(!run)return false;run.people=run.people||[];
+    const has=run.people.map(x=>String(x).trim()).includes(r.empId);
+    if(done(r)&&!has){run.people.push(r.empId);r.dsdAdded=true;return true;}
+    if(!done(r)&&has&&r.dsdAdded){run.people=run.people.filter(x=>String(x).trim()!==r.empId);r.dsdAdded=false;return true;}return false;}
+  const inDsd=(g,r)=>{if(!r.code)return false;const run=App.dsdByCode(r.code,g);return !!run&&(run.people||[]).map(x=>String(x).trim()).includes(r.empId);};
+  function flagsFor(g,empId,c,ix){ix=ix||index(g);const f=[],key=ckey(c.name);
+    const a=ix.att(empId,key);if(a&&a.sessionId!==c.id)f.push('เคยอบรมแล้ว '+fmtDMY(a.start));
+    const cl=recs(g).find(r=>r.empId===empId&&r.status==='enrolled'&&r.sessionId!==c.id&&overlap(r.start,r.end,c.start,c.end));
+    if(cl)f.push('ชนวันกับ '+(cl.code||cl.courseName));return f;}
+  function promoteWaitlist(g,sessionId,deptCode){
+    const w=noms(g).filter(n=>n.sessionId===sessionId&&n.status==='waitlist').sort((a,b)=>(a.dept===deptCode?0:1)-(b.dept===deptCode?0:1)||(a.priority||99)-(b.priority||99)||String(a.at).localeCompare(String(b.at)))[0];
+    if(!w)return null;w.status='pending';hist(w,'เลื่อนจาก Waitlist (มีที่ว่าง)');return w;}
+  return {emps,recs,noms,surveys,emp,nameOf,deptList,dept,deptName,levels,REC,done,index,recFor,snapshot,enroll,unenroll,syncDsd,inDsd,flagsFor,promoteWaitlist};
+})();
+
+/* =====================================================================
+   12) RECORDS — ทะเบียนพนักงาน + ประวัติการอบรมรายบุคคล (ค้นด้วยรหัสพนักงาน)
+   ===================================================================== */
+const Records=(()=>{
+  let cofil=null,dfil='ALL',ki=null,q='',showInactive=false,sort='empId',limit=200,curG=null,curEmp=null;
+  const gsel=()=>{const gs=scopeGenpos();if(!cofil||(cofil!=='ALL'&&!gs.includes(cofil)))cofil=gs.includes('HRST')?'HRST':gs[0];return cofil;};
+  const gList=()=>cofil==='ALL'?scopeGenpos():[cofil];
+  function stats(g,empId,k,ix){const L=People.recs(g).filter(r=>r.empId===empId);const inK=L.filter(r=>People.done(r)&&kiOfISO(r.start)===k);
+    const last=L.filter(People.done).sort((a,b)=>(b.start||'').localeCompare(a.start||''))[0];
+    return{n:inK.length,h:inK.reduce((a,r)=>a+(+r.hours||0),0),last,wait:L.filter(r=>r.status==='enrolled').length,all:L.length};}
+  function rows(){const k=ki??kiCur(),o=[];
+    for(const g of gList())for(const e of People.emps(g)){if(!showInactive&&e.status==='Inactive')continue;if(cofil!=='ALL'&&dfil!=='ALL'&&e.dept!==dfil)continue;
+      if(q){const s=(e.empId+' '+(e.nameTh||'')+' '+(e.nameEn||'')+' '+(e.position||'')).toLowerCase();if(!s.includes(q))continue;}
+      o.push({g,e,st:stats(g,e.empId,k)});}
+    if(sort==='hoursAsc')o.sort((a,b)=>a.st.h-b.st.h||a.e.empId.localeCompare(b.e.empId));
+    else if(sort==='hoursDesc')o.sort((a,b)=>b.st.h-a.st.h);
+    else if(sort==='last')o.sort((a,b)=>((b.st.last||{}).start||'').localeCompare((a.st.last||{}).start||''));
+    else o.sort((a,b)=>a.e.empId.localeCompare(b.e.empId,undefined,{numeric:true}));return o;}
+  function render(el){const g0=gsel(),k=ki??kiCur(),gs=gList();
+    const nEmp=gs.reduce((a,g)=>a+People.emps(g).filter(e=>e.status!=='Inactive').length,0);
+    const inK=gs.flatMap(g=>People.recs(g).filter(r=>People.done(r)&&kiOfISO(r.start)===k).map(r=>({r,g})));
+    const trained=new Set(inK.map(({r,g})=>g+'|'+r.empId)).size,hSum=inK.reduce((a,{r})=>a+(+r.hours||0),0);
+    const waitN=gs.reduce((a,g)=>a+People.recs(g).filter(r=>r.status==='enrolled').length,0);
+    const rs=rows(),kis=[];for(let x=kiCur()+1;x>=kiCur()-4;x--)kis.push(x);
+    const miss=gs.filter(g=>state.missing.has('employees-'+g)||state.missing.has('records-'+g));
+    el.innerHTML=`<div class="pagehead"><h2>Training Records</h2><span class="note">ประวัติการอบรมรายบุคคล · ค้นด้วยรหัสพนักงาน</span></div>
+      <div class="toolbar">
+        <select onchange="Records.setCo(this.value)">${genpoOptions(g0,{all:scopeGenpos().length>1})}</select>
+        ${cofil!=='ALL'?`<select onchange="Records.setDept(this.value)"><option value="ALL">ทุกฝ่าย</option>${People.deptList(cofil).map(d=>`<option value="${esc(d.code)}" ${dfil===d.code?'selected':''}>${esc(d.name||d.code)} (${d.n})</option>`).join('')}</select>`:''}
+        <select onchange="Records.setKi(+this.value)" title="ปีงบประมาณ">${kis.map(x=>`<option value="${x}" ${x===k?'selected':''}>${kiLabel(x)}</option>`).join('')}</select>
+        <input type="search" id="rq" placeholder="ค้นหา รหัส / ชื่อ / ตำแหน่ง" value="${esc(q)}" style="width:220px" oninput="Records.search(this.value)">
+        <select onchange="Records.setSort(this.value)"><option value="empId" ${sort==='empId'?'selected':''}>เรียง: รหัสพนักงาน</option><option value="hoursAsc" ${sort==='hoursAsc'?'selected':''}>เรียง: ชั่วโมงน้อย→มาก</option><option value="hoursDesc" ${sort==='hoursDesc'?'selected':''}>เรียง: ชั่วโมงมาก→น้อย</option><option value="last" ${sort==='last'?'selected':''}>เรียง: อบรมล่าสุด</option></select>
+        <label style="display:inline-flex;align-items:center;gap:6px;margin:0;white-space:nowrap"><input type="checkbox" style="width:auto" ${showInactive?'checked':''} onchange="Records.toggleInactive(this.checked)">แสดงคนพ้นสภาพ</label>
+        <span style="flex:1"></span>
+        <button class="btn btn-red" onclick="Records.openImport()">Import HRIS</button>
+        <button class="btn btn-ghost" onclick="Records.openDepts()">ฝ่าย &amp; ผู้จัดการ</button>
+        <button class="btn btn-ghost" onclick="Records.openExternal()">+ ประวัติภายนอก</button>
+        <button class="btn btn-ghost" onclick="Records.openLegacy()">ย้ายข้อมูลเดิม</button>
+        <button class="btn btn-ghost" onclick="Records.exportExcel()">Export Excel</button>
+      </div>
+      ${miss.length?`<div class="banner"><b>ไฟล์ใหม่</b> <span class="note">${miss.map(g=>CO[g]).join(', ')} ยังไม่มีไฟล์ employees-/records- — ระบบจะสร้างเมื่อบันทึกครั้งแรก ถ้าบันทึกไม่ได้ ให้เพิ่มชื่อไฟล์นี้ในรายการที่ Worker อนุญาต</span></div>`:''}
+      <div class="tiles"><span class="tile"><b>${nEmp.toLocaleString()}</b><span>พนักงาน Active</span></span>
+        <span class="tile ok"><b>${trained.toLocaleString()}</b><span>อบรมแล้วใน ${k} Ki${nEmp?` (${Math.round(trained/nEmp*100)}%)`:''}</span></span>
+        <span class="tile"><b>${hrs(hSum)}</b><span>ชั่วโมงอบรมรวม</span></span>
+        <span class="tile"><b>${nEmp?hrs(hSum/nEmp):'0'}</b><span>ชม. เฉลี่ย/คน</span></span>
+        <span class="tile info"><b>${waitN}</b><span>ลงทะเบียน รออบรม</span></span></div>
+      <div class="tblwrap"><table><thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ฝ่าย</th><th>ตำแหน่ง / Level</th><th class="num">หลักสูตร (${k} Ki)</th><th class="num">ชม. (${k} Ki)</th><th>อบรมล่าสุด</th><th class="num">รออบรม</th></tr></thead><tbody>
+      ${rs.length?rs.slice(0,limit).map(({g,e,st})=>`<tr class="clk" onclick="Records.open('${g}','${esc(e.empId)}')">
+        <td><span class="code">${esc(e.empId)}</span>${cofil==='ALL'?` <span class="co ${g}">${CO[g]}</span>`:''}</td>
+        <td>${esc(e.nameTh||e.nameEn||'')}${e.nameTh&&e.nameEn?`<br><span class="by">${esc(e.nameEn)}</span>`:''}${e.status==='Inactive'?' <span class="chip">พ้นสภาพ</span>':''}</td>
+        <td>${esc(People.deptName(g,e.dept))}</td><td>${esc(e.position||'')}${e.level?` <span class="chip">${esc(e.level)}</span>`:''}</td>
+        <td class="num">${st.n||''}</td><td class="num">${st.h?hrs(st.h):''}</td>
+        <td class="cdate">${st.last?`${fmtDMY(st.last.start)}<br><span class="by">${esc(st.last.courseName)}</span>`:'—'}</td><td class="num">${st.wait||''}</td></tr>`).join('')
+        +(rs.length>limit?`<tr><td colspan="8" style="text-align:center"><button class="mini" onclick="Records.more()">แสดงเพิ่ม (${rs.length-limit} คน)</button></td></tr>`:'')
+        :`<tr><td colspan="8" class="empty">${nEmp||showInactive?'ไม่พบพนักงานตามเงื่อนไข':'ยังไม่มีทะเบียนพนักงาน — กด "Import HRIS" เพื่อนำเข้ารายชื่อจากไฟล์ Excel ของ HRIS'}</td></tr>`}
+      </tbody></table></div>
+      <p class="note" style="margin-top:8px">ข้อมูลที่พิมพ์เป็นชื่อก่อนมีระบบนี้ ค้นได้ที่ <span class="authlink" onclick="Training.openPersonSearch()">ค้นจากชื่อ (ข้อมูลเดิม)</span></p>`;}
+  function setCo(v){cofil=v;dfil='ALL';limit=200;App.render();}
+  function setDept(v){dfil=v;limit=200;App.render();}
+  function setKi(v){ki=v;App.render();}
+  function setSort(v){sort=v;App.render();}
+  function toggleInactive(v){showInactive=v;App.render();}
+  function more(){limit+=500;App.render();}
+  function search(v){q=v.trim().toLowerCase();limit=200;App.render();const i=$('rq');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}}
+
+  /* ---------- ประวัติรายบุคคล (drawer) ---------- */
+  function open(g,empId){curG=g;curEmp=empId;const e=People.emp(g,empId),k=kiCur();
+    const L=People.recs(g).filter(r=>r.empId===empId).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
+    const st=stats(g,empId,k),hAll=L.filter(People.done).reduce((a,r)=>a+(+r.hours||0),0);
+    const openNoms=People.noms(g).filter(n=>n.empId===empId&&['pending','waitlist'].includes(n.status));
+    const certs=r=>{const c=r.sessionId&&courseById(g,r.sessionId);return c&&((c.docs||{}).cert||[]).filter(fn=>fn.includes(empId)).length;};
+    openDrawer(`<div class="dhead"><h2><span class="co ${g}">${CO[g]}</span> <span class="code">${esc(empId)}</span> ${esc(People.nameOf(e)||'(ไม่พบในทะเบียน)')}</h2><button class="btn btn-ghost" onclick="closeDrawer()" aria-label="ปิด">✕</button></div>
+      <div class="dbody">
+        <div class="sect"><h3>ข้อมูลพนักงาน</h3>${e?`<dl class="kv"><dt>ชื่อ (EN)</dt><dd>${esc(e.nameEn||'—')}</dd><dt>ฝ่าย</dt><dd>${esc(People.deptName(g,e.dept))} <span class="by">${esc(e.dept||'')}</span></dd>
+          <dt>ตำแหน่ง / Level</dt><dd>${esc(e.position||'—')}${e.level?' · '+esc(e.level):''}</dd><dt>วันเริ่มงาน</dt><dd>${fmtDMY(e.startDate)||'—'}</dd>
+          <dt>อีเมล</dt><dd>${esc(e.email||'—')}</dd><dt>สถานะ</dt><dd><span class="chip ${e.status==='Inactive'?'':'ok'}">${e.status==='Inactive'?'พ้นสภาพ':'Active'}</span></dd></dl>`
+          :'<p class="note">รหัสนี้ไม่มีในทะเบียนพนักงาน (อาจพ้นสภาพก่อน import หรือพิมพ์รหัสผิด)</p>'}</div>
+        <div class="tiles"><span class="tile"><b>${st.n}</b><span>หลักสูตร ${k} Ki</span></span><span class="tile"><b>${hrs(st.h)}</b><span>ชม. ${k} Ki</span></span>
+          <span class="tile"><b>${hrs(hAll)}</b><span>ชม. สะสมทั้งหมด</span></span><span class="tile info"><b>${st.wait+openNoms.length}</b><span>รออบรม / รอคัดเลือก</span></span></div>
+        ${openNoms.length?`<div class="sect"><h3>อยู่ใน Pending list</h3>${openNoms.map(n=>{const c=courseById(g,n.sessionId);return`<div class="docrow"><span class="nm">${esc(c?c.name:'(รอบถูกลบ)')} <span class="code">${esc(c?c.code:'')}</span><br><span class="ts">${c?courseRange(c):''}</span></span><span class="chip ${Nom.META[n.status].cl}">${Nom.META[n.status].t}</span></div>`;}).join('')}</div>`:''}
+        <div class="sect"><h3 style="display:flex;align-items:center;gap:8px">ประวัติการอบรม (${L.length})<span style="flex:1"></span><button class="mini" onclick="Records.openExternal('${g}','${esc(empId)}')">+ ประวัติภายนอก</button><button class="mini" onclick="Records.exportPerson()">Export</button></h3>
+          ${L.length?`<div class="tblwrap"><table><thead><tr><th>วันที่</th><th>หลักสูตร</th><th class="num">ชม.</th><th>สถานะ</th><th>DSD</th></tr></thead><tbody>
+          ${L.map(r=>{const m=People.REC[r.status]||People.REC.enrolled;return`<tr class="clk" onclick="Records.editRec('${g}','${r.id}')"><td class="cdate">${fmtDMY(r.start)}${r.end&&r.end!==r.start?'<br>– '+fmtDMY(r.end):''}</td>
+            <td>${esc(r.courseName)}${r.code?` <span class="code">${esc(r.code)}</span>`:''}<br><span class="by">${esc(r.cat||'')}${r.source==='external'?' · ภายนอก':''}${r.provider?' · '+esc(r.provider):''}${certs(r)?' · มี Certificate':''}</span></td>
+            <td class="num">${People.done(r)?hrs(r.hours):''}</td><td><span class="chip ${m.cl}">${m.t}</span></td><td>${People.inDsd(g,r)?'<span class="chip ok">✓</span>':''}</td></tr>`;}).join('')}</tbody></table></div>`
+          :'<p class="note">ยังไม่มีประวัติ</p>'}</div>
+      </div>`);}
+  function exportPerson(){const g=curG,e=People.emp(g,curEmp);const L=People.recs(g).filter(r=>r.empId===curEmp).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+    xlsxExport(`training_record_${curEmp}_${dstamp()}.xlsx`,['Genpo','รหัส','ชื่อ','ฝ่าย','Code','หลักสูตร','ประเภท','ผู้จัด','เริ่ม','สิ้นสุด','ชั่วโมง','สถานะ','DSD','ที่มา'],
+      L.map(r=>[CO[g],curEmp,People.nameOf(e),e?People.deptName(g,e.dept):'',r.code,r.courseName,r.cat,r.provider||'',fmtDMY(r.start),fmtDMY(r.end),People.done(r)?+r.hours||0:0,(People.REC[r.status]||{}).t,People.inDsd(g,r)?'✓':'',r.source]));}
+
+  /* ---------- แก้ Record / เพิ่มประวัติภายนอก ---------- */
+  const CATS=['External / Public','Inhouse','Safety','e-Learning','OJT','Other'];
+  const findRec=(g,id)=>People.recs(g).find(r=>r.id===id);
+  function editRec(g,id){const r=findRec(g,id);if(!r)return;const ext=r.source==='external'||!r.sessionId;
+    openModal(`<h2>${esc(r.courseName)}</h2>
+      ${ext?`<div class="frow"><label>ชื่อหลักสูตร</label><input id="erName" value="${esc(r.courseName)}"></div>
+        <div class="grid2"><div class="frow"><label>ประเภท</label><select id="erCat">${[...new Set([...CATS,r.cat].filter(Boolean))].map(x=>`<option ${x===r.cat?'selected':''}>${esc(x)}</option>`).join('')}</select></div>
+        <div class="frow"><label>ผู้จัด / สถาบัน</label><input id="erProv" value="${esc(r.provider||'')}"></div>
+        <div class="frow"><label>วันที่เริ่ม</label>${dateInput(r.start,'','erStart')}</div><div class="frow"><label>วันที่สิ้นสุด</label>${dateInput(r.end,'','erEnd')}</div></div>`
+        :`<p class="note" style="margin-bottom:12px"><span class="code">${esc(r.code)}</span> ${courseRange({start:r.start,end:r.end})} · ชื่อ/วันที่อัปเดตตาม Training Tracker อัตโนมัติ</p>`}
+      <div class="grid2"><div class="frow"><label>สถานะ</label><select id="erSt">${Object.entries(People.REC).map(([k,v])=>`<option value="${k}" ${r.status===k?'selected':''}>${v.t}</option>`).join('')}</select></div>
+        <div class="frow"><label>ชั่วโมง</label><input id="erH" type="number" min="0" step="0.5" value="${r.hours??''}"></div></div>
+      <div class="frow"><label>หมายเหตุ</label><textarea id="erRm" rows="2">${esc(r.remark||'')}</textarea></div>
+      ${(r.history||[]).length?`<details><summary class="note" style="cursor:pointer">ประวัติการแก้ไข (${r.history.length})</summary><div class="note" style="margin-top:6px">${r.history.slice().reverse().map(esc).join('<br>')}</div></details>`:''}
+      <div class="mfoot"><button class="btn btn-ghost" style="color:var(--alert);margin-right:auto" onclick="Records.delRec('${g}','${r.id}')">ลบ</button><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Records.saveRec('${g}','${r.id}')">บันทึก</button></div>`);}
+  async function saveRec(g,id){const r=findRec(g,id),ext=r.source==='external'||!r.sessionId;
+    if(ext){const nm=$('erName').value.trim();const s=parseDMY($('erStart').value);if(!nm||!s){toast('กรอกชื่อหลักสูตรและวันที่ (dd/mm/yyyy)');return;}
+      Object.assign(r,{courseName:nm,courseKey:ckey(nm),cat:$('erCat').value,provider:$('erProv').value.trim(),start:s,end:parseDMY($('erEnd').value)||s});}
+    const st=$('erSt').value,prev=r.status;r.status=st;const h=+$('erH').value||0;if(h!==(+r.hours||0)){r.hours=h;r.hoursSet=true;}r.remark=$('erRm').value.trim();
+    if(prev!==st)hist(r,`สถานะ ${(People.REC[prev]||{}).t} → ${People.REC[st].t}`);
+    const dsdCh=People.syncDsd(g,r);
+    try{await App.saveKind('rec',g,'edit record '+r.empId);if(dsdCh)await App.saveDsd(g,'record→dsd '+r.code);closeModal();App.render();if(curEmp===r.empId&&$('drawer').classList.contains('open'))open(g,r.empId);toast('บันทึกแล้ว');}catch(e){}}
+  async function delRec(g,id){const r=findRec(g,id);if(!confirm(`ลบประวัติ "${r.courseName}" ของ ${r.empId}?`))return;
+    const R=state.rec[g];R.records=R.records.filter(x=>x!==r);
+    const n=r.nominationId&&People.noms(g).find(x=>x.id===r.nominationId);if(n&&n.status==='confirmed'){n.status='cancelled';hist(n,'ลบ Training Record');}
+    let dsdCh=false;if(r.dsdAdded){r.status='cancelled';dsdCh=People.syncDsd(g,r);}
+    try{await App.saveKind('rec',g,'delete record');if(n)await App.saveKind('survey',g,'record deleted');if(dsdCh)await App.saveDsd(g,'record→dsd');closeModal();App.render();if($('drawer').classList.contains('open'))open(g,r.empId);}catch(e){}}
+  function empDatalist(g,id){return`<datalist id="${id}">${People.emps(g).filter(e=>e.status!=='Inactive').slice(0,5000).map(e=>`<option value="${esc(e.empId)} · ${esc(People.nameOf(e))}">`).join('')}</datalist>`;}
+  let extG=null;
+  function openExternal(g,empId){extG=g||(cofil&&cofil!=='ALL'?cofil:scopeGenpos()[0]);
+    openModal(`<h2>เพิ่มประวัติการอบรมภายนอก</h2><p class="note" style="margin-bottom:12px">สำหรับหลักสูตรที่ไม่ได้จัดผ่าน Training Tracker เช่น เรียนก่อนเข้าบริษัท หรือหน่วยงานอื่นส่งไปเอง</p>
+      ${g?`<input type="hidden" id="exCo" value="${g}">`:`<div class="frow"><label>Genpo</label><select id="exCo" onchange="Records.openExternal(this.value)">${genpoOptions(extG)}</select></div>`}
+      <div class="frow"><label>รหัสพนักงาน</label><input id="exEmp" list="exEmpList" value="${esc(empId||'')}" ${empId?'readonly':''} placeholder="พิมพ์รหัสหรือชื่อ">${empId?'':empDatalist(extG,'exEmpList')}</div>
+      <div class="frow"><label>ชื่อหลักสูตร</label><input id="exName"></div>
+      <div class="grid2"><div class="frow"><label>ประเภท</label><select id="exCat">${CATS.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+        <div class="frow"><label>ผู้จัด / สถาบัน</label><input id="exProv"></div></div>
+      <div class="grid3"><div class="frow"><label>วันที่เริ่ม</label>${dateInput('','','exStart')}</div><div class="frow"><label>วันที่สิ้นสุด</label>${dateInput('','','exEnd')}</div>
+        <div class="frow"><label>ชั่วโมง</label><input id="exH" type="number" min="0" step="0.5"></div></div>
+      <div class="frow"><label>หมายเหตุ</label><input id="exRm"></div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Records.saveExternal()">บันทึก</button></div>`);}
+  async function saveExternal(){const g=$('exCo').value,empId=$('exEmp').value.split('·')[0].trim(),nm=$('exName').value.trim(),s=parseDMY($('exStart').value);
+    if(!empId||!nm||!s){toast('กรอกรหัสพนักงาน ชื่อหลักสูตร และวันที่ (dd/mm/yyyy)');return;}
+    if(!People.emp(g,empId)&&!confirm(`ไม่พบรหัส ${empId} ในทะเบียน ${CO[g]} — บันทึกต่อ?`))return;
+    const R=state.rec[g];if(!R){toast('ยังโหลด records-'+g+' ไม่ได้');return;}
+    const r={id:uid(),empId,sessionId:'',code:'',courseName:nm,courseKey:ckey(nm),cat:$('exCat').value,provider:$('exProv').value.trim(),start:s,end:parseDMY($('exEnd').value)||s,
+      hours:+$('exH').value||0,hoursSet:true,status:'attended',nominationId:'',source:'external',remark:$('exRm').value.trim(),by:state.profile.username,at:todayISO()};hist(r,'เพิ่มประวัติภายนอก');
+    R.records.push(r);try{await App.saveKind('rec',g,'external record '+empId);closeModal();App.render();open(g,empId);toast('บันทึกแล้ว');}catch(e){R.records=R.records.filter(x=>x!==r);}}
+
+  /* ---------- Course แก้ชื่อ/วันที่ → อัปเดต Record ของรอบนั้น ---------- */
+  function bySession(g,id){return People.recs(g).filter(r=>r.sessionId===id);}
+  async function syncCourse(c,g){const L=bySession(g,c.id);if(!L.length)return;let ch=false;const s=People.snapshot(c);
+    for(const r of L){for(const k of ['code','courseName','courseKey','cat','start','end','provider'])if(r[k]!==s[k]){r[k]=s[k];ch=true;}
+      if(!r.hoursSet&&(+r.hours||0)!==(+c.hours||0)){r.hours=+c.hours||0;ch=true;}}
+    if(ch){try{await App.saveKind('rec',g,'sync from training '+c.code);}catch(e){}}}
+
+  /* ---------- Import HRIS ---------- */
+  const COLS={empId:['empid','employeeid','employeeno','employeenumber','empno','empcode','staffid','staffno','รหัสพนักงาน','รหัส','idพนักงาน','id'],
+    nameTh:['ชื่อสกุล','ชื่อนามสกุล','ชื่อภาษาไทย','ชื่อไทย','thainame','namethai','nameth','fullnameth','ชื่อ','name','fullname'],
+    lastTh:['นามสกุล','lastname','surname'],
+    nameEn:['nameen','englishname','nameenglish','fullnameen','ชื่อภาษาอังกฤษ','ชื่ออังกฤษ'],
+    dept:['deptcode','departmentcode','รหัสฝ่าย','รหัสแผนก','costcenter','dept','department','ฝ่าย','แผนก','section'],
+    deptName:['deptname','departmentname','ชื่อฝ่าย','ชื่อแผนก'],
+    position:['position','ตำแหน่ง','jobtitle','title','positionname'],level:['level','jobgrade','grade','ระดับ','jg','jobband','band'],
+    startDate:['startdate','hiredate','joindate','joineddate','วันเริ่มงาน','วันที่เริ่มงาน','วันบรรจุ'],email:['email','อีเมล','emailaddress','mail'],
+    mgrEmail:['manageremail','อีเมลผู้จัดการ','mgremail','supervisoremail'],mgrName:['managername','ผู้จัดการ','ชื่อผู้จัดการ','supervisor'],genpo:['genpo','company','บริษัท','companycode']};
+  function mapCols(headers){const H=headers.map(h=>({h,n:nkey(h)})),used=new Set(),m={};
+    const take=(f,exact)=>{for(const p0 of COLS[f]){const p=nkey(p0);const x=H.find(o=>!used.has(o.h)&&(exact?o.n===p:o.n.includes(p)));if(x){m[f]=x.h;used.add(x.h);return;}}};
+    ['empId','lastTh','nameEn','deptName','mgrEmail','mgrName','startDate','email','nameTh','dept','position','level','genpo'].forEach(f=>take(f,true));
+    ['empId','nameEn','deptName','mgrEmail','startDate','email','nameTh','dept','position','level'].forEach(f=>{if(!m[f])take(f,false);});return m;}
+  let imp=null;
+  function openImport(){const g=cofil&&cofil!=='ALL'?cofil:scopeGenpos()[0];imp=null;
+    openModal(`<h2>Import รายชื่อพนักงานจาก HRIS</h2>
+      <div class="grid2"><div class="frow"><label>Genpo</label><select id="hrCo">${genpoOptions(g)}</select></div>
+        <div class="frow"><label>ไฟล์ Excel / CSV</label><input type="file" id="hrFile" accept=".xlsx,.xls,.csv" onchange="Records.readHris(this.files[0])"></div></div>
+      <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px"><input type="checkbox" id="hrFull" style="width:auto;margin-top:3px" checked onchange="Records.previewHris()">
+        <span>ไฟล์นี้คือรายชื่อพนักงาน<b>ทั้งหมด</b>ของ Genpo — คนที่ไม่อยู่ในไฟล์จะถูกตั้งเป็น "พ้นสภาพ" (ไม่ลบประวัติ)</span></label>
+      <p class="note">อ่านหัวคอลัมน์ให้อัตโนมัติ เช่น Employee ID / รหัสพนักงาน, ชื่อ-สกุล, Name (EN), Dept Code / ฝ่าย, Dept Name, Position, Level, Start Date, Email, Manager Email · ถ้ามีคอลัมน์ Genpo/Company จะใช้แยกบริษัทให้</p>
+      <div id="hrPrev" style="margin-top:10px"></div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" id="hrGo" disabled onclick="Records.runHris()">นำเข้า</button></div>`,'wide');}
+  function readHris(file){if(!file)return;if(!window.XLSX){toast('โหลดไลบรารีอ่าน Excel ไม่ได้');return;}
+    const rd=new FileReader();rd.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false,dateNF:'yyyy-mm-dd'});if(!rows.length)throw new Error('ไม่พบข้อมูลในชีตแรก');
+      imp={file:file.name,rows,map:mapCols(Object.keys(rows[0]))};previewHris();}catch(err){$('hrPrev').innerHTML=`<div class="autherr">${esc(err.message)}</div>`;}};rd.readAsArrayBuffer(file);}
+  function normG(v,fb){const s=String(v||'').toUpperCase().replace(/\s/g,'');if(!s)return fb;for(const g of GENPOS)if(s===g||s===CO[g].toUpperCase().replace(/\s/g,''))return g;return fb;}
+  function planHris(){const g0=$('hrCo').value,full=$('hrFull').checked,m=imp.map,v=(o,f)=>m[f]?String(o[m[f]]??'').trim():'';
+    const byG={},errs=[],seen=new Set();
+    imp.rows.forEach((o,i)=>{const id=v(o,'empId');if(!id){if(Object.values(o).some(x=>String(x).trim()))errs.push(`แถว ${i+2}: ไม่มีรหัสพนักงาน`);return;}
+      const g=normG(v(o,'genpo'),g0);if(!scopeGenpos().includes(g)){errs.push(`แถว ${i+2}: ${id} อยู่ ${g} ซึ่งไม่อยู่ในสิทธิ์`);return;}
+      if(seen.has(g+'|'+id)){errs.push(`แถว ${i+2}: รหัส ${id} ซ้ำในไฟล์`);return;}seen.add(g+'|'+id);
+      let nameTh=v(o,'nameTh');const last=v(o,'lastTh');if(last&&!nameTh.includes(last))nameTh=(nameTh+' '+last).trim();
+      const deptName=v(o,'deptName'),dept=v(o,'dept')||deptName;
+      (byG[g]=byG[g]||[]).push({empId:id,nameTh,nameEn:v(o,'nameEn'),dept,deptName,position:v(o,'position'),level:v(o,'level'),startDate:toISO(v(o,'startDate')),email:v(o,'email'),
+        mgrEmail:v(o,'mgrEmail'),mgrName:v(o,'mgrName')});});
+    const plan=[];for(const g of Object.keys(byG)){const cur=People.emps(g),inFile=new Set(byG[g].map(x=>x.empId));let add=0,upd=0,same=0;
+      for(const x of byG[g]){const e=cur.find(y=>y.empId===x.empId);if(!e)add++;else if(['nameTh','nameEn','dept','deptName','position','level','startDate','email'].some(k=>x[k]&&x[k]!==e[k])||e.status==='Inactive')upd++;else same++;}
+      const off=full?cur.filter(e=>e.status!=='Inactive'&&!inFile.has(e.empId)).length:0;plan.push({g,list:byG[g],add,upd,same,off});}
+    return{plan,errs,full};}
+  function previewHris(){if(!imp)return;const el=$('hrPrev');const m=imp.map;
+    if(!m.empId){el.innerHTML=`<div class="autherr">ไม่พบคอลัมน์รหัสพนักงาน (เช่น "Employee ID" หรือ "รหัสพนักงาน") · หัวคอลัมน์ที่พบ: ${Object.keys(imp.rows[0]).map(esc).join(', ')}</div>`;$('hrGo').disabled=true;return;}
+    const {plan,errs}=planHris();const lbl={empId:'รหัส',nameTh:'ชื่อ-สกุล',lastTh:'นามสกุล',nameEn:'ชื่อ EN',dept:'ฝ่าย',deptName:'ชื่อฝ่าย',position:'ตำแหน่ง',level:'Level',startDate:'วันเริ่มงาน',email:'อีเมล',mgrEmail:'อีเมลผู้จัดการ',mgrName:'ผู้จัดการ',genpo:'Genpo'};
+    el.innerHTML=`<div class="sumbox" style="margin-bottom:8px"><b>${esc(imp.file)}</b> · ${imp.rows.length} แถว<br><span class="note">อ่านคอลัมน์: ${Object.entries(m).map(([f,h])=>`${lbl[f]} ← "${esc(h)}"`).join(' · ')}</span></div>
+      ${plan.map(p=>`<div class="statbox ok"><span class="co ${p.g}">${CO[p.g]}</span> เพิ่มใหม่ <b>${p.add}</b> · อัปเดต <b>${p.upd}</b> · ไม่เปลี่ยน ${p.same}${p.off?` · <b style="color:var(--alert)">พ้นสภาพ ${p.off}</b>`:''}</div>`).join('')}
+      ${errs.length?`<div class="statbox alert"><b>ข้าม ${errs.length} แถว</b><br><span class="note">${errs.slice(0,8).map(esc).join('<br>')}${errs.length>8?'<br>…':''}</span></div>`:''}
+      ${!m.dept?'<div class="statbox wait">ไม่พบคอลัมน์ฝ่าย — Survey จะแบ่งโควต้าตามฝ่ายไม่ได้ ควรเพิ่มคอลัมน์ Dept Code</div>':''}`;
+    $('hrGo').disabled=!plan.length;}
+  async function runHris(){const {plan,errs,full}=planHris();const by=state.profile.username;
+    try{for(const p of plan){const E=state.emp[p.g];if(!E){toast('ยังโหลด employees-'+p.g+' ไม่ได้');continue;}const inFile=new Set();
+        for(const x of p.list){inFile.add(x.empId);let e=E.employees.find(y=>y.empId===x.empId);const {mgrEmail,mgrName,...rest}=x;
+          if(!e){e={...rest,status:'Active',since:todayISO(),updatedAt:todayISO()};E.employees.push(e);}
+          else{for(const k of Object.keys(rest))if(rest[k])e[k]=rest[k];e.status='Active';e.updatedAt=todayISO();}
+          if(x.dept){let d=E.depts.find(y=>y.code===x.dept);if(!d){d={code:x.dept,name:x.deptName||'',mgrEmail:'',mgrName:''};E.depts.push(d);}
+            if(x.deptName)d.name=x.deptName;if(mgrEmail)d.mgrEmail=mgrEmail;if(mgrName)d.mgrName=mgrName;}}
+        if(full)E.employees.forEach(e=>{if(e.status!=='Inactive'&&!inFile.has(e.empId)){e.status='Inactive';e.inactiveAt=todayISO();}});
+        E.imports.push({id:uid(),at:todayISO(),by,file:imp.file,added:p.add,updated:p.upd,inactivated:p.off,errors:errs.length});if(E.imports.length>50)E.imports=E.imports.slice(-50);
+        await App.saveKind('emp',p.g,`HRIS import +${p.add} ~${p.upd} -${p.off}`);}
+      closeModal();App.render();toast('นำเข้าทะเบียนพนักงานแล้ว');}catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message);}}
+
+  /* ---------- ฝ่าย & อีเมลผู้จัดการ (ใช้ส่งไฟล์ Survey) ---------- */
+  let depG=null;
+  function openDepts(g){depG=g||(cofil&&cofil!=='ALL'?cofil:scopeGenpos()[0]);const L=People.deptList(depG,{activeOnly:false});
+    const last=((state.emp[depG]||{}).imports||[]).slice(-1)[0];
+    openModal(`<h2>ฝ่าย &amp; ผู้จัดการ</h2>
+      <div class="toolbar"><select onchange="Records.openDepts(this.value)">${genpoOptions(depG)}</select><span class="note">${last?`Import HRIS ล่าสุด ${fmtDMY(last.at)} โดย ${esc(last.by)}`:'ยังไม่เคย Import HRIS'}</span></div>
+      ${L.length?`<div class="tblwrap" style="max-height:60vh;overflow:auto"><table><thead><tr><th>รหัสฝ่าย</th><th>ชื่อฝ่าย</th><th class="num">คน</th><th>ผู้จัดการ</th><th>อีเมลผู้จัดการ</th></tr></thead><tbody>
+      ${L.map((d,i)=>`<tr><td><span class="code">${esc(d.code)}</span></td><td><input data-i="${i}" data-f="name" value="${esc(d.name||'')}"></td><td class="num">${d.n}</td>
+        <td><input data-i="${i}" data-f="mgrName" value="${esc(d.mgrName||'')}"></td><td><input data-i="${i}" data-f="mgrEmail" type="email" value="${esc(d.mgrEmail||'')}" placeholder="name@company.com"></td></tr>`).join('')}</tbody></table></div>`
+      :'<p class="note">ยังไม่มีฝ่าย — Import HRIS ก่อน</p>'}
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ปิด</button>${L.length?`<button class="btn btn-red" onclick="Records.saveDepts()">บันทึก</button>`:''}</div>`,'wide');}
+  async function saveDepts(){const E=state.emp[depG];if(!E)return;const L=People.deptList(depG,{activeOnly:false});
+    document.querySelectorAll('#modal input[data-i]').forEach(inp=>{const d=L[+inp.dataset.i];let x=E.depts.find(y=>y.code===d.code);if(!x){x={code:d.code,name:d.name||''};E.depts.push(x);}x[inp.dataset.f]=inp.value.trim();});
+    try{await App.saveKind('emp',depG,'edit depts');closeModal();App.render();toast('บันทึกแล้ว');}catch(e){}}
+
+  /* ---------- ย้ายข้อมูลเดิม: DSD (รหัส) + Training (ชื่อ) → Training Record ---------- */
+  const stripTitle=s=>String(s||'').replace(/^(นาย|นางสาว|นาง|น\.ส\.|mr\.?|mrs\.?|ms\.?|miss)\s*/i,'').trim();
+  function legacyPlan(){const out=[],unmatched=[],today=todayISO();
+    for(const g of scopeGenpos()){if(!state.rec[g])continue;const have=new Set(People.recs(g).map(r=>(r.sessionId||r.legacyRun||r.code)+'|'+r.empId));
+      const nameIx=new Map();People.emps(g).forEach(e=>[e.nameTh,e.nameEn].filter(Boolean).forEach(n=>{const k=nkey(stripTitle(n));nameIx.set(k,nameIx.has(k)&&nameIx.get(k)!==e.empId?'__dup':e.empId);}));
+      const push=(c,run,empId,how)=>{const k=(c?c.id:run.id_)+'|'+empId;if(have.has(k))return;have.add(k);
+        const end=c?(c.end||c.start):(run.dateEnd||run.date),st=isISO(end)&&end<today?'attended':'enrolled';
+        out.push({g,rec:{id:uid(),empId,...(c?People.snapshot(c):{sessionId:'',code:run.code||'',courseName:run.course,courseKey:ckey(run.course),cat:'',start:run.date||'',end:run.dateEnd||run.date||'',provider:''}),
+          ...(c?{}:{legacyRun:run.id_}),hours:c?+c.hours||0:0,hoursSet:false,status:st,nominationId:'',source:'legacy',remark:how,by:state.profile.username,at:todayISO()}});};
+      for(const run of((state.dsd[g]||{}).runs||[])){const c=run.code?App.courseByCode(run.code,g):null;(run.people||[]).map(x=>String(x).trim()).filter(Boolean).forEach(id=>push(c,run,id,'จาก DSD'));}
+      for(const {c,g:gg} of App.allCourses()){if(gg!==g)continue;for(const nm of peopleArr(c)){const id=nameIx.get(nkey(stripTitle(nm)));
+        if(id&&id!=='__dup')push(c,null,id,'จับคู่ชื่อ: '+nm);else unmatched.push({g,c,nm,why:id==='__dup'?'ชื่อซ้ำหลายคน':'ไม่พบชื่อในทะเบียน'});}}}
+    return{out,unmatched};}
+  function openLegacy(){const {out,unmatched}=legacyPlan();const byG={};out.forEach(x=>byG[x.g]=(byG[x.g]||0)+1);
+    openModal(`<h2>ย้ายข้อมูลเดิมเข้า Training Record</h2>
+      <p class="note" style="margin-bottom:10px">ระบบเดิมเก็บผู้เข้าอบรม 2 แบบ: DSD เก็บเป็น<b>รหัสพนักงาน</b> และ Training เก็บเป็น<b>ชื่อ</b> — ขั้นตอนนี้แปลงทั้งหมดให้เป็น Record ที่ผูกรหัส (รายการที่มีอยู่แล้วจะไม่สร้างซ้ำ) · อบรมผ่านไปแล้ว = เข้าอบรมแล้ว, ยังไม่ถึงวัน = ลงทะเบียน</p>
+      <div class="statbox ok"><b>สร้างได้ ${out.length} รายการ</b> ${Object.entries(byG).map(([g,n])=>`<span class="co ${g}">${CO[g]}</span> ${n}`).join(' ')}</div>
+      <div class="statbox ${unmatched.length?'wait':'ok'}"><b>ชื่อที่จับคู่รหัสไม่ได้ ${unmatched.length} รายการ</b>${unmatched.length?`<br><span class="note">${unmatched.slice(0,6).map(u=>`${esc(u.nm)} · ${esc(u.c.code||'')} (${u.why})`).join('<br>')}${unmatched.length>6?'<br>…':''}</span>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="mini" onclick="Records.exportUnmatched()">ดาวน์โหลดรายการ (เติมรหัสในคอลัมน์ EmpID)</button><button class="mini" onclick="Records.pickFilled()">นำเข้าไฟล์ที่เติมรหัสแล้ว</button></div>`:''}</div>
+      <p class="note">ต้อง Import HRIS ก่อน ชื่อจึงจับคู่กับรหัสได้ · ข้อมูลเดิมในหน้า Training และ DSD ไม่ถูกแก้ไข</p>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" ${out.length?'':'disabled'} onclick="Records.runLegacy()">สร้าง ${out.length} Record</button></div>`);}
+  async function saveMany(list,msg){const gs=new Set();list.forEach(({g,rec})=>{state.rec[g].records.push(rec);gs.add(g);});
+    for(const g of gs)await App.saveKind('rec',g,msg);}
+  async function runLegacy(){const {out}=legacyPlan();try{await saveMany(out,'legacy → records '+out.length);closeModal();App.render();toast(`สร้าง Training Record ${out.length} รายการแล้ว`);}catch(e){}}
+  function exportUnmatched(){const {unmatched}=legacyPlan();xlsxExport('legacy_names_'+dstamp()+'.xlsx',['Genpo','Code','หลักสูตร','วันอบรม','ชื่อ (เดิม)','EmpID','หมายเหตุ'],
+    unmatched.map(u=>[u.g,u.c.code||'',u.c.name,fmtDMY(u.c.start),u.nm,'',u.why]));}
+  function pickFilled(){const i=document.createElement('input');i.type='file';i.accept='.xlsx,.xls,.csv';i.onchange=()=>{const f=i.files[0];if(!f)return;const rd=new FileReader();
+    rd.onload=async e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:false});
+      const {unmatched}=legacyPlan(),list=[],today=todayISO();
+      for(const o of rows){const id=String(o.EmpID||'').trim(),g=String(o.Genpo||'').trim(),code=String(o.Code||'').trim(),nm=String(o['ชื่อ (เดิม)']||'').trim();if(!id||!g)continue;
+        const u=unmatched.find(x=>x.g===g&&(x.c.code||'')===code&&x.nm===nm);if(!u)continue;const c=u.c,end=c.end||c.start;
+        if(People.recFor(g,c.id,id)||list.some(x=>x.g===g&&x.rec.sessionId===c.id&&x.rec.empId===id))continue;
+        list.push({g,rec:{id:uid(),empId:id,...People.snapshot(c),hours:+c.hours||0,hoursSet:false,status:isISO(end)&&end<today?'attended':'enrolled',nominationId:'',source:'legacy',remark:'เติมรหัสจากไฟล์: '+nm,by:state.profile.username,at:todayISO()}});}
+      if(!list.length){toast('ไม่พบแถวที่เติมรหัสแล้ว');return;}await saveMany(list,'legacy filled '+list.length);closeModal();App.render();toast(`สร้าง Record ${list.length} รายการ`);}catch(err){toast('อ่านไฟล์ไม่สำเร็จ: '+err.message);}};rd.readAsArrayBuffer(f);};i.click();}
+
+  function exportExcel(){const k=ki??kiCur(),out=[];
+    for(const {g,e} of rows())for(const r of People.recs(g).filter(r=>r.empId===e.empId).sort((a,b)=>(a.start||'').localeCompare(b.start||'')))
+      out.push([CO[g],e.empId,People.nameOf(e),People.deptName(g,e.dept),e.position||'',e.level||'',r.code,r.courseName,r.cat,fmtDMY(r.start),fmtDMY(r.end),People.done(r)?+r.hours||0:0,(People.REC[r.status]||{}).t,kiOfISO(r.start)===k?'✓':'',r.source]);
+    xlsxExport('training_records_'+dstamp()+'.xlsx',['Genpo','รหัส','ชื่อ','ฝ่าย','ตำแหน่ง','Level','Code','หลักสูตร','ประเภท','เริ่ม','สิ้นสุด','ชั่วโมง','สถานะ',`${k} Ki`,'ที่มา'],out);}
+  return {render,setCo,setDept,setKi,setSort,toggleInactive,more,search,open,exportPerson,editRec,saveRec,delRec,openExternal,saveExternal,bySession,syncCourse,
+    openImport,readHris,previewHris,runHris,openDepts,saveDepts,openLegacy,runLegacy,exportUnmatched,pickFilled,exportExcel,empDatalist};
+})();
+
+/* =====================================================================
+   13) PENDING LIST + เช็กชื่อ — ใช้ร่วมกันระหว่างหน้า Survey และ drawer ของ Training
+   Nomination: pending → confirmed (สร้าง Training Record = ลงทะเบียน) / waitlist / rejected / withdrawn
+   ===================================================================== */
+const Nom=(()=>{
+  const META={pending:{t:'Pending',cl:'wait'},confirmed:{t:'Confirmed',cl:'ok'},waitlist:{t:'Waitlist',cl:'info'},rejected:{t:'Rejected',cl:'alert'},withdrawn:{t:'Withdrawn',cl:''},cancelled:{t:'Cancelled',cl:''}};
+  const ACTIVE=['pending','waitlist','confirmed'];
+  let ctx=null,sel=new Set(),fil='active',shown=[];
+  const forSession=(g,id)=>People.noms(g).filter(n=>n.sessionId===id);
+  function counts(g,id){const o={pending:0,confirmed:0,waitlist:0,closed:0};forSession(g,id).forEach(n=>{if(o[n.status]!==undefined)o[n.status]++;else o.closed++;});return o;}
+  function countLine(g,c){const o=counts(g,c.id),r=Records.bySession(g,c.id).filter(x=>x.status!=='cancelled').length,p=[];
+    if(r)p.push(`${r} ลงทะเบียน`);if(o.pending)p.push(`<b style="color:var(--wait)">${o.pending} pending</b>`);if(o.waitlist)p.push(`${o.waitlist} waitlist`);
+    return p.length?`<br><span style="font-size:var(--fs-xs);color:var(--sub)">${p.join(' · ')}</span>`:'';}
+  function summary(g,c){const o=counts(g,c.id),R=Records.bySession(g,c.id),live=R.filter(r=>r.status!=='cancelled');
+    const att=R.filter(People.done).length,sv=People.surveys(g).filter(s=>(s.sessionIds||[]).includes(c.id));
+    return`<div class="tiles" style="margin-bottom:10px"><span class="tile ok"><b>${live.length} / ${c.count||0}</b><span>ลงทะเบียน / ที่นั่ง</span></span>
+        <span class="tile wait"><b>${o.pending}</b><span>Pending รอตรวจ</span></span><span class="tile info"><b>${o.waitlist}</b><span>Waitlist</span></span>
+        <span class="tile"><b>${att}</b><span>เข้าอบรมแล้ว</span></span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="Nom.openList('${g}','${c.id}')">Pending list${o.pending?` (${o.pending})`:''}</button>
+        <button class="btn btn-ghost" onclick="Nom.openAttendance('${g}','${c.id}')">เช็กชื่อ / ผู้เข้าอบรม (${live.length})</button></div>
+      ${sv.length?`<p class="note" style="margin-top:6px">รายชื่อมาจาก ${sv.map(s=>`<span class="authlink" onclick="Survey.openSurvey('${g}','${s.id}')">${esc(s.code)}</span>`).join(', ')}</p>`:''}`;}
+
+  function setCtx(g,id,host){if(!ctx||ctx.g!==g||ctx.id!==id){sel=new Set();fil='active';}ctx={g,id,host};}
+  function body(){const {g,id}=ctx,c=courseById(g,id);if(!c)return '<p class="note">ไม่พบรอบอบรมนี้ใน Training Tracker (อาจถูกลบ)</p>';
+    const L=forSession(g,id),o=counts(g,id),seats=+c.count||0,ix=People.index(g);
+    const show=L.filter(n=>fil==='active'?ACTIVE.includes(n.status):fil==='closed'?!ACTIVE.includes(n.status):n.status===fil);
+    shown=show.map(n=>n.id);[...sel].forEach(x=>{if(!shown.includes(x))sel.delete(x);});
+    const quota={};People.surveys(g).filter(s=>(s.sessionIds||[]).includes(id)).forEach(s=>{const q=(s.quota||{})[id]||{};for(const d in q)quota[d]=(quota[d]||0)+(+q[d]||0);});
+    const groups=new Map();show.forEach(n=>{if(!groups.has(n.dept))groups.set(n.dept,[]);groups.get(n.dept).push(n);});
+    const depts=[...groups.keys()].sort((a,b)=>People.deptName(g,a).localeCompare(People.deptName(g,b),'th'));
+    const others=((state.train[g]||{}).courses||[]).filter(x=>x.id!==id&&ckey(x.name)===ckey(c.name)&&!(x.end&&x.end<todayISO()));
+    const tile=(k,cl,n,t)=>`<button class="tile ${cl} ${fil===k?'on':''}" onclick="Nom.setFil('${k}')"><b>${n}</b><span>${t}</span></button>`;
+    const over=o.confirmed>seats;
+    return`<div class="tiles"><span class="tile ${over?'alert':'ok'}"><b>${o.confirmed} / ${seats}</b><span>Confirmed / ที่นั่ง</span></span>
+        ${tile('active','',o.pending+o.waitlist+o.confirmed,'ทั้งหมด (ที่ยังใช้งาน)')}${tile('pending','wait',o.pending,'Pending รอตรวจ')}${tile('waitlist','info',o.waitlist,'Waitlist')}${tile('confirmed','ok',o.confirmed,'Confirmed')}${tile('closed','',o.closed,'Rejected / Withdrawn')}</div>
+      <div class="bulkbar"><label class="inl"><input type="checkbox" ${show.length&&sel.size===show.length?'checked':''} onchange="Nom.selAll(this.checked)">เลือกทั้งหมด</label><span class="note">${sel.size} รายการ</span><span style="flex:1"></span>
+        <button class="mini good" onclick="Nom.act('confirm')">✓ Confirm</button><button class="mini" onclick="Nom.act('waitlist')">Waitlist</button><button class="mini" onclick="Nom.act('pending')">คืนเป็น Pending</button>
+        ${others.length?`<select id="nomMove" class="minisel"><option value="">ย้ายไปรอบ…</option>${others.map(x=>`<option value="${x.id}">${esc(x.code)} · ${courseRange(x)}</option>`).join('')}</select><button class="mini" onclick="Nom.act('move')">ย้าย</button>`:''}
+        <button class="mini danger" onclick="Nom.act('reject')">Reject</button></div>
+      <div class="tblwrap"><table><thead><tr><th style="width:34px"></th><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th class="num">ลำดับ</th><th>หมายเหตุจากผู้จัดการ</th><th>ธง</th><th>สถานะ</th></tr></thead><tbody>
+      ${show.length?depts.map(d=>{const G=groups.get(d),all=L.filter(n=>n.dept===d),cf=all.filter(n=>n.status==='confirmed').length,pd=all.filter(n=>n.status==='pending').length;
+          const q=quota[d];return`<tr class="mrow"><td colspan="8">${esc(People.deptName(g,d))} · Confirmed ${cf} + Pending ${pd}${q!==undefined?` / โควต้า ${q}${cf+pd>q?' <span class="chip alert">เกินโควต้า</span>':''}`:''}</td></tr>`+
+          G.sort((a,b)=>(a.priority||99)-(b.priority||99)||a.empId.localeCompare(b.empId)).map(n=>{const e=People.emp(g,n.empId),fl=People.flagsFor(g,n.empId,c,ix);
+            return`<tr><td><input type="checkbox" class="nomck" ${sel.has(n.id)?'checked':''} onchange="Nom.toggle('${n.id}',this.checked)" aria-label="เลือก ${esc(n.empId)}"></td>
+              <td><span class="code">${esc(n.empId)}</span></td><td><span class="authlink" style="color:inherit" onclick="Records.open('${g}','${esc(n.empId)}')">${esc(People.nameOf(e)||'—')}</span>${e?(e.status==='Inactive'?' <span class="chip alert">พ้นสภาพ</span>':''):' <span class="chip alert">ไม่พบในทะเบียน</span>'}</td>
+              <td>${esc((e||{}).position||'')}${e&&e.level?` <span class="chip">${esc(e.level)}</span>`:''}</td><td class="num">${n.priority||''}</td><td>${esc(n.note||'')}</td>
+              <td>${fl.map(f=>`<span class="chip wait">${esc(f)}</span>`).join(' ')}</td>
+              <td><span class="chip ${META[n.status].cl}">${META[n.status].t}</span>${n.reason?`<br><span class="by">${esc(n.reason)}</span>`:''}${n.source==='manual'?'<br><span class="by">Training เพิ่มเอง</span>':''}</td></tr>`;}).join('');}).join('')
+        :`<tr><td colspan="8" class="empty">${L.length?'ไม่มีรายการในตัวกรองนี้':'ยังไม่มีรายชื่อ — รอผู้จัดการฝ่ายส่งไฟล์ Survey กลับ หรือเพิ่มเองด้านล่าง'}</td></tr>`}
+      </tbody></table></div>
+      <div class="toolbar" style="margin-top:10px"><input id="nomAdd" list="nomEmpList" placeholder="+ เพิ่มเอง: พิมพ์รหัสหรือชื่อพนักงาน" style="width:320px" onkeydown="if(event.key==='Enter')Nom.addManual()">
+        <button class="btn btn-ghost" onclick="Nom.addManual()">เพิ่มเข้า Pending</button>${Records.empDatalist(g,'nomEmpList')}</div>`;}
+  function render(el,g,id,host){setCtx(g,id,host||'survey');el.innerHTML=body();}
+  function openList(g,id){const c=courseById(g,id);if(!c)return;setCtx(g,id,$('drawer').classList.contains('open')?'training':'modal');
+    openModal(`<h2>Pending list — <span class="code">${esc(c.code)}</span> ${esc(c.name)} <span class="note">${courseRange(c)}</span></h2><div id="nomBody">${body()}</div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="Nom.openAttendance('${g}','${id}')">เช็กชื่อ / ผู้เข้าอบรม</button><button class="btn btn-red" onclick="closeModal()">ปิด</button></div>`,'wide');}
+  function refresh(){const {g,id,host}=ctx;
+    if(host==='survey'){App.render();return;}
+    const b=$('nomBody');if(b)b.innerHTML=body();App.render();if(host==='training'&&$('drawer').classList.contains('open'))Training.openDrawer(g,id);}
+  function setFil(f){fil=f;sel=new Set();refresh();}
+  function toggle(id,v){if(v)sel.add(id);else sel.delete(id);refresh();}
+  function selAll(v){sel=v?new Set(shown):new Set();refresh();}
+  async function act(kind){const {g,id}=ctx,c=courseById(g,id),by=state.profile.username;const L=People.noms(g).filter(n=>sel.has(n.id));
+    if(!L.length){toast('เลือกรายชื่อก่อน');return;}let recCh=false;
+    if(kind==='confirm'){const cf=forSession(g,id).filter(n=>n.status==='confirmed').length,add=L.filter(n=>n.status!=='confirmed').length;
+      if(cf+add>(+c.count||0)&&!confirm(`ยืนยันแล้วจะมี ${cf+add} คน เกินที่นั่ง ${c.count||0} ที่ — ยืนยันต่อ?`))return;
+      for(const n of L){if(n.status==='confirmed')continue;n.status='confirmed';n.reason='';n.decidedBy=by;n.decidedAt=todayISO();hist(n,'Confirm');People.enroll(g,c,n.empId,n);recCh=true;}}
+    else if(kind==='move'){const to=($('nomMove')||{}).value;if(!to){toast('เลือกรอบปลายทางก่อน');return;}const c2=courseById(g,to);
+      for(const n of L){if(People.noms(g).some(x=>x!==n&&x.sessionId===to&&x.empId===n.empId&&ACTIVE.includes(x.status))){toast(`${n.empId} อยู่ในรอบ ${c2.code} แล้ว`);continue;}
+        if(n.status==='confirmed'){if(!People.unenroll(g,n.sessionId,n.empId)){toast(`${n.empId} มีผลเข้าอบรมแล้ว — ย้ายไม่ได้`);continue;}recCh=true;}
+        n.sessionId=to;n.status='pending';n.flags=People.flagsFor(g,n.empId,c2);hist(n,'ย้ายไปรอบ '+c2.code);}}
+    else{let reason='';if(kind==='reject'){reason=prompt('เหตุผลที่ไม่รับ (แสดงในไฟล์ที่ส่งกลับผู้จัดการ)','');if(reason===null)return;reason=reason.trim();}
+      const st={pending:'pending',waitlist:'waitlist',reject:'rejected'}[kind];
+      for(const n of L){if(n.status===st)continue;
+        if(n.status==='confirmed'){if(!People.unenroll(g,n.sessionId,n.empId)){toast(`${n.empId} มีผลเข้าอบรมแล้ว — แก้ที่หน้าเช็กชื่อแทน`);continue;}recCh=true;}
+        n.status=st;n.reason=reason;n.decidedBy=by;n.decidedAt=todayISO();hist(n,META[st].t+(reason?': '+reason:''));}}
+    sel=new Set();
+    try{if(recCh)await App.saveKind('rec',g,'nomination '+kind+' '+c.code);await App.saveKind('survey',g,'nomination '+kind+' '+c.code);refresh();toast('บันทึกแล้ว');}catch(e){refresh();}}
+  async function addManual(){const {g,id}=ctx,c=courseById(g,id);const v=(($('nomAdd')||{}).value||'').split('·')[0].trim();if(!v)return;
+    const e=People.emp(g,v)||People.emps(g).find(x=>x.nameTh===v||x.nameEn===v);if(!e){toast(`ไม่พบพนักงาน "${v}" ในทะเบียน ${CO[g]}`);return;}
+    if(e.status==='Inactive'&&!confirm('พนักงานคนนี้พ้นสภาพแล้ว — เพิ่มต่อ?'))return;
+    if(forSession(g,id).some(n=>n.empId===e.empId&&ACTIVE.includes(n.status))){toast('มีรายชื่อนี้ในรอบนี้แล้ว');return;}
+    const S=state.survey[g];if(!S){toast('ยังโหลด survey-'+g+' ไม่ได้');return;}
+    const n={id:uid(),surveyId:'',sessionId:id,empId:e.empId,dept:e.dept||'',priority:null,prefer:'',note:'',status:'pending',flags:People.flagsFor(g,e.empId,c),reason:'',source:'manual',at:new Date().toISOString(),by:state.profile.username};
+    hist(n,'Training เพิ่มเอง');S.nominations.push(n);try{await App.saveKind('survey',g,'manual nomination '+e.empId);refresh();toast('เพิ่ม '+People.nameOf(e)+' แล้ว');}catch(err){}}
+
+  /* ---------- เช็กชื่อหลังอบรม ---------- */
+  let att=null;
+  function openAttendance(g,id){att={g,id};const c=courseById(g,id);if(!c)return;
+    const R=Records.bySession(g,id).sort((a,b)=>{const da=(People.emp(g,a.empId)||{}).dept||'',db=(People.emp(g,b.empId)||{}).dept||'';return da.localeCompare(db)||a.empId.localeCompare(b.empId);});
+    const end=c.end||c.start,future=isISO(end)&&end>todayISO();const cnt={};R.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
+    const OPTS=[['attended','เข้า'],['partial','บางส่วน'],['noshow','ไม่มา'],['cancelled','ยกเลิก']];
+    openModal(`<h2>ผู้เข้าอบรม — <span class="code">${esc(c.code)}</span> ${esc(c.name)}</h2>
+      <p class="note" style="margin-bottom:10px">${courseRange(c)} · ${c.hours?hrs(c.hours)+' ชม./คน':'<b style="color:var(--wait)">ยังไม่ได้กรอกชั่วโมงอบรม/คน ในหน้า Training</b>'}${future?' · ยังไม่ถึงวันอบรม (กดยกเลิกล่วงหน้าได้ ระบบจะเลื่อนคนจาก Waitlist ขึ้นมาให้)':''}</p>
+      <div class="toolbar"><button class="btn btn-ghost" ${cnt.enrolled?'':'disabled'} onclick="Nom.allAttended()">มาครบทุกคน (${cnt.enrolled||0})</button>
+        <span class="note">${Object.entries(People.REC).map(([k,v])=>cnt[k]?`${v.t} ${cnt[k]}`:'').filter(Boolean).join(' · ')||'ยังไม่มีผู้ลงทะเบียน'}</span></div>
+      <div class="tblwrap" style="max-height:60vh;overflow:auto"><table><thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ฝ่าย</th><th>ผลการเข้าอบรม</th><th class="num">ชม.</th></tr></thead><tbody>
+      ${R.length?R.map(r=>{const e=People.emp(g,r.empId);return`<tr><td><span class="code">${esc(r.empId)}</span></td><td>${esc(People.nameOf(e)||'—')}</td><td>${esc(e?People.deptName(g,e.dept):'')}</td>
+        <td><div class="seg">${OPTS.map(([k,t])=>`<button class="${r.status===k?'on '+k:''}" onclick="Nom.setAtt('${r.id}','${k}')">${t}</button>`).join('')}</div></td>
+        <td class="num"><input class="qin" type="number" min="0" step="0.5" value="${People.done(r)?hrs(r.hours):''}" ${People.done(r)?'':'disabled'} onchange="Nom.setHours('${r.id}',this.value)"></td></tr>`;}).join('')
+        :'<tr><td colspan="5" class="empty">ยังไม่มีผู้ลงทะเบียน — Confirm รายชื่อจาก Pending list ก่อน</td></tr>'}</tbody></table></div>
+      <p class="note" style="margin-top:8px">เข้า / บางส่วน = นับชั่วโมงและส่งรหัสเข้า DSD รุ่นที่ Code ตรงกันอัตโนมัติ · กดปุ่มเดิมซ้ำ = กลับเป็น "ลงทะเบียน"</p>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="Nom.openList('${g}','${id}')">Pending list</button><button class="btn btn-red" onclick="closeModal()">เสร็จ</button></div>`,'wide');}
+  async function saveAtt(msg,{nomCh,dsdCh,promoted}={}){const {g,id}=att,c=courseById(g,id);
+    try{await App.saveKind('rec',g,msg);if(nomCh)await App.saveKind('survey',g,'attendance');if(dsdCh)await App.saveDsd(g,'attendance→dsd '+c.code);
+      openAttendance(g,id);App.render();if($('drawer').classList.contains('open'))Training.openDrawer(g,id);
+      if(promoted)toast(`เลื่อน ${promoted.empId} จาก Waitlist ขึ้น Pending แล้ว`);}catch(e){openAttendance(g,id);}}
+  const notYet=c=>{const e=c.end||c.start;return isISO(e)&&e>todayISO();};
+  async function setAtt(rid,st){const {g,id}=att,c=courseById(g,id);const r=People.recs(g).find(x=>x.id===rid);if(!r)return;
+    if(r.status===st)st='enrolled';if(['attended','partial','noshow'].includes(st)&&notYet(c)&&!confirm('ยังไม่ถึงวันอบรม — บันทึกผลการเข้าอบรมเลย?'))return;const prev=r.status;r.status=st;hist(r,`${(People.REC[prev]||{}).t} → ${People.REC[st].t}`);
+    if(People.done(r)&&!r.hoursSet)r.hours=+c.hours||0;
+    const n=r.nominationId&&People.noms(g).find(x=>x.id===r.nominationId);let nomCh=false,promoted=null;
+    if(st==='cancelled'){if(n&&n.status==='confirmed'){n.status='cancelled';hist(n,'ยกเลิกหลังลงทะเบียน');nomCh=true;}
+      promoted=People.promoteWaitlist(g,id,n?n.dept:(People.emp(g,r.empId)||{}).dept);if(promoted)nomCh=true;}
+    else if(prev==='cancelled'&&n&&n.status==='cancelled'){n.status='confirmed';hist(n,'กลับมาลงทะเบียน');nomCh=true;}
+    const dsdCh=People.syncDsd(g,r);await saveAtt('attendance '+r.empId+' '+st,{nomCh,dsdCh,promoted});}
+  async function setHours(rid,v){const {g}=att;const r=People.recs(g).find(x=>x.id===rid);if(!r)return;r.hours=Math.max(0,+v||0);r.hoursSet=true;await saveAtt('hours '+r.empId);}
+  async function allAttended(){const {g,id}=att,c=courseById(g,id);let dsdCh=false;if(notYet(c)&&!confirm('ยังไม่ถึงวันอบรม — บันทึกว่ามาครบทุกคนเลย?'))return;
+    Records.bySession(g,id).filter(r=>r.status==='enrolled').forEach(r=>{r.status='attended';if(!r.hoursSet)r.hours=+c.hours||0;hist(r,'มาครบทุกคน');if(People.syncDsd(g,r))dsdCh=true;});
+    await saveAtt('attendance all '+c.code,{dsdCh});}
+  return {META,ACTIVE,counts,countLine,summary,render,openList,setFil,toggle,selAll,act,addManual,openAttendance,setAtt,setHours,allAttended};
+})();
+
+/* =====================================================================
+   14) TRAINING SURVEY — โควต้า ฝ่าย × รอบ (Auto กระจาย / กำหนดเอง)
+   ผู้จัดการฝ่ายเลือกรายชื่อใน Excel (1 ไฟล์/ฝ่าย) → อัปโหลดกลับ → ตรวจ → Pending list
+   (ระบบจริง: Power Automate สร้างไฟล์บน SharePoint, ส่งอีเมล, อ่านไฟล์ทุก 2 ชม. — หน้านี้จำลองขั้นตอนเดียวกัน)
+   ===================================================================== */
+const Survey=(()=>{
+  const SST={draft:{t:'ร่าง',cl:''},open:{t:'เปิดรับ',cl:'info'},closed:{t:'ปิดรับ · รอตรวจ',cl:'wait'},final:{t:'เสร็จสิ้น',cl:'ok'}};
+  let cofil='ALL',stfil='ALL',view=null,viewG=null,tab='setup',sessTab=null;
+  const find=(g,id)=>People.surveys(g).find(s=>s.id===id)||null;
+  const cur=()=>view?find(viewG,view):null;
+  const sessions=s=>(s.sessionIds||[]).map(id=>courseById(s.co,id)).filter(Boolean);
+  const qOf=(s,sid,d)=>+(((s.quota||{})[sid]||{})[d])||0;
+  const qDept=(s,d)=>(s.sessionIds||[]).reduce((a,sid)=>a+qOf(s,sid,d),0);
+  const qSess=(s,sid)=>Object.values((s.quota||{})[sid]||{}).reduce((a,v)=>a+(+v||0),0);
+  const qTotal=s=>(s.sessionIds||[]).reduce((a,sid)=>a+qSess(s,sid),0);
+  const seats=s=>sessions(s).reduce((a,c)=>a+(+c.count||0),0);
+  const quotaDepts=s=>{const d=new Set();for(const sid of s.sessionIds||[])for(const k in((s.quota||{})[sid]||{}))if(qOf(s,sid,k)>0)d.add(k);return[...d];};
+  const byName=g=>(a,b)=>People.deptName(g,a).localeCompare(People.deptName(g,b),'th');
+  const capOf=s=>s.capPct||cfg(s.co).surveyCap||30;
+  const inSurvey=(s,n)=>n.surveyId===s.id||(!n.surveyId&&(s.sessionIds||[]).includes(n.sessionId));
+
+  /* ---------- กลุ่มเป้าหมาย ---------- */
+  function eligible(s){const g=s.co,T=s.target||{},ix=People.index(g),key=s.courseKey;
+    return People.emps(g).filter(e=>{if(e.status==='Inactive'||!e.dept)return false;
+      if((T.depts||[]).length&&!T.depts.includes(e.dept))return false;if((T.levels||[]).length&&!T.levels.includes(String(e.level||'')))return false;
+      if(T.excludeAttended!==false&&ix.att(e.empId,key))return false;const en=ix.enr(e.empId,key);if(en&&!(s.sessionIds||[]).includes(en.sessionId))return false;return true;});}
+  function eligByDept(s){const m={};eligible(s).forEach(e=>m[e.dept]=(m[e.dept]||0)+1);return m;}
+
+  /* ---------- Auto: สัดส่วนตามคนเข้าเกณฑ์ + เพดาน % ต่อห้อง แล้วกระจายลงแต่ละรอบ ---------- */
+  function autoQuota(elig,sess,capPct){const depts=Object.keys(elig).filter(d=>elig[d]>0),quota={};sess.forEach(x=>quota[x.id]={});
+    const S=sess.reduce((a,x)=>a+x.seats,0),N=depts.reduce((a,d)=>a+elig[d],0);if(!S||!N)return{quota,total:{},left:S};
+    const capS=x=>Math.max(1,Math.ceil(capPct/100*x.seats)),capT=d=>Math.min(elig[d],sess.reduce((a,x)=>a+capS(x),0));
+    const e={},q={},minOne=S>=depts.length;
+    depts.forEach(d=>{e[d]=S*elig[d]/N;q[d]=Math.min(Math.max(Math.floor(e[d]),minOne?1:0),capT(d));});
+    let left=S-depts.reduce((a,d)=>a+q[d],0);
+    while(left<0){const d=depts.filter(x=>q[x]>1).sort((a,b)=>(q[b]-e[b])-(q[a]-e[a]))[0];if(!d)break;q[d]--;left++;}
+    while(left>0){const d=depts.filter(x=>q[x]<capT(x)).sort((a,b)=>((e[b]-q[b])-(e[a]-q[a]))||(elig[b]-elig[a]))[0];if(!d)break;q[d]++;left--;}
+    const rem={...q},used={};sess.forEach(x=>used[x.id]=0);const cnt=(x,d)=>quota[x.id][d]||0;let moved=true;
+    while(moved){moved=false;for(const d of depts.filter(x=>rem[x]>0).sort((a,b)=>rem[b]-rem[a])){
+      const opts=sess.filter(x=>used[x.id]<x.seats&&cnt(x,d)<capS(x)).sort((a,b)=>(cnt(a,d)-cnt(b,d))||((b.seats-used[b.id])-(a.seats-used[a.id])));
+      if(!opts.length)continue;const x=opts[0];quota[x.id][d]=cnt(x,d)+1;used[x.id]++;rem[d]--;moved=true;}}
+    return{quota,total:q,left:left+depts.reduce((a,d)=>a+rem[d],0)};}
+  const autoFor=s=>autoQuota(eligByDept(s),sessions(s).map(c=>({id:c.id,seats:+c.count||0})),capOf(s));
+  function recalc(s){if(s.mode==='auto'&&s.status==='draft')s.quota=autoFor(s).quota;}
+
+  /* ---------- หน้า list ---------- */
+  function all(){const o=[];for(const g of scopeGenpos()){if(cofil!=='ALL'&&g!==cofil)continue;People.surveys(g).forEach(s=>o.push({s,g}));}return o;}
+  function render(el){if(view){const s=cur();if(s)return renderDetail(el,s);view=null;}
+    const L=all(),cnt={draft:0,open:0,closed:0,final:0};L.forEach(({s})=>cnt[s.status]++);
+    const ord={open:0,closed:1,draft:2,final:3};
+    const rs=L.filter(({s})=>stfil==='ALL'||s.status===stfil).sort((a,b)=>ord[a.s.status]-ord[b.s.status]||(a.s.closeDate||'').localeCompare(b.s.closeDate||''));
+    const miss=scopeGenpos().filter(g=>state.missing.has('survey-'+g));
+    el.innerHTML=`<div class="pagehead"><h2>Training Survey</h2><span class="note">โควต้าต่อฝ่าย → ผู้จัดการเลือกรายชื่อใน Excel → Pending list ของรอบอบรม → Training Record</span></div>
+      <div class="toolbar"><button class="btn btn-red" onclick="Survey.openCreate()">+ สร้าง Survey</button><select onchange="Survey.setCo(this.value)">${genpoOptions(cofil,{all:true})}</select></div>
+      ${miss.length?`<div class="banner"><b>ไฟล์ใหม่</b> <span class="note">${miss.map(g=>'survey-'+g).join(', ')} จะถูกสร้างเมื่อบันทึกครั้งแรก — ถ้าบันทึกไม่ได้ ให้เพิ่มชื่อไฟล์ในรายการที่ Worker อนุญาต</span></div>`:''}
+      <div class="tiles">${[['ALL','ทั้งหมด','',L.length],['open','เปิดรับ','info',cnt.open],['closed','ปิดรับ · รอตรวจ','wait',cnt.closed],['draft','ร่าง','',cnt.draft],['final','เสร็จสิ้น','ok',cnt.final]]
+        .map(([k,t,cl,n])=>`<button class="tile ${cl} ${stfil===k?'on':''}" onclick="Survey.setSt('${k}')"><b>${n}</b><span>${t}</span></button>`).join('')}</div>
+      <div class="tblwrap"><table><thead><tr><th>Survey</th><th>หลักสูตร</th><th>รอบ</th><th>ปิดรับ</th><th class="num">ฝ่ายส่งกลับ</th><th class="num">รับแล้ว / โควต้า</th><th class="num">Pending</th><th>สถานะ</th></tr></thead><tbody>
+      ${rs.length?rs.map(({s,g})=>{const S=sessions(s),qd=quotaDepts(s),ret=qd.filter(d=>((s.files||{})[d]||{}).returnedAt).length,N=People.noms(g).filter(n=>inSurvey(s,n));
+          const act=N.filter(n=>Nom.ACTIVE.includes(n.status)).length,pend=N.filter(n=>n.status==='pending').length,dl=daysUntil(s.closeDate);
+          return`<tr class="clk ${s.status==='open'&&dl!==null&&dl<0?'late':''}" onclick="Survey.openSurvey('${g}','${s.id}')"><td><span class="co ${g}">${CO[g]}</span><br><span class="code">${esc(s.code)}</span></td>
+            <td class="cname">${esc(s.title)}<br><span class="by">โดย ${esc(s.by)} · ${s.mode==='auto'?'Auto':'กำหนดเอง'}</span></td><td>${S.map(c=>`<span class="code">${esc(c.code)}</span>`).join(' ')}</td>
+            <td class="cdate">${fmtDMY(s.closeDate)}${s.status==='open'&&dl!==null?`<br><span class="chip ${dl<0?'alert':dl<=3?'wait':''}">${dl<0?'เลย '+(-dl)+' วัน':'เหลือ '+dl+' วัน'}</span>`:''}</td>
+            <td class="num">${s.status==='draft'?'—':`${ret} / ${qd.length}`}</td><td class="num">${act} / ${qTotal(s)}</td><td class="num">${pend?`<b style="color:var(--wait)">${pend}</b>`:''}</td>
+            <td><span class="chip ${SST[s.status].cl}">${SST[s.status].t}</span></td></tr>`;}).join('')
+        :`<tr><td colspan="8" class="empty">ยังไม่มี Survey — กด "+ สร้าง Survey" (ต้องมีหลักสูตรใน Training Tracker และทะเบียนพนักงานในหน้า Records ก่อน)</td></tr>`}</tbody></table></div>`;}
+  function setCo(v){cofil=v;App.render();}
+  function setSt(v){stfil=v;App.render();}
+  function openSurvey(g,id){view=id;viewG=g;tab='setup';sessTab=null;closeModal();if(state.view!=='survey')App.go('survey');else{closeDrawer();App.render();window.scrollTo(0,0);}}
+  function back(){view=null;App.render();}
+  function setTab(t){tab=t;App.render();}
+  function setSess(id){sessTab=id;App.render();}
+
+  /* ---------- สร้าง ---------- */
+  function courseGroups(g){const m=new Map();((state.train[g]||{}).courses||[]).forEach(c=>{const k=ckey(c.name);if(!k)return;if(!m.has(k))m.set(k,{key:k,name:c.name,list:[]});m.get(k).list.push(c);});
+    const t=todayISO(),fut=x=>x.list.some(c=>!c.start||(c.end||c.start)>=t)?1:0;
+    return[...m.values()].map(x=>(x.list.sort((a,b)=>(a.start||'').localeCompare(b.start||'')),x)).sort((a,b)=>fut(b)-fut(a)||a.name.localeCompare(b.name,'th'));}
+  const usedBy=(g,cid,except)=>People.surveys(g).find(s=>s.id!==except&&s.status!=='final'&&(s.sessionIds||[]).includes(cid));
+  function openCreate(){const gs=scopeGenpos(),g0=cofil!=='ALL'?cofil:(gs.includes('HRST')?'HRST':gs[0]);
+    openModal(`<h2>สร้าง Training Survey</h2>
+      <div class="grid2"><div class="frow"><label>Genpo</label><select id="svCo" onchange="Survey.createCourses()">${genpoOptions(g0)}</select></div>
+        <div class="frow"><label>ปิดรับรายชื่อ</label>${dateInput(addDays(todayISO(),14),'','svClose')}</div></div>
+      <div class="frow"><label>หลักสูตร (จาก Training Tracker)</label><select id="svCourse" onchange="Survey.createSess()"></select></div>
+      <div id="svSess"></div>
+      <p class="note">สร้างเป็น "ร่าง" ก่อน แล้วกำหนดกลุ่มเป้าหมายและโควต้าในขั้นถัดไป · หลักสูตรเดียวกันหลายรอบรวมไว้ใน Survey เดียวได้</p>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Survey.create()">สร้าง</button></div>`);createCourses();}
+  function createCourses(){const G=courseGroups($('svCo').value);
+    $('svCourse').innerHTML=G.length?G.map(x=>`<option value="${esc(x.key)}">${esc(x.name)} (${x.list.length} รอบ)</option>`).join(''):'<option value="">— ยังไม่มีหลักสูตรใน Training Tracker —</option>';createSess();}
+  function createSess(){const g=$('svCo').value,x=courseGroups(g).find(y=>y.key===$('svCourse').value),t=todayISO();
+    $('svSess').innerHTML=x?`<label>รอบอบรมที่รวมใน Survey นี้</label><div class="checklist">${x.list.map(c=>{const past=(c.end||c.start)&&(c.end||c.start)<t,u=usedBy(g,c.id);
+      return`<label class="ckrow"><input type="checkbox" value="${c.id}" ${!past&&!u?'checked':''}><span class="code">${esc(c.code)}</span> ${courseRange(c)||'ยังไม่กำหนดวัน'} · ${c.count||0} ที่นั่ง
+        ${past?'<span class="chip">ผ่านไปแล้ว</span>':''}${u?`<span class="chip wait">อยู่ใน ${esc(u.code)}</span>`:''}</label>`;}).join('')}</div>`:'';}
+  async function create(){const g=$('svCo').value,x=courseGroups(g).find(y=>y.key===$('svCourse').value);if(!x){toast('เลือกหลักสูตรก่อน');return;}
+    const ids=[...document.querySelectorAll('#svSess input:checked')].map(i=>i.value);if(!ids.length){toast('เลือกอย่างน้อย 1 รอบ');return;}
+    const close=parseDMY($('svClose').value);if(!close){toast('วันปิดรับต้องเป็น dd/mm/yyyy');return;}
+    const S=state.survey[g];if(!S){toast('ยังโหลด survey-'+g+' ไม่ได้');return;}
+    const no=Math.max(0,...S.surveys.map(s=>s.no||0))+1;
+    const s={id:uid(),no,code:`SV-${g}-${String(no).padStart(3,'0')}`,co:g,title:x.name,courseKey:x.key,sessionIds:ids,mode:'auto',capPct:cfg(g).surveyCap||30,fromAuto:false,
+      target:{depts:[],levels:[],excludeAttended:true},quota:{},closeDate:close,status:'draft',files:{},note:'',by:state.profile.username,createdAt:todayISO()};
+    hist(s,'สร้าง Survey');recalc(s);S.surveys.push(s);
+    try{await App.saveKind('survey',g,'create '+s.code);closeModal();view=s.id;viewG=g;tab='setup';App.render();toast('สร้าง '+s.code+' แล้ว');}catch(e){}}
+
+  /* ---------- หน้า detail ---------- */
+  function renderDetail(el,s){const g=s.co,qd=quotaDepts(s),ret=qd.filter(d=>((s.files||{})[d]||{}).returnedAt).length;
+    const pend=People.noms(g).filter(n=>(s.sessionIds||[]).includes(n.sessionId)&&n.status==='pending').length,dl=daysUntil(s.closeDate);
+    const act={draft:`<button class="btn btn-red" onclick="Survey.setStatus('open')">เปิด Survey</button>`,
+      open:`<button class="btn btn-red" onclick="Survey.setStatus('closed')">ปิดรับรายชื่อ</button>`,
+      closed:`<button class="btn btn-red" onclick="Survey.setStatus('final')">Finalize</button><button class="btn btn-ghost" onclick="Survey.setStatus('open')">เปิดรับอีกครั้ง</button>`,
+      final:`<button class="btn btn-ghost" onclick="Survey.setStatus('closed')">กลับไปแก้ไข</button>`}[s.status];
+    el.innerHTML=`<div class="pagehead"><button class="btn btn-ghost" onclick="Survey.back()">← Survey ทั้งหมด</button>
+        <h2><span class="co ${g}">${CO[g]}</span> <span class="code">${esc(s.code)}</span> ${esc(s.title)}</h2><span class="chip ${SST[s.status].cl}">${SST[s.status].t}</span></div>
+      <div class="toolbar">${act}<span class="note">ปิดรับ ${fmtDMY(s.closeDate)}${s.status==='open'&&dl!==null?` · ${dl<0?'เลยกำหนด '+(-dl)+' วัน':'เหลือ '+dl+' วัน'}`:''} · สร้างโดย ${esc(s.by)}</span><span style="flex:1"></span>
+        ${s.status==='draft'?`<button class="btn btn-ghost" style="color:var(--alert)" onclick="Survey.del()">ลบ Survey</button>`:''}</div>
+      <div class="tabs"><button class="${tab==='setup'?'on':''}" onclick="Survey.setTab('setup')">1 · รอบ · กลุ่มเป้าหมาย · โควต้า</button>
+        <button class="${tab==='files'?'on':''}" onclick="Survey.setTab('files')">2 · ไฟล์ฝ่าย (${ret}/${qd.length})</button>
+        <button class="${tab==='pending'?'on':''}" onclick="Survey.setTab('pending')">3 · Pending list${pend?` (${pend})`:''}</button></div>
+      <div id="svBody"></div>`;
+    const b=$('svBody');if(tab==='setup')b.innerHTML=setupHtml(s);else if(tab==='files')b.innerHTML=filesHtml(s);else pendingInto(b,s);}
+
+  function setupHtml(s){const g=s.co,ed=s.status==='draft',qed=s.status==='draft'||s.status==='open',t=todayISO();
+    const allS=(courseGroups(g).find(x=>x.key===s.courseKey)||{list:[]}).list,S=sessions(s),el=eligByDept(s),nEl=Object.values(el).reduce((a,b)=>a+b,0);
+    const T=s.target||{},D=People.deptList(g),LV=People.levels(g),cap=capOf(s),auto=autoFor(s),seatsT=seats(s),total=qTotal(s);
+    const rowsD=[...new Set([...Object.keys(el),...quotaDepts(s)])].sort(byName(g));
+    let mx={p:0};S.forEach(c=>{const n=+c.count||0;if(n)rowsD.forEach(d=>{const p=qOf(s,c.id,d)/n;if(p>mx.p)mx={p,d,c};});});
+    const share=d=>Math.max(0,...S.map(c=>(+c.count||0)?qOf(s,c.id,d)/(+c.count):0));
+    return`<div class="svgrid">
+      <div class="panel"><h4>รอบอบรม</h4>
+        <table class="plain">${(ed?allS:S).map(c=>{const on=(s.sessionIds||[]).includes(c.id),past=(c.end||c.start)&&(c.end||c.start)<t,u=usedBy(g,c.id,s.id);
+          return`<tr>${ed?`<td style="width:28px"><input type="checkbox" style="width:auto" ${on?'checked':''} onchange="Survey.toggleSess('${c.id}',this.checked)"></td>`:''}
+            <td><span class="code">${esc(c.code)}</span></td><td class="cdate">${courseRange(c)||'ยังไม่กำหนดวัน'}</td><td class="num">${c.count||0} ที่นั่ง</td>
+            <td>${past?'<span class="chip">ผ่านไปแล้ว</span>':''}${u?`<span class="chip wait">อยู่ใน ${esc(u.code)}</span>`:''}</td></tr>`;}).join('')}</table>
+        <div class="grid2" style="margin-top:10px"><div class="frow"><label>ปิดรับรายชื่อ</label>${dateInput(s.closeDate,"Survey.setClose(this.value)")}</div>
+          <div class="frow"><label>ที่นั่งรวม</label><input value="${seatsT} ที่นั่ง · ${S.length} รอบ" disabled></div></div>
+        <div class="frow"><label>ข้อความถึงผู้จัดการ (ใส่ในอีเมล)</label><textarea rows="2" onchange="Survey.setField('note',this.value)" placeholder="เช่น กลุ่มเป้าหมายคือหัวหน้างานที่ยังไม่เคยอบรม">${esc(s.note||'')}</textarea></div></div>
+      <div class="panel"><h4>กลุ่มเป้าหมาย ${ed?'':'<span class="by">(ล็อกหลังเปิด Survey)</span>'}</h4>
+        <label>ฝ่าย ${(T.depts||[]).length?`<span class="by">${T.depts.length} ฝ่าย</span>`:'<span class="by">— ทุกฝ่าย (คลิกเพื่อเลือกเฉพาะบางฝ่าย)</span>'}</label>
+        <div class="pills">${D.map(d=>`<button class="pill ${(T.depts||[]).includes(d.code)?'on':''}" ${ed?`onclick="Survey.togTarget('depts','${esc(d.code)}')"`:'disabled'}>${esc(d.name||d.code)} <span class="by">${d.n}</span></button>`).join('')
+          ||'<span class="note">ยังไม่มีทะเบียนพนักงาน — <span class="authlink" onclick="App.go(\'records\')">Import HRIS ที่หน้า Records</span></span>'}</div>
+        ${LV.length?`<label style="margin-top:10px">Level ${(T.levels||[]).length?'':'<span class="by">— ทุก Level</span>'}</label><div class="pills">${LV.map(l=>`<button class="pill ${(T.levels||[]).includes(l)?'on':''}" ${ed?`onclick="Survey.togTarget('levels','${esc(l)}')"`:'disabled'}>${esc(l)}</button>`).join('')}</div>`:''}
+        <label class="inl" style="margin-top:10px"><input type="checkbox" ${T.excludeAttended!==false?'checked':''} ${ed?'':'disabled'} onchange="Survey.setExclude(this.checked)">ไม่รวมคนที่เคยเข้าอบรมหลักสูตรนี้แล้ว</label>
+        <div class="sumbox" style="margin-top:10px">เข้าเกณฑ์ <b>${nEl}</b> คน จาก <b>${Object.keys(el).length}</b> ฝ่าย · ที่นั่ง <b>${seatsT}</b>${nEl>seatsT&&seatsT?` · ต้องจัดอีกประมาณ <b>${Math.ceil(nEl/seatsT)-1}</b> ครั้งขนาดนี้จึงครบทุกคน`:''}</div></div></div>
+      <div class="panel" style="margin-top:12px"><div class="qhead"><h4 style="margin:0">โควต้า ฝ่าย × รอบ</h4>
+        ${qed?`<div class="cofil"><button class="${s.mode==='auto'?'on':''}" onclick="Survey.setMode('auto')">Auto กระจาย</button><button class="${s.mode==='fixed'?'on':''}" onclick="Survey.setMode('fixed')">กำหนดเอง</button></div>`:`<span class="chip">${s.mode==='auto'?'Auto':'กำหนดเอง'}</span>`}
+        ${s.mode==='auto'&&ed?`<span class="note">เพดาน/ฝ่าย</span><div class="stepper"><button type="button" onclick="Survey.bumpCap(-5)" aria-label="ลด">−</button><input type="number" value="${cap}" onchange="Survey.setCap(this.value)"><span class="u">% ของห้อง</span><button type="button" onclick="Survey.bumpCap(5)" aria-label="เพิ่ม">+</button></div>`:''}
+        ${s.fromAuto&&s.mode==='fixed'?'<span class="chip">ปรับจาก Auto</span>':''}${s.mode==='auto'&&!ed?'<span class="note">ล็อกตามวันที่เปิด Survey · แก้ตัวเลขได้ (จะเปลี่ยนเป็นกำหนดเอง)</span>':''}
+        <span style="flex:1"></span>${qed&&s.mode==='fixed'?`<button class="mini" onclick="Survey.applyAuto()">ใช้ค่า Auto แนะนำ</button>`:''}</div>
+        ${rowsD.length&&S.length?`<div class="tblwrap"><table><thead><tr><th>ฝ่าย</th><th class="num">เข้าเกณฑ์</th><th class="num" data-tip="คำนวณจากสัดส่วนคนเข้าเกณฑ์ + เพดาน ${cap}% ต่อห้อง">Auto แนะนำ ⓘ</th>
+          ${S.map(c=>`<th class="num">${esc(c.code)}<br><span class="by">${c.count||0} ที่นั่ง</span></th>`).join('')}<th class="num">รวม</th><th style="min-width:130px">สัดส่วนในห้อง (สูงสุด)</th></tr></thead><tbody>
+          ${rowsD.map(d=>{const sh=share(d);return`<tr><td>${esc(People.deptName(g,d))}</td><td class="num">${el[d]||0}</td><td class="num">${auto.total[d]||0}</td>
+            ${S.map(c=>`<td class="num"><input class="qin" type="number" min="0" value="${qOf(s,c.id,d)||''}" ${qed?'':'disabled'} onchange="Survey.setQ('${c.id}','${esc(d)}',this.value)"></td>`).join('')}
+            <td class="num"><b>${qDept(s,d)||''}</b>${qDept(s,d)>(el[d]||0)?' <span class="chip wait">เกินคนเข้าเกณฑ์</span>':''}</td>
+            <td><div class="hbar" style="grid-template-columns:1fr 42px;margin:0"><div class="trk"><div class="fil" style="width:${(sh*100).toFixed(0)}%;background:${sh>cap/100?C_ALERT:C_PROG}"></div></div><span class="pc">${Math.round(sh*100)}%</span></div></td></tr>`;}).join('')}
+          <tr class="mrow"><td>รวม</td><td class="num">${nEl}</td><td class="num">${Object.values(auto.total).reduce((a,b)=>a+b,0)}</td>
+            ${S.map(c=>{const n=qSess(s,c.id),m=+c.count||0;return`<td class="num" style="color:${n>m?'var(--alert)':n<m?'var(--wait)':'var(--ok)'}">${n} / ${m}</td>`;}).join('')}
+            <td class="num">${total} / ${seatsT}</td><td></td></tr></tbody></table></div>
+          <p class="note" style="margin-top:8px">${mx.p?`สัดส่วนสูงสุดในห้อง <b style="color:${mx.p>cap/100?'var(--alert)':'inherit'}">${Math.round(mx.p*100)}%</b> (${esc(People.deptName(g,mx.d))} · ${esc(mx.c.code)}) · เพดาน ${cap}%`:''}
+            ${total>seatsT?` · <b style="color:var(--alert)">โควต้ารวมเกินที่นั่ง ${total-seatsT}</b>`:total<seatsT?` · เหลือที่นั่งยังไม่แบ่ง ${seatsT-total}`:''}
+            ${s.mode==='auto'&&auto.left>0?` · Auto แบ่งไม่หมด ${auto.left} ที่ เพราะคนเข้าเกณฑ์ไม่พอหรือทุกฝ่ายชนเพดาน — ลดที่นั่งหรือเพิ่มเพดาน`:''}</p>`
+        :`<p class="note">${S.length?'ยังไม่มีพนักงานเข้าเกณฑ์ — ตรวจทะเบียนพนักงาน (Records) หรือกลุ่มเป้าหมาย':'เลือกรอบอบรมอย่างน้อย 1 รอบ'}</p>`}</div>`;}
+
+  /* ---------- แก้ค่า (บันทึกทันที) ---------- */
+  async function saveS(s,msg){try{await App.saveKind('survey',s.co,msg+' '+s.code);}catch(e){}App.render();}
+  const edit=()=>{const s=cur();if(!s)return null;return s;};
+  async function toggleSess(id,on){const s=edit();if(!s||s.status!=='draft')return;s.sessionIds=(s.sessionIds||[]).filter(x=>x!==id);if(on)s.sessionIds.push(id);
+    if(!on&&s.quota)delete s.quota[id];recalc(s);await saveS(s,'sessions');}
+  async function setClose(v){const s=edit();const iso=parseDMY(v);if(!iso){toast('วันที่ต้องเป็น dd/mm/yyyy');App.render();return;}s.closeDate=iso;await saveS(s,'close date');}
+  async function setField(f,v){const s=edit();s[f]=v.trim();await saveS(s,f);}
+  async function togTarget(k,v){const s=edit();if(s.status!=='draft')return;s.target=s.target||{};const a=s.target[k]=s.target[k]||[];const i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);recalc(s);await saveS(s,'target');}
+  async function setExclude(v){const s=edit();s.target=s.target||{};s.target.excludeAttended=v;recalc(s);await saveS(s,'target');}
+  async function setMode(m){const s=edit();if(s.mode===m)return;
+    if(m==='auto'){if(s.status!=='draft'){if(!confirm('คำนวณโควต้าใหม่จากข้อมูลปัจจุบัน? ตัวเลขที่แก้เองจะถูกแทนที่'))return;s.quota=autoFor(s).quota;s.mode='fixed';s.fromAuto=true;}
+      else{s.mode='auto';s.fromAuto=false;recalc(s);}}
+    else{s.mode='fixed';}await saveS(s,'mode '+m);}
+  async function setCap(v){const s=edit();s.capPct=Math.min(100,Math.max(10,Math.round(+v||30)));recalc(s);await saveS(s,'cap');}
+  const bumpCap=n=>setCap(capOf(cur())+n);
+  async function applyAuto(){const s=edit();s.quota=autoFor(s).quota;s.fromAuto=true;if(s.status==='draft'){s.mode='auto';s.fromAuto=false;}await saveS(s,'apply auto');}
+  async function setQ(sid,d,v){const s=edit();s.quota=s.quota||{};s.quota[sid]=s.quota[sid]||{};const n=Math.max(0,Math.round(+v||0));if(n)s.quota[sid][d]=n;else delete s.quota[sid][d];
+    if(s.mode==='auto'){s.mode='fixed';s.fromAuto=true;}await saveS(s,'quota');}
+  async function setStatus(st){const s=cur(),g=s.co;
+    if(st==='open'&&s.status==='draft'){if(!sessions(s).length){toast('เลือกรอบอบรมก่อน');return;}if(!qTotal(s)){toast('ยังไม่มีโควต้า');return;}
+      const noMail=quotaDepts(s).filter(d=>!People.dept(g,d).mgrEmail);
+      if(noMail.length&&!confirm(`${noMail.length} ฝ่ายยังไม่มีอีเมลผู้จัดการ (${noMail.slice(0,5).map(d=>People.deptName(g,d)).join(', ')}${noMail.length>5?' …':''})\nเปิด Survey ต่อ? (เพิ่มอีเมลได้ที่ Records → ฝ่าย & ผู้จัดการ)`))return;
+      s.openedAt=todayISO();hist(s,'เปิด Survey');s.status='open';tab='files';await saveS(s,'open');toast('เปิดแล้ว — ดาวน์โหลดไฟล์ของแต่ละฝ่ายแล้วส่งให้ผู้จัดการ');return;}
+    if(st==='closed'&&s.status==='open'&&!confirm('ปิดรับรายชื่อ? (ยังอัปโหลดไฟล์ที่ส่งช้าได้ ระบบจะถามยืนยัน)'))return;
+    if(st==='final'){const p=People.noms(g).filter(n=>(s.sessionIds||[]).includes(n.sessionId)&&n.status==='pending').length;if(p&&!confirm(`ยังมี Pending ${p} คนที่ยังไม่ได้ตรวจ — Finalize ต่อ?`))return;}
+    hist(s,SST[s.status].t+' → '+SST[st].t);s.status=st;if(st==='final')tab='pending';await saveS(s,'status '+st);}
+  async function del(){const s=cur();if(!confirm(`ลบ ${s.code}?`))return;const S=state.survey[s.co];S.surveys=S.surveys.filter(x=>x!==s);S.nominations=S.nominations.filter(n=>n.surveyId!==s.id);
+    view=null;try{await App.saveKind('survey',s.co,'delete '+s.code);}catch(e){}App.render();}
+
+  /* ---------- ไฟล์ Excel ต่อฝ่าย ---------- */
+  const HEAD=['EmpID','ชื่อ-สกุล','ตำแหน่ง','Level','ประวัติหลักสูตรนี้','เลือก','ลำดับ','รอบที่สะดวก','หมายเหตุ','ผลตรวจสอบ'];
+  function resultText(n){const f=(n.flags||[]).length?' · ⚠ '+n.flags.join(' · '):'';
+    return({pending:'✓ รับแล้ว — รอ Training ยืนยัน',confirmed:'✓ ยืนยันแล้ว',waitlist:'⚠ Waitlist (เกินโควต้า)',rejected:'✗ ไม่รับ'+(n.reason?': '+n.reason:''),withdrawn:'',cancelled:'✗ ยกเลิก'}[n.status]||'')+(n.status==='withdrawn'?'':f);}
+  function buildWb(s,d){const g=s.co,S=sessions(s),ix=People.index(g);
+    const list=eligible(s).filter(e=>e.dept===d),N=People.noms(g).filter(n=>n.dept===d&&inSurvey(s,n));
+    N.forEach(n=>{if(!list.some(e=>e.empId===n.empId)){const e=People.emp(g,n.empId);if(e)list.push(e);}});
+    list.sort((a,b)=>a.empId.localeCompare(b.empId,undefined,{numeric:true}));
+    const code=id=>(courseById(g,id)||{}).code||'';
+    const rows=list.map(e=>{const n=N.find(x=>x.empId===e.empId&&x.status!=='withdrawn')||N.find(x=>x.empId===e.empId),a=ix.att(e.empId,s.courseKey),on=n&&Nom.ACTIVE.includes(n.status);
+      return[e.empId,People.nameOf(e),e.position||'',e.level||'',a?'เคยอบรม '+fmtDMY(a.start):'ยังไม่เคย',on?'✓':'',on&&n.priority||'',on?(n.prefer||(S.length>1?code(n.sessionId):'')):'',n?n.note||'':'',n?resultText(n):''];});
+    const mgr=People.dept(g,d);
+    const aoa=[['People Center Hub · Training Survey'],['Survey',s.code],['หลักสูตร',s.title],['รอบอบรม',S.map(c=>`${c.code} (${courseRange(c)})`).join('  ·  ')],
+      ['ฝ่าย',`${People.deptName(g,d)} (${d})${mgr.mgrName?' · ผู้จัดการ '+mgr.mgrName:''}`],['โควต้าของฝ่าย',`${qDept(s,d)} คน`+(S.length>1?'  —  '+S.map(c=>`${c.code}: ${qOf(s,c.id,d)}`).join('  ·  '):'')],
+      ['ปิดรับ',fmtDMY(s.closeDate)],['เลือกแล้ว',0],['วิธีกรอก',`ใส่ ✓ หรือ 1 ในคอลัมน์ "เลือก" · ลำดับ 1 = สำคัญที่สุด (ใช้ตัดสินเมื่อเลือกเกินโควต้า)${S.length>1?' · รอบที่สะดวก ใส่ Code เช่น '+S[0].code:''} · ห้ามแก้คอลัมน์ EmpID`],HEAD,...rows];
+    const ws=XLSX.utils.aoa_to_sheet(aoa);ws['B8']={t:'n',v:rows.filter(r=>r[5]).length,f:`COUNTA(F11:F${11+rows.length+100})`};
+    ws['!cols']=[{wch:12},{wch:30},{wch:24},{wch:8},{wch:20},{wch:8},{wch:8},{wch:14},{wch:28},{wch:40}];
+    const meta=XLSX.utils.aoa_to_sheet([['surveyId',s.id],['genpo',g],['dept',d],['code',s.code],['generatedAt',new Date().toISOString()],['version','1']]);
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Survey');XLSX.utils.book_append_sheet(wb,meta,'_meta');wb.Workbook={Sheets:[{Hidden:0},{Hidden:1}]};
+    return{wb,name:`${s.code}_${safeName(People.deptName(g,d))||safeName(d)}.xlsx`};}
+  function filesHtml(s){const g=s.co,qd=quotaDepts(s).sort(byName(g)),el=eligByDept(s),S=sessions(s),can=s.status!=='draft'&&!!window.XLSX;
+    const fmtT=iso=>{if(!iso)return '';const d=new Date(iso);return isNaN(d)?iso:d.toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});};
+    return`<div class="toolbar"><button class="btn btn-red" ${can?'':'disabled'} onclick="Survey.dlAll()">ดาวน์โหลดไฟล์ทุกฝ่าย (${qd.length})</button>
+        <button class="btn btn-ghost" ${can?'':'disabled'} onclick="Survey.pickReturn()">อัปโหลดไฟล์ที่ผู้จัดการส่งกลับ</button>
+        <span class="note">${s.status==='draft'?'เปิด Survey ก่อนจึงสร้างไฟล์ได้':'อัปโหลดได้หลายไฟล์พร้อมกัน · อัปโหลดซ้ำได้ ระบบจะอัปเดตตามไฟล์ล่าสุด'}</span></div>
+      <div class="tblwrap"><table><thead><tr><th>ฝ่าย</th><th>ผู้จัดการ</th><th class="num">โควต้า</th><th class="num">เข้าเกณฑ์</th><th>ส่งไฟล์</th><th>ส่งกลับ</th><th>ผลตรวจ</th><th></th></tr></thead><tbody>
+      ${qd.length?qd.map(d=>{const f=(s.files||{})[d]||{},m=People.dept(g,d);return`<tr><td>${esc(People.deptName(g,d))}<br><span class="by">${esc(d)}</span></td>
+        <td>${m.mgrEmail?`${esc(m.mgrName||'')}<br><span class="by">${esc(m.mgrEmail)}</span>`:`<span class="chip alert">ไม่มีอีเมล</span> <span class="authlink" onclick="Records.openDepts('${g}')">เพิ่ม</span>`}</td>
+        <td class="num">${qDept(s,d)}${S.length>1?`<br><span class="by">${S.map(c=>qOf(s,c.id,d)).join(' / ')}</span>`:''}</td><td class="num">${el[d]||0}</td>
+        <td class="cdate">${f.sentAt?fmtT(f.sentAt):'—'}</td><td class="cdate">${f.returnedAt?`${fmtT(f.returnedAt)}<br><span class="by">${esc(f.fileName||'')}</span>`:'<span class="chip wait">รอ</span>'}</td>
+        <td>${f.returnedAt?`เลือก ${f.sel} · <span style="color:var(--ok)">✓ ${f.ok}</span>${f.warn?` · <span style="color:var(--wait)">⚠ ${f.warn}</span>`:''}${f.wl?` · WL ${f.wl}`:''}${f.err?` · <span style="color:var(--alert)">✗ ${f.err}</span>`:''}`:''}</td>
+        <td style="white-space:nowrap"><button class="mini" ${can?'':'disabled'} onclick="Survey.dl('${esc(d)}')">ไฟล์</button> ${m.mgrEmail&&can?`<a class="mini" href="${mailto(s,d)}" onclick="Survey.markSent('${esc(d)}')">อีเมล</a>`:''}</td></tr>`;}).join('')
+        :'<tr><td colspan="8" class="empty">ยังไม่มีฝ่ายที่ได้โควต้า — กำหนดโควต้าในแท็บที่ 1</td></tr>'}</tbody></table></div>
+      <p class="note" style="margin-top:8px">ไฟล์ของแต่ละฝ่ายมีเฉพาะพนักงานของฝ่ายนั้นที่เข้าเกณฑ์ · ปุ่ม "อีเมล" เปิดอีเมลพร้อมข้อความ — แนบไฟล์ที่ดาวน์โหลดแล้วส่ง · ในระบบจริง Power Automate จะสร้างไฟล์บน SharePoint ส่งอีเมล และอ่านไฟล์กลับให้เอง</p>`;}
+  function mailto(s,d){const g=s.co,m=People.dept(g,d),S=sessions(s),fn=buildName(s,d);
+    const sub=`[Training Survey] ${s.title} — เลือกผู้เข้าอบรม ${People.deptName(g,d)} ภายใน ${fmtDMY(s.closeDate)}`;
+    const body=`เรียน ${m.mgrName||'ผู้จัดการฝ่าย '+People.deptName(g,d)}\n\nขอความร่วมมือเลือกพนักงานในฝ่ายเข้าอบรมหลักสูตร "${s.title}"\n\nรอบอบรม: ${S.map(c=>`${c.code} ${courseRange(c)}`).join(', ')}\nโควต้าของฝ่าย: ${qDept(s,d)} คน${S.length>1?' ('+S.map(c=>`${c.code}: ${qOf(s,c.id,d)}`).join(', ')+')':''}\nปิดรับ: ${fmtDMY(s.closeDate)}\n\nวิธีกรอก: เปิดไฟล์แนบ ${fn} ใส่ ✓ ในคอลัมน์ "เลือก" และลำดับความสำคัญ แล้วส่งไฟล์กลับทางอีเมลนี้\nหากเลือกเกินโควต้า ระบบจะจัดคนลำดับท้ายเป็น Waitlist\n${s.note?'\n'+s.note+'\n':''}\nขอบคุณค่ะ\nTraining & Engagement`;
+    return `mailto:${encodeURIComponent(m.mgrEmail)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;}
+  const buildName=(s,d)=>`${s.code}_${safeName(People.deptName(s.co,d))||safeName(d)}.xlsx`;
+  async function markSent(d){const s=cur();s.files=s.files||{};s.files[d]={...(s.files[d]||{}),sentAt:new Date().toISOString()};try{await App.saveKind('survey',s.co,'sent '+d);}catch(e){}setTimeout(()=>App.render(),300);}
+  async function dl(d){const s=cur();if(!window.XLSX){toast('โหลดไลบรารี Excel ไม่ได้');return;}const {wb,name}=buildWb(s,d);XLSX.writeFile(wb,name);
+    s.files=s.files||{};s.files[d]={...(s.files[d]||{}),sentAt:new Date().toISOString()};try{await App.saveKind('survey',s.co,'file '+d);}catch(e){}App.render();}
+  async function dlAll(){const s=cur();if(!window.XLSX){toast('โหลดไลบรารี Excel ไม่ได้');return;}const qd=quotaDepts(s);toast(`กำลังสร้าง ${qd.length} ไฟล์… (ถ้าเบราว์เซอร์ถาม ให้อนุญาตดาวน์โหลดหลายไฟล์)`);
+    s.files=s.files||{};for(const d of qd){const {wb,name}=buildWb(s,d);XLSX.writeFile(wb,name);s.files[d]={...(s.files[d]||{}),sentAt:new Date().toISOString()};await new Promise(r=>setTimeout(r,350));}
+    try{await App.saveKind('survey',s.co,'files all');}catch(e){}App.render();}
+
+  /* ---------- อ่านไฟล์ที่ส่งกลับ + ตรวจสอบ ---------- */
+  const NOTSEL=['0','-','no','n','ไม่','ไม่เลือก','false','✗','✘'];
+  function parseReturn(wb){const mws=wb.Sheets['_meta'];if(!mws)throw new Error('ไม่ใช่ไฟล์ Survey จากระบบ (ไม่พบชีต _meta) — ใช้ไฟล์ที่ดาวน์โหลดจากหน้านี้');
+    const meta={};XLSX.utils.sheet_to_json(mws,{header:1,defval:''}).forEach(r=>{if(r[0])meta[String(r[0]).trim()]=String(r[1]).trim();});
+    const ws=wb.Sheets['Survey']||wb.Sheets[wb.SheetNames[0]],aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+    const hi=aoa.findIndex(r=>nkey(r[0])==='empid');if(hi<0)throw new Error('ไม่พบหัวตาราง EmpID');
+    const H=aoa[hi].map(nkey),col=n=>H.indexOf(nkey(n)),cSel=col('เลือก'),cPri=col('ลำดับ'),cPre=col('รอบที่สะดวก'),cNote=col('หมายเหตุ');
+    if(cSel<0)throw new Error('ไม่พบคอลัมน์ "เลือก"');const rows=[];
+    for(let i=hi+1;i<aoa.length;i++){const r=aoa[i],id=String(r[0]||'').trim();if(!id)continue;const v=String(r[cSel]??'').trim().toLowerCase();
+      rows.push({row:i+1,empId:id,sel:!!v&&!NOTSEL.includes(v),priority:parseInt(r[cPri])||null,prefer:cPre>=0?String(r[cPre]??'').trim():'',note:cNote>=0?String(r[cNote]??'').trim():''});}
+    return{meta,rows};}
+  function applyReturn(s,d,P,fileName){const g=s.co,S=sessions(s),ix=People.index(g),key=s.courseKey,res=[];if(!S.length)throw new Error('Survey ไม่มีรอบอบรม');
+    const byCode=new Map(S.map(c=>[nkey(c.code),c])),Nall=state.survey[g].nominations,mine=Nall.filter(n=>n.dept===d&&inSurvey(s,n));
+    const selRows=P.rows.filter(r=>r.sel).sort((a,b)=>(a.priority||999)-(b.priority||999)||a.row-b.row);
+    const used={};S.forEach(c=>used[c.id]=Nall.filter(n=>n.sessionId===c.id&&n.dept===d&&n.status==='confirmed').length);
+    const room=c=>qOf(s,c.id,d)-used[c.id],seen=new Set(),mgr=People.dept(g,d);
+    for(const r of selRows){const e=People.emp(g,r.empId),o={row:r.row,empId:r.empId,name:People.nameOf(e),st:'err',msg:''};res.push(o);
+      if(seen.has(r.empId)){o.msg='รหัสซ้ำในไฟล์';continue;}seen.add(r.empId);
+      if(!e){o.msg='ไม่พบรหัสในทะเบียนพนักงาน';continue;}if(e.status==='Inactive'){o.msg='พ้นสภาพแล้ว';continue;}
+      if(e.dept!==d){o.msg='ไม่ใช่พนักงานของฝ่ายนี้ (อยู่ '+People.deptName(g,e.dept)+')';continue;}
+      const en=ix.enr(e.empId,key);if(en&&!(s.sessionIds||[]).includes(en.sessionId)){o.msg='ลงทะเบียนรอบอื่นแล้ว ('+(en.code||en.courseName)+')';continue;}
+      const other=Nall.find(n=>n.empId===e.empId&&n.surveyId&&n.surveyId!==s.id&&Nom.ACTIVE.includes(n.status)&&(find(g,n.surveyId)||{}).courseKey===key);
+      if(other){o.msg='อยู่ใน Survey อื่นของหลักสูตรนี้แล้ว ('+(find(g,other.surveyId)||{}).code+')';continue;}
+      let n=mine.find(x=>x.empId===e.empId&&x.status!=='withdrawn')||mine.find(x=>x.empId===e.empId);
+      if(n&&n.status==='rejected'){o.msg='Training ไม่รับ'+(n.reason?': '+n.reason:'');continue;}
+      if(n&&n.status==='confirmed'){n.priority=r.priority;n.note=r.note;o.st='ok';o.msg='ยืนยันแล้ว ('+((courseById(g,n.sessionId)||{}).code||'')+')';continue;}
+      const pref=r.prefer?byCode.get(nkey(r.prefer)):null;let c=pref&&room(pref)>0?pref:S.filter(x=>room(x)>0).sort((a,b)=>room(b)-room(a))[0];const wl=!c;
+      if(wl)c=pref||(n&&courseById(g,n.sessionId))||S[0];else used[c.id]++;
+      const flags=People.flagsFor(g,e.empId,c,ix);
+      if(!n){n={id:uid(),surveyId:s.id,empId:e.empId,dept:d,source:'excel',at:new Date().toISOString(),by:'Excel · '+(mgr.mgrName||People.deptName(g,d))};Nall.push(n);mine.push(n);hist(n,'จาก Excel '+fileName);}
+      else hist(n,'อัปเดตจาก Excel '+fileName);
+      Object.assign(n,{surveyId:n.surveyId||s.id,sessionId:c.id,priority:r.priority,prefer:r.prefer,note:r.note,flags,status:wl?'waitlist':'pending',reason:''});
+      o.st=wl?'wl':flags.length?'warn':'ok';o.msg=(wl?'เกินโควต้า → Waitlist':'รับแล้ว → '+c.code)+(flags.length?' · '+flags.join(' · '):'');}
+    const selIds=new Set(selRows.map(r=>r.empId));
+    for(const n of mine){if(selIds.has(n.empId))continue;const r=P.rows.find(x=>x.empId===n.empId);if(!r)continue;
+      if(n.source==='excel'&&['pending','waitlist'].includes(n.status)){n.status='withdrawn';hist(n,'ผู้จัดการเอาออกใน Excel');res.push({row:r.row,empId:n.empId,name:People.nameOf(People.emp(g,n.empId)),st:'wd',msg:'เอาออก → Withdrawn'});}
+      else if(n.status==='confirmed')res.push({row:r.row,empId:n.empId,name:People.nameOf(People.emp(g,n.empId)),st:'warn',msg:'ยืนยันแล้ว — หากต้องการยกเลิกให้แจ้ง Training'});}
+    const cnt={sel:selRows.length,ok:res.filter(x=>x.st==='ok').length,warn:res.filter(x=>x.st==='warn').length,wl:res.filter(x=>x.st==='wl').length,err:res.filter(x=>x.st==='err').length,wd:res.filter(x=>x.st==='wd').length};
+    s.files=s.files||{};s.files[d]={...(s.files[d]||{}),returnedAt:new Date().toISOString(),returnedBy:state.profile.username,fileName,...cnt};
+    hist(s,`รับไฟล์ ${People.deptName(g,d)}: เลือก ${cnt.sel}`);res.sort((a,b)=>(a.row||0)-(b.row||0));return{res,cnt};}
+  function pickReturn(){const i=document.createElement('input');i.type='file';i.accept='.xlsx,.xls';i.multiple=true;i.onchange=()=>processFiles([...i.files]);i.click();}
+  async function processFiles(files){if(!files.length)return;const out=[],touched=new Set();
+    for(const f of files){try{const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),P=parseReturn(wb),g=P.meta.genpo;
+        if(!scopeGenpos().includes(g))throw new Error('ไฟล์นี้เป็นของ '+g+' ซึ่งไม่อยู่ในสิทธิ์');
+        const s=find(g,P.meta.surveyId);if(!s)throw new Error('ไม่พบ Survey '+(P.meta.code||'')+' ในระบบ');
+        if(s.status==='draft')throw new Error(s.code+' ยังเป็นร่าง');if(s.status==='final')throw new Error(s.code+' เสร็จสิ้นแล้ว');
+        if(s.status==='closed'&&!confirm(`${s.code} ปิดรับแล้ว — รับไฟล์ ${f.name} ต่อ?`))continue;
+        out.push({f:f.name,s,d:P.meta.dept,...applyReturn(s,P.meta.dept,P,f.name)});touched.add(g);}
+      catch(e){out.push({f:f.name,error:e.message});}}
+    let ok=true;for(const g of touched){try{await App.saveKind('survey',g,'survey return '+files.length+' file(s)');}catch(e){ok=false;}}
+    App.render();if(ok)showResults(out);}
+  function showResults(out){const ST={ok:['✓','ok'],warn:['⚠','wait'],wl:['WL','info'],err:['✗','alert'],wd:['−','']};
+    openModal(`<h2>ผลตรวจไฟล์ที่ส่งกลับ (${out.length} ไฟล์)</h2>${out.map(o=>o.error?`<div class="statbox alert"><b>${esc(o.f)}</b><br>${esc(o.error)}</div>`
+      :`<div class="statbox ${o.cnt.err?'wait':'ok'}"><b>${esc(People.deptName(o.s.co,o.d))}</b> <span class="by">${esc(o.f)}</span><br>
+        เลือก ${o.cnt.sel} → <span style="color:var(--ok)">✓ ${o.cnt.ok}</span>${o.cnt.warn?` · <span style="color:var(--wait)">⚠ ${o.cnt.warn}</span>`:''}${o.cnt.wl?` · Waitlist ${o.cnt.wl}`:''}${o.cnt.err?` · <span style="color:var(--alert)">✗ ไม่รับ ${o.cnt.err}</span>`:''}${o.cnt.wd?` · เอาออก ${o.cnt.wd}`:''}
+        ${o.res.length?`<details ${o.cnt.err||o.cnt.warn?'open':''}><summary class="note" style="cursor:pointer;margin-top:4px">รายละเอียด</summary><table class="plain" style="margin-top:4px">${o.res.map(r=>`<tr><td class="by">แถว ${r.row||''}</td><td><span class="code">${esc(r.empId)}</span></td><td>${esc(r.name||'')}</td><td><span class="chip ${ST[r.st][1]}">${ST[r.st][0]}</span> ${esc(r.msg)}</td></tr>`).join('')}</table></details>`:''}
+        <div style="margin-top:6px"><button class="mini" onclick="Survey.dlFor('${o.s.co}','${o.s.id}','${esc(o.d)}')">ดาวน์โหลดไฟล์พร้อมผลตรวจ (ส่งกลับผู้จัดการ)</button></div></div>`).join('')}
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ปิด</button><button class="btn btn-red" onclick="closeModal();Survey.setTab('pending')">ไปที่ Pending list</button></div>`,'wide');}
+  function dlFor(g,id,d){const s=find(g,id);if(!s)return;const {wb,name}=buildWb(s,d);XLSX.writeFile(wb,name.replace(/\.xlsx$/,'_ผลตรวจ.xlsx'));}
+
+  function pendingInto(b,s){const S=sessions(s);if(!S.length){b.innerHTML='<p class="note">Survey นี้ยังไม่มีรอบอบรม</p>';return;}
+    if(!sessTab||!S.some(c=>c.id===sessTab))sessTab=S[0].id;
+    b.innerHTML=`${S.length>1?`<div class="cofil" style="margin-bottom:12px;width:fit-content;flex-wrap:wrap">${S.map(c=>{const o=Nom.counts(s.co,c.id);
+      return`<button class="${c.id===sessTab?'on':''}" onclick="Survey.setSess('${c.id}')">${esc(c.code)} · ${courseRange(c)}${o.pending?` (${o.pending})`:''}</button>`;}).join('')}</div>`:''}<div id="svPend"></div>
+      <p class="note" style="margin-top:8px">Confirm = สร้าง Training Record สถานะ "ลงทะเบียน" ให้พนักงานคนนั้น · เช็กชื่อหลังอบรมได้ที่หน้า Training → เปิดรอบอบรม → เช็กชื่อ</p>`;
+    Nom.render($('svPend'),s.co,sessTab,'survey');}
+
+  /* ---------- ใช้ใน Dashboard ---------- */
+  function openCount(){let n=0;for(const g of Object.keys(state.survey))n+=(state.survey[g].surveys||[]).filter(s=>s.status==='open').length;return n;}
+  return {render,setCo,setSt,openSurvey,back,setTab,setSess,openCreate,createCourses,createSess,create,toggleSess,setClose,setField,togTarget,setExclude,setMode,setCap,bumpCap,
+    applyAuto,setQ,setStatus,del,dl,dlAll,dlFor,markSent,pickReturn,processFiles,autoQuota,openCount,SST};
 })();
 
 /* ================= boot ================= */
