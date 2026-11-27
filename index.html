@@ -7,7 +7,34 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+/* Replace guidance copy with a compact ? tooltip across all rendered screens. */
+function humanHelp(text){
+  let t=String(text||'').replace(/\s+/g,' ').trim();
+  t=t.replace(/^ไฟล์ใหม่\s*/,'').replace(/^คำแนะนำ\s*/,'');
+  t=t.replace(/\s*[—–-]\s*/g,'\n');
+  t=t.replace(/\s*·\s*/g,'\n');
+  t=t.replace(/\s*\/\s*/g,' หรือ ');
+  t=t.replace(/"([^"]+)"/g,'$1').replace(/'([^']+)'/g,'$1');
+  return t.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>x.replace(/^ระบบจะ/,'ระบบจะ')).join('\n');
+}
+function helpify(root=document){
+  const nodes=[];
+  if(root.nodeType===1&&root.matches?.('.pagehead>.note,.banner,.chiphint,.set-card>.hint,.mcard>p.note'))nodes.push(root);
+  root.querySelectorAll?.('.pagehead>.note,.banner,.chiphint,.set-card>.hint,.mcard>p.note').forEach(n=>nodes.push(n));
+  nodes.forEach(n=>{
+    if(n.dataset.helpified==='1'||n.closest('.helpq'))return;
+    const tip=humanHelp(n.textContent);if(!tip)return;
+    n.dataset.helpified='1';n.classList.add('help-source');
+    const b=document.createElement('button');b.type='button';b.className='helpq';b.textContent='?';b.setAttribute('data-tip',tip);b.setAttribute('aria-label','คำแนะนำ');
+    if(n.classList.contains('banner'))n.parentNode.insertBefore(b,n);else n.replaceWith(b);
+  });
+}
+const helpObserver=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)helpify(n)})));
+helpObserver.observe(document.documentElement,{childList:true,subtree:true});
+document.addEventListener('DOMContentLoaded',()=>helpify());
+
+</script>
 <style>
 /* =====================================================================
    1) DESIGN TOKENS — แก้ตรงนี้เพื่อเปลี่ยนสี ฟอนต์ ขนาด ทั้งแอป
@@ -328,6 +355,16 @@ table.plain td{padding:5px 6px;border-bottom:1px dashed var(--line);font-size:va
 .mcard textarea{height:auto}.mcard .checklist{margin-bottom:16px}.mcard .mfoot{padding-top:18px;margin-top:8px;border-top:1px solid var(--line)}
 .mcard .note{display:inline-flex;align-items:flex-start;max-width:100%;margin-top:0;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:#FAFAFA}
 @media(max-width:700px){.mcard{padding:20px}.modal{padding:12px}.syncline{justify-content:stretch}#syncState{width:100%;justify-content:center;white-space:normal}}
+
+
+/* ===== Compact, user-friendly help tooltips ===== */
+.helpq{position:relative;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;padding:0!important;margin:0 0 0 2px!important;border:1px solid var(--line)!important;border-radius:50%!important;background:#fff!important;color:var(--sub)!important;font-size:13px!important;font-weight:700!important;line-height:1!important;cursor:help;vertical-align:middle;overflow:visible!important}
+.helpq:hover,.helpq:focus{border-color:var(--red)!important;color:var(--red)!important;outline:none}
+.helpq::after{content:attr(data-tip);position:absolute;z-index:10000;left:0;top:calc(100% + 8px);width:max-content;max-width:min(360px,78vw);padding:10px 12px;border-radius:7px;background:#202124;color:#fff;font-size:12px;font-weight:400;line-height:1.55;text-align:left;white-space:pre-line;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-3px);transition:.14s ease}
+.helpq:hover::after,.helpq:focus::after{opacity:1;visibility:visible;transform:none}
+.pagehead>.helpq{margin-left:0!important}.toolbar>.helpq{margin-left:2px!important}
+/* Guidance is represented by ? only; never show long inline guidance cards. */
+.banner.help-source,.note.help-source,.chiphint.help-source,.hint.help-source{display:none!important}
 
 </style>
 </head>
