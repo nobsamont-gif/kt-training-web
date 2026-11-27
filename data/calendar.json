@@ -110,5 +110,138 @@
         "สร้างอัตโนมัติจาก Training 18/09/2026"
       ]
     }
+  ],
+  "team": [
+    {
+      "id": "pc01",
+      "name": "Supawat Sudhiranat (Tow)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc02",
+      "name": "Supamas Tevadithep (Ying)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc03",
+      "name": "Nannathee Srirath (Nan)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc04",
+      "name": "Kittithara Khunthong (Ice)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc05",
+      "name": "Karuntarat Chanyoung (Mook)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc06",
+      "name": "Kewarin Donthong (Boong)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc07",
+      "name": "Konkanok Wangsara (Look-Yee)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc08",
+      "name": "Thanyarat Wongyimyai (Ying)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc09",
+      "name": "Jirakorn Kasikampaiboon (Miccer)",
+      "base": "HATC Minburi",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc10",
+      "name": "Plengsri Issaranuvat (Heidi)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc11",
+      "name": "Nuth Sangvari (Pukpui)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc12",
+      "name": "Panupong Intasorn (George)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc13",
+      "name": "Wijitra Prada (Fah)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc14",
+      "name": "Nobsamon Thadtapong (Oy)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc15",
+      "name": "Phornphan Promma (Ink)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    },
+    {
+      "id": "pc16",
+      "name": "Sriboonthong Thongin (Jack)",
+      "base": "TH Ladkrabang",
+      "active": true,
+      "seed": true
+    }
+  ],
+  "schedule": {
+    "pc14": {
+      "2026-12-04": {
+        "type": "leave",
+        "place": "",
+        "updatedBy": "Nobsamon",
+        "updatedAt": "2026-11-27T03:37:10.924Z"
+      }
+    }
+  },
+  "holidays": [],
+  "audit": [
+    {
+      "at": "2026-11-27T03:37:10.925Z",
+      "by": "Nobsamon",
+      "action": "schedule",
+      "detail": "Nobsamon Thadtapong (Oy) · 04/12/2026 · Leave"
+    }
   ]
 }
