@@ -1333,7 +1333,7 @@ const Dashboard=(()=>{
       Object.keys(N).forEach(d=>dh.push({g,d,n:N[d],avg:(H[d]||0)/N[d]}));});
     dh.sort((a,b)=>b.n-a.n);const dTop=dh.slice(0,10).sort((a,b)=>a.avg-b.avg),dMax=Math.max(1,...dTop.map(x=>x.avg));
     el.innerHTML=`<div class="dash">
-      <div class="dash-top"><div><div class="dash-title">Training overview</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'All Genpo':CO[cofil]}</div></div>
+      <div class="dash-top"><div><div class="dash-title">Training Overview</div><div class="dash-sub">Training &amp; DSD · ${cofil==='ALL'?'All Genpo':CO[cofil]}</div></div>
         <select onchange="Dashboard.setCo(this.value)">${genpoOptions(cofil,{all:true})}</select></div>
       <div class="kpis">
         <div class="kpi"><b>${ts.length}</b><span>Courses tracked</span></div>
