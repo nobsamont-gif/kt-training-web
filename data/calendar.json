@@ -232,6 +232,12 @@
         "place": "",
         "updatedBy": "Nobsamon",
         "updatedAt": "2026-11-27T03:37:10.924Z"
+      },
+      "2026-12-05": {
+        "type": "holiday",
+        "place": "",
+        "updatedBy": "Nobsamon",
+        "updatedAt": "2026-11-27T03:37:27.078Z"
       }
     }
   },
@@ -242,6 +248,12 @@
       "by": "Nobsamon",
       "action": "schedule",
       "detail": "Nobsamon Thadtapong (Oy) · 04/12/2026 · Leave"
+    },
+    {
+      "at": "2026-11-27T03:37:27.079Z",
+      "by": "Nobsamon",
+      "action": "schedule",
+      "detail": "Nobsamon Thadtapong (Oy) · 05/12/2026 · Holiday"
     }
   ]
 }
