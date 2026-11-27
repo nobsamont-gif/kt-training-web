@@ -225,16 +225,6 @@ button.tile:hover{border-color:var(--sub)}.tile.on{border-color:var(--red);box-s
 .team-table .sun,.team-table .holiday{background:#FFF3F3}.team-table .sat{background:#FAFAFA}.team-table select{min-width:76px;padding:4px 5px;font-size:11px;border-color:transparent;background:transparent}.team-table select:hover,.team-table select:focus{border-color:var(--line);background:#fff}
 .sch-office{background:#EAF3FF}.sch-wfh{background:#E7F5EA}.sch-outside{background:#FFF2D8}.sch-leave,.sch-leave-am,.sch-leave-pm{background:#FDE7E7}.sch-holiday{background:#F2F2F4;color:var(--sub)}
 .team-summary td:first-child{font-weight:600;text-align:left}.team-summary td{font-variant-numeric:tabular-nums}.audit-list{max-height:240px;overflow:auto}.audit-row{padding:7px 0;border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}
-
-/* Compact guidance: keep instructions available without occupying page space */
-.help-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--sub);font-size:13px;font-weight:700;cursor:help;vertical-align:middle;flex:0 0 auto}
-.help-tip:hover,.help-tip:focus{color:var(--red);border-color:var(--red);outline:none}
-.help-tip::after{content:attr(data-tip);position:absolute;z-index:9999;left:50%;top:calc(100% + 9px);transform:translateX(-50%) translateY(-4px);width:max-content;max-width:min(460px,80vw);padding:10px 12px;border-radius:8px;background:#202124;color:#fff;font-size:12px;font-weight:400;line-height:1.55;text-align:left;white-space:normal;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;visibility:hidden;pointer-events:none;transition:.16s ease}
-.help-tip::before{content:'';position:absolute;z-index:10000;left:50%;top:calc(100% + 3px);transform:translateX(-50%);border:6px solid transparent;border-bottom-color:#202124;opacity:0;visibility:hidden;transition:.16s ease}
-.help-tip:hover::after,.help-tip:focus::after,.help-tip:hover::before,.help-tip:focus::before{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-.help-tip.help-wide{width:auto;height:32px;border-radius:6px;padding:0 10px;gap:5px;font-weight:600;cursor:pointer}.help-tip.help-wide::before{display:none}
-.pagehead>.help-tip{margin-left:2px}.toolbar>.help-tip{margin-left:2px}
-
 /* ================= Dashboards ================= */
 .dash .dash-top{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
 .dash .dash-title{font-size:24px;font-weight:700;letter-spacing:-.4px}
@@ -312,6 +302,22 @@ table.plain td{padding:5px 6px;border-bottom:1px dashed var(--line);font-size:va
 .qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .qhead .stepper button{width:30px;height:30px}.qhead .stepper input{width:48px;padding:4px}
 .panel h4 .by{font-weight:400}
+
+/* Compact all guidance without changing application markup or render logic. */
+.pagehead{position:relative}
+.pagehead>.note{font-size:0!important;line-height:24px!important;width:24px;height:24px;min-width:24px;overflow:visible;margin-left:4px;padding:0!important;border:1px solid var(--line);border-radius:50%;background:#fff;text-align:center;cursor:help;position:relative;color:transparent!important}
+.pagehead>.note::before{content:'?';font-size:13px;color:var(--sub);font-weight:700;position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.pagehead>.note::after{content:attr(data-help);display:none}
+.pagehead>.note:hover{width:auto;max-width:min(620px,70vw);height:auto;padding:8px 11px!important;border-radius:7px;background:#202124;color:#fff!important;font-size:12px!important;line-height:1.55!important;text-align:left;box-shadow:0 7px 22px rgba(0,0,0,.2);z-index:1000}
+.pagehead>.note:hover::before{display:none}
+.banner{display:inline-block!important;width:auto!important;max-width:100%;min-height:0!important;margin:8px 0!important;padding:7px 11px!important;border:1px solid var(--line)!important;border-left:3px solid var(--blue)!important;border-radius:7px!important;background:#fff!important;color:var(--sub);font-size:0!important;line-height:1.5!important;cursor:help;position:relative;overflow:visible!important}
+.banner::before{content:'ⓘ คำแนะนำ';font-size:12px;font-weight:600;color:var(--blue)}
+.banner:hover{font-size:12px!important;background:#202124!important;color:#fff!important;border-color:#202124!important;box-shadow:0 7px 22px rgba(0,0,0,.2);z-index:1000}
+.banner:hover::before{display:none}.banner:hover .note{color:#fff!important;font-size:12px!important}
+.chiphint,.set-card>.hint{display:inline-block;max-width:24px;height:24px;overflow:hidden;font-size:0!important;line-height:24px!important;border:1px solid var(--line);border-radius:50%;text-align:center;cursor:help;vertical-align:middle;padding:0!important;color:transparent!important;background:#fff;position:relative}
+.chiphint::before,.set-card>.hint::before{content:'?';font-size:13px;font-weight:700;color:var(--sub)}
+.chiphint:hover,.set-card>.hint:hover{max-width:min(520px,75vw);width:auto;height:auto;padding:7px 10px!important;border-radius:7px;background:#202124;color:#fff!important;font-size:12px!important;line-height:1.5!important;text-align:left;z-index:1000}.chiphint:hover::before,.set-card>.hint:hover::before{display:none}
+
 </style>
 </head>
 <body>
@@ -2633,24 +2639,6 @@ const Survey=(()=>{
 
 /* ================= boot ================= */
 App.boot();
-
-/* Convert long guidance text to compact hover/focus help throughout the app. */
-function compactGuidance(root=document){
-  const make=(node,wide=false)=>{
-    if(!node||node.dataset.compacted==='1'||node.closest('.help-tip'))return;
-    const text=(node.textContent||'').replace(/\s+/g,' ').trim();if(!text)return;
-    node.dataset.compacted='1';
-    const b=document.createElement('button');b.type='button';b.className='help-tip'+(wide?' help-wide':'');
-    b.setAttribute('data-tip',text);b.setAttribute('aria-label','คำแนะนำ: '+text);b.textContent=wide?'ⓘ คำแนะนำ':'?';
-    node.replaceWith(b);
-  };
-  root.querySelectorAll('.pagehead > .note, .chiphint, .set-card > .hint').forEach(n=>make(n,false));
-  root.querySelectorAll('.banner').forEach(n=>make(n,true));
-  root.querySelectorAll('.modal p.note').forEach(n=>make(n,false));
-}
-const guidanceObserver=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)compactGuidance(n.matches?.('.pagehead,.banner,.modal,.chiphint,.set-card')?n:n);})));guidanceObserver.observe(document.documentElement,{childList:true,subtree:true});
-document.addEventListener('DOMContentLoaded',()=>compactGuidance());
-
 </script>
 </body>
 </html>
