@@ -318,6 +318,17 @@ table.plain td{padding:5px 6px;border-bottom:1px dashed var(--line);font-size:va
 .chiphint::before,.set-card>.hint::before{content:'?';font-size:13px;font-weight:700;color:var(--sub)}
 .chiphint:hover,.set-card>.hint:hover{max-width:min(520px,75vw);width:auto;height:auto;padding:7px 10px!important;border-radius:7px;background:#202124;color:#fff!important;font-size:12px!important;line-height:1.5!important;text-align:left;z-index:1000}.chiphint:hover::before,.set-card>.hint:hover::before{display:none}
 
+
+/* ===== UI balance and compact status polish ===== */
+.syncline{justify-content:flex-end;align-items:center;margin:0 0 12px;min-height:28px}
+#syncState{display:inline-flex;align-items:center;min-height:28px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--sub);font-size:var(--fs-xs);line-height:1.35;white-space:nowrap}
+.pagehead{align-items:center;gap:10px}.pagehead h2{line-height:1.35}.toolbar{min-height:38px}
+.mcard{padding:26px 32px}.mcard h2{margin-bottom:20px;line-height:1.35}.mcard>.grid2,.mcard>.grid3{align-items:start}
+.mcard .frow{margin-bottom:16px}.mcard label{min-height:20px;display:flex;align-items:center}.mcard input,.mcard select,.mcard textarea{min-height:44px}
+.mcard textarea{height:auto}.mcard .checklist{margin-bottom:16px}.mcard .mfoot{padding-top:18px;margin-top:8px;border-top:1px solid var(--line)}
+.mcard .note{display:inline-flex;align-items:flex-start;max-width:100%;margin-top:0;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:#FAFAFA}
+@media(max-width:700px){.mcard{padding:20px}.modal{padding:12px}.syncline{justify-content:stretch}#syncState{width:100%;justify-content:center;white-space:normal}}
+
 </style>
 </head>
 <body>
@@ -393,7 +404,7 @@ function cfg(g){return Object.assign({},DEF_SET,((state.settings||{}).genpos||{}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[<>&"']/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[m]));
 function toast(t){const el=$('toast');el.textContent=t;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000)}
-function sync(t){const el=$('syncState');if(el)el.textContent=t}
+function sync(t){const el=$('syncState');if(!el)return;const m=String(t||'').match(/(?:ซิงค์ล่าสุด|บันทึกแล้ว)\s*(\d{1,2}:\d{2})/);el.textContent=m?'ซิงค์ข้อมูลล่าสุด '+m[1]:(/^กำลังโหลด/.test(String(t||''))?'กำลังซิงค์ข้อมูล…':String(t||'').replace(/^⚠.*?·\s*/,'').trim());}
 const nowStamp=()=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 const todayDMY=()=>new Date().toLocaleDateString('en-GB');
 const dstamp=()=>new Date().toISOString().slice(0,10);
@@ -623,14 +634,14 @@ const App=(()=>{
     if(s.oth){if(p.admin)jobs.push(loadKind('safety',gs));else if(roleIs('Safety'))jobs.push(loadKind('safety',gs));else jobs.push(loadKind('train',gs));}
     await Promise.all(jobs);
     await autoLink();
-    sync((state.missing.size?`⚠ ยังโหลดไม่ได้ ${state.missing.size} ไฟล์ (ตรวจสิทธิ์ไฟล์บน Worker) · `:'')+'ซิงค์ล่าสุด '+nowStamp());
+    sync('ซิงค์ล่าสุด '+nowStamp());
   }
   async function reloadKind(kind,g){await loadKind(kind,[g]);}
   async function saveKind(kind,g,msg){const s=state[kind][g];const[pre,key,extra=[]]=FILES[kind];
     if(!s)throw new Error('ยังโหลดข้อมูล '+(CO[g]||g)+' ไม่ได้');
     const content={[key]:s[key]};extra.forEach(k=>content[k]=s[k]||[]);if(s.skip&&s.skip.length)content.skip=s.skip;
     try{const r=await api('PUT','api/data?file='+encodeURIComponent(pre+g),{content,sha:s.sha,msg});s.sha=r.sha;state.missing.delete(pre+g);sync('บันทึกแล้ว '+nowStamp());}
-    catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดข้อมูลล่าสุดแล้ว กรุณาทำซ้ำ');await reloadKind(kind,g);render();}else toast('บันทึกไม่สำเร็จ: '+e.message);throw e;}}
+    catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดข้อมูลล่าสุดแล้ว กรุณาทำซ้ำ');await reloadKind(kind,g);render();}else{const fileName=pre+g;if(/ชื่อไฟล์ไม่ถูกต้อง|invalid file|file.*not.*allow/i.test(e.message)){toast('บันทึกไม่ได้: Worker ยังไม่อนุญาตไฟล์ '+fileName);e.message='Worker ยังไม่อนุญาตไฟล์ '+fileName+' — เพิ่มไฟล์นี้ใน allowlist ของ Worker แล้วลองใหม่';}else toast('บันทึกไม่สำเร็จ: '+e.message);}throw e;}}
   async function saveCalendar(which,msg){const c=state[which];const name=which==='cal'?'calendar':'calendar-vwp';
     const content={events:c.events};if(c.skip&&c.skip.length)content.skip=c.skip;if(which==='cal')Object.assign(content,{team:c.team||[],schedule:c.schedule||{},holidays:c.holidays||[],audit:(c.audit||[]).slice(-2000)});
     try{const r=await api('PUT','api/data?file='+name,{content,sha:c.sha,msg});c.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
@@ -2288,7 +2299,7 @@ const Nom=(()=>{
     const e=People.emp(g,v)||People.emps(g).find(x=>x.nameTh===v||x.nameEn===v);if(!e){toast(`ไม่พบพนักงาน "${v}" ในทะเบียน ${CO[g]}`);return;}
     if(e.status==='Inactive'&&!confirm('พนักงานคนนี้พ้นสภาพแล้ว — เพิ่มต่อ?'))return;
     if(forSession(g,id).some(n=>n.empId===e.empId&&ACTIVE.includes(n.status))){toast('มีรายชื่อนี้ในรอบนี้แล้ว');return;}
-    const S=state.survey[g];if(!S){toast('ยังโหลด survey-'+g+' ไม่ได้');return;}
+    const S=state.survey[g];if(!S){toast('ยังโหลด survey-'+g+' ไม่ได้');return;}if(state.missing.has('survey-'+g)){toast('สร้างไม่ได้: Worker ยังไม่อนุญาตไฟล์ survey-'+g);return;}
     const n={id:uid(),surveyId:'',sessionId:id,empId:e.empId,dept:e.dept||'',priority:null,prefer:'',note:'',status:'pending',flags:People.flagsFor(g,e.empId,c),reason:'',source:'manual',at:new Date().toISOString(),by:state.profile.username};
     hist(n,'Training เพิ่มเอง');S.nominations.push(n);try{await App.saveKind('survey',g,'manual nomination '+e.empId);refresh();toast('เพิ่ม '+People.nameOf(e)+' แล้ว');}catch(err){}}
 
