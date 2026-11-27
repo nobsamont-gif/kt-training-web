@@ -216,6 +216,15 @@ button.tile:hover{border-color:var(--sub)}.tile.on{border-color:var(--red);box-s
 .hbar .trk{height:8px;background:#F0F0F2;border-radius:4px;overflow:hidden}.hbar .fil{height:100%;border-radius:4px}
 .hbar .pc{text-align:right;color:var(--sub);font-variant-numeric:tabular-nums}
 
+/* =============== People Center Team Schedule =============== */
+.cal-mode{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.cal-mode button{padding:8px 14px;border-right:1px solid var(--line);color:var(--sub)}.cal-mode button:last-child{border-right:0}.cal-mode button.on{background:var(--red);color:#fff;font-weight:600}
+.team-scroll{overflow:auto;max-height:68vh;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.team-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}.team-table th,.team-table td{border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);padding:5px;text-align:center;min-width:58px;height:42px}
+.team-table thead th{position:sticky;top:0;z-index:4;background:#FBFBFC}.team-table .sticky-no{position:sticky;left:0;z-index:5;min-width:44px;background:#fff}.team-table .sticky-name{position:sticky;left:44px;z-index:5;min-width:220px;max-width:220px;text-align:left;background:#fff}.team-table .sticky-base{position:sticky;left:264px;z-index:5;min-width:145px;text-align:left;background:#fff}.team-table thead .sticky-no,.team-table thead .sticky-name,.team-table thead .sticky-base{z-index:8;background:#FBFBFC}
+.team-table .sun,.team-table .holiday{background:#FFF3F3}.team-table .sat{background:#FAFAFA}.team-table select{min-width:76px;padding:4px 5px;font-size:11px;border-color:transparent;background:transparent}.team-table select:hover,.team-table select:focus{border-color:var(--line);background:#fff}
+.sch-office{background:#EAF3FF}.sch-wfh{background:#E7F5EA}.sch-outside{background:#FFF2D8}.sch-leave,.sch-leave-am,.sch-leave-pm{background:#FDE7E7}.sch-holiday{background:#F2F2F4;color:var(--sub)}
+.team-summary td:first-child{font-weight:600;text-align:left}.team-summary td{font-variant-numeric:tabular-nums}.audit-list{max-height:240px;overflow:auto}.audit-row{padding:7px 0;border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}
 /* ================= Dashboards ================= */
 .dash .dash-top{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
 .dash .dash-title{font-size:24px;font-weight:700;letter-spacing:-.4px}
@@ -353,11 +362,13 @@ const roleIs=r=>state.profile&&state.profile.role===r;
 
 /* ---- ค่าตั้งต้นการแจ้งเตือน (ค่าเดิมของ HRST) — แต่ละ Genpo แก้เองได้ในหน้า ⚙ ตั้งค่า ---- */
 const DEF_SET={visaNotice:60,aptNotice:60,trainWarn:7,dsdLead:30,dsdReport:60,payMid:7,payEnd:21,surveyCap:30};
+/* Safe storage fallback for sandboxed/preview environments where window.localStorage is blocked. */
+const localStorage=(()=>{try{const s=window.localStorage,k='__pch_test__';s.setItem(k,'1');s.removeItem(k);return s;}catch(e){const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),clear:()=>m.clear()};}})();
 
 const state={ apiBase:localStorage.getItem(API_KEY)||'', token:localStorage.getItem(TOK_KEY)||'',
   profile:JSON.parse(localStorage.getItem(PROF_KEY)||'null'),
   view:'training', ws:localStorage.getItem('pch_ws')||'TR',
-  train:{}, dsd:{}, cal:{events:[],skip:[],sha:null},
+  train:{}, dsd:{}, cal:{events:[],skip:[],team:[],schedule:{},holidays:[],audit:[],sha:null},
   vwp:{}, resign:{}, housing:{}, vwpcal:{events:[],skip:[],sha:null}, safety:{},
   emp:{}, survey:{}, rec:{},
   settings:{genpos:{}}, settingsSha:null, missing:new Set() };
@@ -570,7 +581,7 @@ const App=(()=>{
     }catch(e){renderAuth(e.message)}}
   function logout(msg){clearInterval(pollT);state.token='';state.profile=null;localStorage.removeItem(TOK_KEY);localStorage.removeItem(PROF_KEY);
     for(const k of ['train','dsd','vwp','resign','housing','safety','emp','survey','rec'])state[k]={};
-    state.cal={events:[],skip:[],sha:null};state.vwpcal={events:[],skip:[],sha:null};
+    state.cal={events:[],skip:[],team:[],schedule:{},holidays:[],audit:[],sha:null};state.vwpcal={events:[],skip:[],sha:null};
     closeDrawer();closeModal();$('appShell').classList.add('hide');$('auth').classList.remove('hide');resetAuth();if(msg)renderAuth(msg);}
 
   /* ---------- 4) DATA LAYER ----------
@@ -582,7 +593,9 @@ const App=(()=>{
   async function loadKind(kind,gs){const[pre,key,extra=[]]=FILES[kind];
     await Promise.all(gs.map(async g=>{const r=await getFile(pre+g),j=r.json||{};
       state[kind][g]={[key]:j[key]||[],...Object.fromEntries(extra.map(k=>[k,j[k]||[]])),skip:j.skip||[],sha:r.sha};}));}
-  async function loadCal(which){const r=await getFile(which==='cal'?'calendar':'calendar-vwp');state[which]={events:(r.json&&r.json.events)||[],skip:(r.json&&r.json.skip)||[],sha:r.sha};}
+  async function loadCal(which){const r=await getFile(which==='cal'?'calendar':'calendar-vwp'),j=r.json||{};
+    state[which]={events:j.events||[],skip:j.skip||[],sha:r.sha,...(which==='cal'?{team:j.team||[],schedule:j.schedule||{},holidays:j.holidays||[],audit:j.audit||[]}:{})};
+    if(which==='cal')Calendar.ensureDefaults();}
   async function loadSettings(){const r=await getFile('settings');state.settings=(r.json&&r.json.genpos)?r.json:{genpos:{}};state.settingsSha=r.sha;}
   function sides(){const p=state.profile;if(p.admin)return{tr:true,vwp:true,oth:true};return{tr:p.deptNav==='TR',vwp:p.deptNav==='VWP',oth:p.deptNav==='OTH'};}
   async function loadData(silent){
@@ -603,7 +616,7 @@ const App=(()=>{
     try{const r=await api('PUT','api/data?file='+encodeURIComponent(pre+g),{content,sha:s.sha,msg});s.sha=r.sha;state.missing.delete(pre+g);sync('บันทึกแล้ว '+nowStamp());}
     catch(e){if(e.message==='conflict'){toast('มีคนบันทึกก่อน — โหลดข้อมูลล่าสุดแล้ว กรุณาทำซ้ำ');await reloadKind(kind,g);render();}else toast('บันทึกไม่สำเร็จ: '+e.message);throw e;}}
   async function saveCalendar(which,msg){const c=state[which];const name=which==='cal'?'calendar':'calendar-vwp';
-    const content={events:c.events};if(c.skip&&c.skip.length)content.skip=c.skip;
+    const content={events:c.events};if(c.skip&&c.skip.length)content.skip=c.skip;if(which==='cal')Object.assign(content,{team:c.team||[],schedule:c.schedule||{},holidays:c.holidays||[],audit:(c.audit||[]).slice(-2000)});
     try{const r=await api('PUT','api/data?file='+name,{content,sha:c.sha,msg});c.sha=r.sha;sync('บันทึกแล้ว '+nowStamp());}
     catch(e){if(e.message==='conflict'){toast('มีคนแก้ปฏิทินก่อน — โหลดใหม่แล้ว');await loadCal(which);render();}else toast('บันทึกไม่สำเร็จ: '+e.message);throw e;}}
   async function saveSettings(msg){
@@ -1079,70 +1092,70 @@ const inRange=(e,ds)=>e.date===ds||(e.end&&e.date<ds&&ds<=e.end);
 
 const Calendar=(()=>{
   const STA={confirmed:{t:'Confirmed',c:'var(--ok)'},tentative:{t:'Temporary',c:'var(--wait)'},postponed:{t:'Postpone',c:'#8E5A00'},cancelled:{t:'Cancelled',c:'var(--none)'}};
-  let cur=new Date(),cofil='ALL',byfil='ALL',editId=null;
+  const TYPES={office:{t:'Office',def:'Work @ Main Location'},wfh:{t:'WFH',def:'Work From Home'},outside:{t:'Outside Working',def:'Work at Other Genpo / Location'},leave:{t:'Leave',def:'Leave (Full day)'},'leave-am':{t:'Leave (AM)',def:'Half-day Leave (AM)'},'leave-pm':{t:'Leave (PM)',def:'Half-day Leave (PM)'},holiday:{t:'Holiday',def:'Company Holiday'},none:{t:'ไม่ระบุ',def:'Not specified'}};
+  const OUTSIDE=[...GENPOS.map(g=>CO[g]),'HATC Minburi','TH Ladkrabang','ASH','อื่นๆ'];
+  const DEFAULT_TEAM=[
+    ['Supawat Sudhiranat (Tow)','HATC Minburi'],['Supamas Tevadithep (Ying)','HATC Minburi'],['Nannathee Srirath (Nan)','HATC Minburi'],['Kittithara Khunthong (Ice)','HATC Minburi'],['Karuntarat Chanyoung (Mook)','HATC Minburi'],['Kewarin Donthong (Boong)','HATC Minburi'],['Konkanok Wangsara (Look-Yee)','HATC Minburi'],['Thanyarat Wongyimyai (Ying)','HATC Minburi'],['Jirakorn Kasikampaiboon (Miccer)','HATC Minburi'],['Plengsri Issaranuvat (Heidi)','TH Ladkrabang'],['Nuth Sangvari (Pukpui)','TH Ladkrabang'],['Panupong Intasorn (George)','TH Ladkrabang'],['Wijitra Prada (Fah)','TH Ladkrabang'],['Nobsamon Thadtapong (Oy)','TH Ladkrabang'],['Phornphan Promma (Ink)','TH Ladkrabang'],['Sriboonthong Thongin (Jack)','TH Ladkrabang']
+  ];
+  let cur=new Date(),cofil='ALL',byfil='ALL',editId=null,mode=localStorage.getItem('cal_mode')||'all',showInactive=false;
   const evs=()=>state.cal.events;
   const kiOf=d=>{const y=d.getFullYear(),m=d.getMonth();return (m>=3?y:y-1)-1923;};
   const kiStartYear=k=>k+1923;
   const show=e=>(cofil==='ALL'||e.co===cofil)&&(byfil==='ALL'||e.by===byfil);
   const sta=e=>STA[e.status]||STA.confirmed;
-  function render(el){
-    const y=cur.getFullYear(),m=cur.getMonth(),key=`${y}-${String(m+1).padStart(2,'0')}`;
-    const monthAll=evs().filter(e=>e.date&&e.date.slice(0,7)===key&&(byfil==='ALL'||e.by===byfil));
-    const monthEvs=monthAll.filter(show).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''));
-    const curKi=kiOf(cur),kis=[];for(let k=curKi-3;k<=curKi+3;k++)kis.push(k);
-    const share=genpoShare(monthAll);
-    el.innerHTML=`
-      <div class="cal-top">
-        <button class="btn btn-ghost" onclick="Calendar.move(-1)" aria-label="เดือนก่อน">‹</button>
-        <div class="cal-title">${MONTH[m]} ${y}</div>
-        <button class="btn btn-ghost" onclick="Calendar.move(1)" aria-label="เดือนถัดไป">›</button>
-        <button class="btn btn-ghost" onclick="Calendar.today()">Today</button>
-        <select onchange="Calendar.jumpKi(+this.value)" title="ปีงบประมาณ Ki">${kis.map(k=>`<option value="${k}" ${k===curKi?'selected':''}>${k} Ki (Apr ${kiStartYear(k)} – Mar ${kiStartYear(k)+1})</option>`).join('')}</select>
-        <select onchange="Calendar.fil(this.value)">${genpoOptions(cofil,{all:true})}</select>
-        <select onchange="Calendar.byFil(this.value)" title="กรองตามผู้เพิ่ม"><option value="ALL">ทุกผู้เพิ่ม</option>${App.creators().map(b=>`<option value="${esc(b)}" ${byfil===b?'selected':''}>${esc(b)}</option>`).join('')}</select>
-        <span style="flex:1"></span>
-        <button class="btn btn-red" onclick="Calendar.add('${ymd(new Date())}')">+ เพิ่มกิจกรรม</button>
-      </div>
-      <div class="cal-wrap">
-        <div>${calGrid(y,m,ds=>evs().filter(e=>inRange(e,ds)&&show(e)),'Calendar.add','Calendar.open',e=>sta(e).c)}
-          <div class="note" style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap">${Object.values(STA).map(s=>`<span><span class="dotco" style="background:${s.c}"></span>${s.t}</span>`).join('')}</div></div>
-        <div class="side">
-          <div class="panel"><h4>สัดส่วนการอบรมตาม Genpo · ${MON[m]} ${y}</h4>${hbars(share)}</div>
-          <div class="panel agenda"><h4>กิจกรรมเดือนนี้ (${monthEvs.length})</h4>${monthEvs.length?monthEvs.map(e=>`<div class="ag-item" style="border-left-color:${sta(e).c}" onclick="Calendar.open('${e.id}')"><b>${esc(e.title)}</b><div class="m"><span class="co ${e.co}">${CO[e.co]||e.co}</span> ${fmtDMY(e.date)}${e.end?' – '+fmtDMY(e.end):''}${e.time?' · '+esc(e.time):''} · ${sta(e).t}</div></div>`).join(''):'<div class="note">ยังไม่มีกิจกรรมในเดือนนี้</div>'}</div>
-        </div>
-      </div>`;}
-  function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);App.render();}
-  function today(){cur=new Date();App.render();}
-  function jumpKi(k){cur=new Date(kiStartYear(k),3,1);App.render();}
-  function fil(c){cofil=c;App.render();}
-  function byFil(b){byfil=b;App.render();}
-  function add(date){editId=null;form({date,co:cofil==='ALL'?'HRST':cofil,status:'confirmed',time:'',end:'',title:'',note:''});}
-  function open(id){const e=evs().find(x=>x.id===id);if(!e)return;editId=id;form(e,true);}
-  function form(e,isEdit){openModal(`<h2>${isEdit?'แก้ไขกิจกรรม':'เพิ่มกิจกรรม'}</h2>
-      <div class="frow"><label>ชื่อกิจกรรม</label><input id="ceTitle" value="${esc(e.title||'')}"></div>
-      <div class="grid2">
-        <div class="frow"><label>Genpo</label><select id="ceCo">${genpoOptions(e.co)}</select></div>
-        <div class="frow"><label>สถานะ</label><select id="ceStatus">${Object.entries(STA).map(([k,v])=>`<option value="${k}" ${e.status===k?'selected':''}>${v.t}</option>`).join('')}</select></div>
-        <div class="frow"><label>วันที่</label>${dateInput(e.date,'','ceDate')}</div>
-        <div class="frow"><label>ถึงวันที่ (ถ้ามี)</label>${dateInput(e.end,'','ceEnd')}</div>
-        <div class="frow"><label>เวลา</label><input id="ceTime" value="${esc(e.time||'')}" placeholder="09:00-16:00"></div></div>
-      <div class="frow"><label>หมายเหตุ</label><textarea id="ceNote" rows="2">${esc(e.note||'')}</textarea></div>
-      ${isEdit?`<p class="by">${e.by?'เพิ่มโดย '+esc(e.by):''}${e.code?' · Code '+esc(e.code)+' (ชื่อ/วันที่อัปเดตตาม Training)':''}</p>`:''}
-      ${isEdit&&e.history&&e.history.length?`<div class="sumbox"><b>ประวัติแก้ไข</b><br>${e.history.slice(-5).map(esc).join('<br>')}</div>`:''}
-      <div class="mfoot">${isEdit?`<button class="btn btn-ghost" style="color:var(--alert);margin-right:auto" onclick="Calendar.del()">ลบ</button>`:''}<button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Calendar.save()">บันทึก</button></div>`);}
-  async function save(){const v=id=>$(id).value;const title=v('ceTitle').trim();if(!title){toast('กรอกชื่อกิจกรรม');return;}
-    const date=parseDMY(v('ceDate'));if(!date){toast('วันที่ต้องเป็น dd/mm/yyyy');return;}
-    const rec={title,co:v('ceCo'),status:v('ceStatus'),date,end:parseDMY(v('ceEnd')),time:v('ceTime').trim(),note:v('ceNote').trim()};
-    const stamp=`${state.profile.username} ${todayDMY()} ${nowStamp()}`;
-    if(editId){const e=evs().find(x=>x.id===editId);Object.assign(e,rec);(e.history=e.history||[]).push('แก้ไขโดย '+stamp);}
-    else evs().push({id:Date.now().toString(36),...rec,by:state.profile.username,history:['สร้างโดย '+stamp]});
-    try{await App.saveCal(editId?'edit event':'add event');closeModal();App.render();}catch(e){}}
-  async function del(){if(!confirm('ลบกิจกรรมนี้?'))return;const e=evs().find(x=>x.id===editId);
-    if(e&&e.code){state.cal.skip=state.cal.skip||[];if(!state.cal.skip.includes(e.code))state.cal.skip.push(e.code);}
-    state.cal.events=evs().filter(x=>x.id!==editId);try{await App.saveCal('delete event');closeModal();App.render();}catch(err){}}
-  return {render,move,today,jumpKi,fil,byFil,add,open,save,del};
+  const isAdmin=()=>!!(state.profile&&state.profile.admin);
+  const audit=(action,detail)=>{state.cal.audit=state.cal.audit||[];state.cal.audit.push({at:new Date().toISOString(),by:state.profile.username,action,detail});if(state.cal.audit.length>2000)state.cal.audit=state.cal.audit.slice(-2000);};
+  function ensureDefaults(){state.cal.team=state.cal.team||[];state.cal.schedule=state.cal.schedule||{};state.cal.holidays=state.cal.holidays||[];state.cal.audit=state.cal.audit||[];
+    if(!state.cal.team.length)state.cal.team=DEFAULT_TEAM.map((x,i)=>({id:'pc'+String(i+1).padStart(2,'0'),name:x[0],base:x[1],active:true,seed:true}));}
+  const team=()=>{ensureDefaults();return state.cal.team.filter(x=>showInactive||x.active!==false);};
+  const rec=(id,ds)=>((state.cal.schedule[id]||{})[ds])||null;
+  const hol=ds=>(state.cal.holidays||[]).find(h=>h.date===ds);
+  const autoType=ds=>new Date(ds+'T00:00:00').getDay()===0||hol(ds)?'holiday':'none';
+  const effective=(id,ds)=>{const r=rec(id,ds);return r&&r.type&&r.type!=='none'?r.type:autoType(ds);};
+  function setMode(v){mode=v;localStorage.setItem('cal_mode',v);App.render();}
+  function render(el){ensureDefaults();const y=cur.getFullYear(),m=cur.getMonth(),key=`${y}-${String(m+1).padStart(2,'0')}`;
+    const monthAll=evs().filter(e=>e.date&&e.date.slice(0,7)===key&&(byfil==='ALL'||e.by===byfil));const monthEvs=monthAll.filter(show).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''));
+    const curKi=kiOf(cur),kis=[];for(let k=curKi-3;k<=curKi+3;k++)kis.push(k);const share=genpoShare(monthAll);
+    el.innerHTML=`<div class="cal-top"><div class="cal-mode"><button class="${mode==='all'?'on':''}" onclick="Calendar.setMode('all')">ทั้งหมด</button><button class="${mode==='events'?'on':''}" onclick="Calendar.setMode('events')">ตารางอบรม</button><button class="${mode==='team'?'on':''}" onclick="Calendar.setMode('team')">การทำงาน / ลา</button></div>
+      <button class="btn btn-ghost" onclick="Calendar.move(-1)">‹</button><div class="cal-title">${MONTH[m]} ${y}</div><button class="btn btn-ghost" onclick="Calendar.move(1)">›</button><button class="btn btn-ghost" onclick="Calendar.today()">Today</button>
+      <select onchange="Calendar.jumpKi(+this.value)">${kis.map(k=>`<option value="${k}" ${k===curKi?'selected':''}>${k} Ki</option>`).join('')}</select><span style="flex:1"></span>
+      ${(mode!=='team')?`<button class="btn btn-red" onclick="Calendar.add('${ymd(new Date())}')">+ เพิ่มกิจกรรม</button>`:''}</div>
+      ${(mode==='all'||mode==='events')?eventHtml(y,m,monthEvs,share):''}${(mode==='all'||mode==='team')?teamHtml(y,m):''}`;}
+  function eventHtml(y,m,monthEvs,share){return `<div class="pagehead" style="margin-top:8px"><h2>Training & Event Calendar</h2><span class="note">กิจกรรมอบรมและกิจกรรม People Center</span></div>
+    <div class="toolbar"><select onchange="Calendar.fil(this.value)">${genpoOptions(cofil,{all:true})}</select><select onchange="Calendar.byFil(this.value)"><option value="ALL">ทุกผู้เพิ่ม</option>${App.creators().map(b=>`<option value="${esc(b)}" ${byfil===b?'selected':''}>${esc(b)}</option>`).join('')}</select></div>
+    <div class="cal-wrap"><div>${calGrid(y,m,ds=>evs().filter(e=>inRange(e,ds)&&show(e)),'Calendar.add','Calendar.open',e=>sta(e).c)}<div class="note" style="margin-top:8px;display:flex;gap:14px">${Object.values(STA).map(s=>`<span><span class="dotco" style="background:${s.c}"></span>${s.t}</span>`).join('')}</div></div>
+    <div class="side"><div class="panel"><h4>สัดส่วนการอบรมตาม Genpo</h4>${hbars(share)}</div><div class="panel agenda"><h4>กิจกรรมเดือนนี้ (${monthEvs.length})</h4>${monthEvs.length?monthEvs.map(e=>`<div class="ag-item" style="border-left-color:${sta(e).c}" onclick="Calendar.open('${e.id}')"><b>${esc(e.title)}</b><div class="m">${fmtDMY(e.date)} · ${sta(e).t}</div></div>`).join(''):'<div class="note">ยังไม่มีกิจกรรม</div>'}</div></div></div>`;}
+  function daysOf(y,m){const n=new Date(y,m+1,0).getDate();return Array.from({length:n},(_,i)=>ymd(new Date(y,m,i+1)));}
+  function statusSelect(id,ds,t){return `<select aria-label="สถานะ ${ds}" class="sch-${t}" onchange="Calendar.change('${id}','${ds}',this.value)">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${t===k?'selected':''}>${v.t}</option>`).join('')}</select>`;}
+  function teamHtml(y,m){const D=daysOf(y,m),T=team(),counts={};Object.keys(TYPES).forEach(k=>counts[k]=D.map(()=>0));
+    T.forEach(p=>D.forEach((ds,i)=>counts[effective(p.id,ds)][i]++));
+    const head=D.map(ds=>{const d=new Date(ds+'T00:00:00'),h=hol(ds);return `<th class="${d.getDay()===0?'sun':d.getDay()===6?'sat':''}" title="${h?esc(h.name):''}">${DOW_EN[d.getDay()]}<br><b>${d.getDate()}</b>${h?'<br>Holiday':''}</th>`;}).join('');
+    const body=T.map((p,n)=>`<tr><td class="sticky-no">${n+1}</td><td class="sticky-name">${esc(p.name)}${p.active===false?' <span class="chip">Inactive</span>':''}</td><td class="sticky-base">${esc(p.base||'')}</td>${D.map(ds=>{const d=new Date(ds+'T00:00:00'),t=effective(p.id,ds);return `<td class="${d.getDay()===0?'sun':d.getDay()===6?'sat':''} sch-${t}" title="${esc((rec(p.id,ds)||{}).place||hol(ds)?.name||'')}">${statusSelect(p.id,ds,t)}</td>`;}).join('')}</tr>`).join('');
+    const sumRows=Object.entries(TYPES).filter(([k])=>k!=='none').map(([k,v])=>`<tr class="team-summary"><td class="sticky-no"></td><td class="sticky-name">${v.t}</td><td class="sticky-base">${v.def}</td>${counts[k].map(x=>`<td>${x}</td>`).join('')}</tr>`).join('');
+    const pctRows=['office','wfh','outside','leave','leave-am','leave-pm'].map(k=>`<tr class="team-summary"><td class="sticky-no"></td><td class="sticky-name">${TYPES[k].t} (%)</td><td class="sticky-base">${TYPES[k].def}</td>${counts[k].map(x=>`<td>${T.length?Math.round(x/T.length*100):0}%</td>`).join('')}</tr>`).join('');
+    return `<div class="pagehead" style="margin-top:18px"><h2>People Center Team Schedule</h2><span class="note">อาทิตย์เป็น Holiday อัตโนมัติ · วันเสาร์เลือกสถานะตามประกาศบริษัท</span></div>
+      <div class="toolbar">${isAdmin()?'<button class="btn btn-red" onclick="Calendar.addMember()">+ เพิ่มสมาชิก</button><button class="btn btn-ghost" onclick="Calendar.manageTeam()">จัดการสมาชิก</button>':''}<button class="btn btn-ghost" onclick="Calendar.exportHolidayTemplate()">Export Holiday Template</button><button class="btn btn-ghost" onclick="Calendar.importHolidays()">Import Holiday Excel</button><button class="btn btn-ghost" onclick="Calendar.exportSchedule()">Export Schedule</button><button class="btn btn-ghost" onclick="Calendar.showAudit()">ประวัติแก้ไข</button><label style="display:inline-flex;gap:5px;align-items:center;margin:0"><input type="checkbox" style="width:auto" ${showInactive?'checked':''} onchange="Calendar.toggleInactive(this.checked)">แสดง Inactive</label></div>
+      <div class="team-scroll"><table class="team-table"><thead><tr><th class="sticky-no">No.</th><th class="sticky-name">Employee Namelist</th><th class="sticky-base">Work Location Base</th>${head}</tr></thead><tbody>${body}<tr class="mrow"><td colspan="${3+D.length}">Persons (N)</td></tr>${sumRows}<tr class="mrow"><td colspan="${3+D.length}">Persons (%)</td></tr>${pctRows}<tr class="team-summary"><td class="sticky-no"></td><td class="sticky-name">% WFH (All)</td><td class="sticky-base">0–25% / day</td>${counts.wfh.map((x,i)=>{const den=T.length-counts.holiday[i];return `<td style="color:${den&&x/den>.25?'var(--alert)':'inherit'}">${den?Math.round(x/den*100):0}%</td>`;}).join('')}</tr></tbody></table></div>`;}
+  async function change(id,ds,type){const p=state.cal.team.find(x=>x.id===id);if(!p)return;let place='',other='';
+    if(type==='outside'){place=prompt('เลือก/ระบุ Genpo หรือสถานที่ที่ไป\nตัวอย่าง: '+OUTSIDE.join(', '),(rec(id,ds)||{}).place||'')||'';if(!place){App.render();return;}if(place==='อื่นๆ'){other=prompt('ระบุสถานที่อื่นๆ','')||'';if(!other){App.render();return;}place=other;}}
+    state.cal.schedule[id]=state.cal.schedule[id]||{};if(type==='none')delete state.cal.schedule[id][ds];else state.cal.schedule[id][ds]={type,place,updatedBy:state.profile.username,updatedAt:new Date().toISOString()};
+    audit('schedule',`${p.name} · ${fmtDMY(ds)} · ${TYPES[type].t}${place?' · '+place:''}`);try{await App.saveCal('team schedule');App.render();}catch(e){}}
+  function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);App.render();}function today(){cur=new Date();App.render();}function jumpKi(k){cur=new Date(kiStartYear(k),3,1);App.render();}function fil(c){cofil=c;App.render();}function byFil(b){byfil=b;App.render();}
+  function add(date){editId=null;form({date,co:cofil==='ALL'?'HRST':cofil,status:'confirmed',time:'',end:'',title:'',note:''});}function open(id){const e=evs().find(x=>x.id===id);if(!e)return;editId=id;form(e,true);}
+  function form(e,isEdit){openModal(`<h2>${isEdit?'แก้ไขกิจกรรม':'เพิ่มกิจกรรม'}</h2><div class="frow"><label>ชื่อกิจกรรม</label><input id="ceTitle" value="${esc(e.title||'')}"></div><div class="grid2"><div class="frow"><label>Genpo</label><select id="ceCo">${genpoOptions(e.co)}</select></div><div class="frow"><label>สถานะ</label><select id="ceStatus">${Object.entries(STA).map(([k,v])=>`<option value="${k}" ${e.status===k?'selected':''}>${v.t}</option>`).join('')}</select></div><div class="frow"><label>วันที่</label>${dateInput(e.date,'','ceDate')}</div><div class="frow"><label>ถึงวันที่</label>${dateInput(e.end,'','ceEnd')}</div><div class="frow"><label>เวลา</label><input id="ceTime" value="${esc(e.time||'')}"></div></div><div class="frow"><label>หมายเหตุ</label><textarea id="ceNote" rows="2">${esc(e.note||'')}</textarea></div>${isEdit&&e.history?`<div class="sumbox">${e.history.slice(-5).map(esc).join('<br>')}</div>`:''}<div class="mfoot">${isEdit?'<button class="btn btn-ghost" style="color:var(--alert);margin-right:auto" onclick="Calendar.del()">ลบ</button>':''}<button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Calendar.save()">บันทึก</button></div>`);}
+  async function save(){const v=id=>$(id).value,title=v('ceTitle').trim(),date=parseDMY(v('ceDate'));if(!title||!date){toast('กรอกชื่อและวันที่ dd/mm/yyyy');return;}const r={title,co:v('ceCo'),status:v('ceStatus'),date,end:parseDMY(v('ceEnd')),time:v('ceTime').trim(),note:v('ceNote').trim()},stamp=`${state.profile.username} ${todayDMY()} ${nowStamp()}`;if(editId){const e=evs().find(x=>x.id===editId);Object.assign(e,r);(e.history=e.history||[]).push('แก้ไขโดย '+stamp);}else evs().push({id:Date.now().toString(36),...r,by:state.profile.username,history:['สร้างโดย '+stamp]});audit('event',(editId?'แก้ไข ':'เพิ่ม ')+title);try{await App.saveCal(editId?'edit event':'add event');closeModal();App.render();}catch(e){}}
+  async function del(){if(!confirm('ลบกิจกรรมนี้?'))return;const e=evs().find(x=>x.id===editId);if(e&&e.code){state.cal.skip=state.cal.skip||[];if(!state.cal.skip.includes(e.code))state.cal.skip.push(e.code);}state.cal.events=evs().filter(x=>x.id!==editId);audit('event','ลบ '+(e?.title||''));try{await App.saveCal('delete event');closeModal();App.render();}catch(e){}}
+  function memberForm(p){openModal(`<h2>${p?'แก้ไขสมาชิก':'เพิ่มสมาชิกทีม'}</h2><div class="frow"><label>Employee Name</label><input id="tmName" value="${esc(p?.name||'')}"></div><div class="frow"><label>Work Location Base</label><input id="tmBase" value="${esc(p?.base||'')}" list="tmBaseList"><datalist id="tmBaseList"><option>HATC Minburi</option><option>TH Ladkrabang</option><option>ASH</option></datalist></div><div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button><button class="btn btn-red" onclick="Calendar.saveMember('${p?.id||''}')">บันทึก</button></div>`);}
+  function addMember(){if(isAdmin())memberForm(null);}async function saveMember(id){if(!isAdmin())return;const name=$('tmName').value.trim(),base=$('tmBase').value.trim();if(!name){toast('กรอกชื่อ');return;}let p=state.cal.team.find(x=>x.id===id);if(p)Object.assign(p,{name,base});else state.cal.team.push({id:'pc'+Date.now().toString(36),name,base,active:true});audit('member',(p?'แก้ไข ':'เพิ่ม ')+name);try{await App.saveCal('team member');closeModal();App.render();}catch(e){}}
+  function manageTeam(){if(!isAdmin())return;openModal(`<h2>จัดการสมาชิกทีม</h2><div>${state.cal.team.map(p=>`<div class="urow"><span style="flex:1"><b>${esc(p.name)}</b><br><span class="by">${esc(p.base||'')}</span></span><span class="chip ${p.active===false?'':'ok'}">${p.active===false?'Inactive':'Active'}</span><button class="mini" onclick="Calendar.editMember('${p.id}')">แก้ไข</button><button class="mini" onclick="Calendar.toggleMember('${p.id}')">${p.active===false?'เปิดใช้งาน':'ปิดใช้งาน'}</button></div>`).join('')}</div><div class="mfoot"><button class="btn btn-red" onclick="closeModal()">ปิด</button></div>`,'wide');}
+  function editMember(id){memberForm(state.cal.team.find(x=>x.id===id));}async function toggleMember(id){if(!isAdmin())return;const p=state.cal.team.find(x=>x.id===id);p.active=p.active===false; audit('member',`${p.name} → ${p.active?'Active':'Inactive'}`);try{await App.saveCal('toggle member');manageTeam();App.render();}catch(e){}}
+  function toggleInactive(v){showInactive=v;App.render();}
+  function exportHolidayTemplate(){xlsxExport('people_center_holiday_template.xlsx',['Date (dd/mm/yyyy)','Holiday Name','Type','Remark'],[['01/01/2027','New Year Holiday','Company Holiday','ตัวอย่าง — ลบหรือแก้ไขก่อน Import']]);}
+  function importHolidays(){const i=document.createElement('input');i.type='file';i.accept='.xlsx,.xls,.csv';i.onchange=async()=>{const f=i.files[0];if(!f||!window.XLSX)return;try{const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:false});let n=0;for(const r of rows){const d=toISO(r['Date (dd/mm/yyyy)']||r.Date||r.date),name=String(r['Holiday Name']||r.Name||r.name||'Company Holiday').trim();if(!d)continue;const x=state.cal.holidays.find(h=>h.date===d);if(x)Object.assign(x,{name,type:r.Type||'',remark:r.Remark||''});else state.cal.holidays.push({date:d,name,type:r.Type||'',remark:r.Remark||''});n++;}audit('holiday',`Import ${n} วัน จาก ${f.name}`);await App.saveCal('import holidays');App.render();toast('นำเข้าวันหยุด '+n+' วัน');}catch(e){toast('อ่านไฟล์ไม่สำเร็จ: '+e.message);}};i.click();}
+  function exportSchedule(){const y=cur.getFullYear(),m=cur.getMonth(),D=daysOf(y,m),rows=[];team().forEach(p=>D.forEach(ds=>{const r=rec(p.id,ds),t=effective(p.id,ds);rows.push([p.name,p.base,fmtDMY(ds),DOW_EN[new Date(ds+'T00:00:00').getDay()],TYPES[t].t,r?.place||'',r?.updatedBy||'',r?.updatedAt?new Date(r.updatedAt).toLocaleString('en-GB'):'']);}));xlsxExport(`people_center_schedule_${y}_${String(m+1).padStart(2,'0')}.xlsx`,['Employee','Work Location Base','Date','Day','Status','Outside Location','Updated By','Updated At'],rows);}
+  function showAudit(){const L=(state.cal.audit||[]).slice().reverse().slice(0,200);openModal(`<h2>ประวัติการแก้ไข Calendar</h2><div class="audit-list">${L.length?L.map(a=>`<div class="audit-row"><b>${esc(a.by)}</b> · ${esc(a.action)}<br>${esc(a.detail)}<br><span class="by">${new Date(a.at).toLocaleString('en-GB')}</span></div>`).join(''):'<p class="note">ยังไม่มีประวัติ</p>'}</div><div class="mfoot"><button class="btn btn-red" onclick="closeModal()">ปิด</button></div>`);}
+  return {render,ensureDefaults,setMode,move,today,jumpKi,fil,byFil,add,open,save,del,change,addMember,saveMember,manageTeam,editMember,toggleMember,toggleInactive,exportHolidayTemplate,importHolidays,exportSchedule,showAudit};
 })();
-
 /* ================= Calendar ฝั่ง Visa & Work Permit ================= */
 const VWPCalendar=(()=>{
   const KIND={visa:{t:'Visa/Work Permit',c:'#CC0000'},housing:{t:'Housing contract',c:'#1F3A5F'},apartment:{t:'Housing (เดิม)',c:'#1F3A5F'},resignation:{t:'Resignation',c:'#B26A00'},retirement:{t:'Retirement',c:'#666A70'},other:{t:'Other',c:'#3F6F68'}};
