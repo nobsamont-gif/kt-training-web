@@ -8,31 +8,30 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-/* Replace guidance copy with a compact ? tooltip across all rendered screens. */
-function humanHelp(text){
-  let t=String(text||'').replace(/\s+/g,' ').trim();
-  t=t.replace(/^ไฟล์ใหม่\s*/,'').replace(/^คำแนะนำ\s*/,'');
-  t=t.replace(/\s*[—–-]\s*/g,'\n');
-  t=t.replace(/\s*·\s*/g,'\n');
-  t=t.replace(/\s*\/\s*/g,' หรือ ');
-  t=t.replace(/"([^"]+)"/g,'$1').replace(/'([^']+)'/g,'$1');
-  return t.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>x.replace(/^ระบบจะ/,'ระบบจะ')).join('\n');
+function cleanHelpText(value){
+  return String(value||'').replace(/\s+/g,' ').trim()
+    .replace(/^คำแนะนำ\s*/,'')
+    .replace(/\s*[—–]\s*/g,'\n')
+    .replace(/\s+[-/]\s+/g,'\n')
+    .replace(/["'“”]/g,'')
+    .split('\n').map(x=>x.trim()).filter(Boolean).join('\n');
 }
-function helpify(root=document){
-  const nodes=[];
-  if(root.nodeType===1&&root.matches?.('.pagehead>.note,.banner,.chiphint,.set-card>.hint,.mcard>p.note'))nodes.push(root);
-  root.querySelectorAll?.('.pagehead>.note,.banner,.chiphint,.set-card>.hint,.mcard>p.note').forEach(n=>nodes.push(n));
-  nodes.forEach(n=>{
-    if(n.dataset.helpified==='1'||n.closest('.helpq'))return;
-    const tip=humanHelp(n.textContent);if(!tip)return;
-    n.dataset.helpified='1';n.classList.add('help-source');
-    const b=document.createElement('button');b.type='button';b.className='helpq';b.textContent='?';b.setAttribute('data-tip',tip);b.setAttribute('aria-label','คำแนะนำ');
-    if(n.classList.contains('banner'))n.parentNode.insertBefore(b,n);else n.replaceWith(b);
+function applyCompactHelp(root=document){
+  const selector='.pagehead > .note,.chiphint,.set-card > .hint,.mcard > p.note';
+  const list=[];
+  if(root.nodeType===1&&root.matches?.(selector))list.push(root);
+  root.querySelectorAll?.(selector).forEach(x=>list.push(x));
+  list.forEach(source=>{
+    if(source.dataset.helpDone==='1'||source.closest('.helpq'))return;
+    const tip=cleanHelpText(source.textContent);if(!tip)return;
+    source.dataset.helpDone='1';source.classList.add('help-source');
+    const q=document.createElement('button');q.type='button';q.className='helpq';q.textContent='?';q.setAttribute('data-tip',tip);q.setAttribute('aria-label','เปิดคำแนะนำ');
+    source.parentNode.insertBefore(q,source);source.remove();
   });
 }
-const helpObserver=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)helpify(n)})));
-helpObserver.observe(document.documentElement,{childList:true,subtree:true});
-document.addEventListener('DOMContentLoaded',()=>helpify());
+const compactHelpObserver=new MutationObserver(records=>{for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1)applyCompactHelp(n)});
+compactHelpObserver.observe(document.documentElement,{subtree:true,childList:true});
+queueMicrotask(()=>applyCompactHelp());
 
 </script>
 <style>
@@ -357,14 +356,14 @@ table.plain td{padding:5px 6px;border-bottom:1px dashed var(--line);font-size:va
 @media(max-width:700px){.mcard{padding:20px}.modal{padding:12px}.syncline{justify-content:stretch}#syncState{width:100%;justify-content:center;white-space:normal}}
 
 
-/* ===== Compact, user-friendly help tooltips ===== */
-.helpq{position:relative;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;padding:0!important;margin:0 0 0 2px!important;border:1px solid var(--line)!important;border-radius:50%!important;background:#fff!important;color:var(--sub)!important;font-size:13px!important;font-weight:700!important;line-height:1!important;cursor:help;vertical-align:middle;overflow:visible!important}
+/* ===== Definitive compact help ===== */
+.banner{display:none!important}
+.helpq{position:relative;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;padding:0!important;margin-left:4px!important;border:1px solid var(--line)!important;border-radius:50%!important;background:#fff!important;color:var(--sub)!important;font-size:13px!important;font-weight:700!important;line-height:1!important;cursor:help;vertical-align:middle;overflow:visible!important}
 .helpq:hover,.helpq:focus{border-color:var(--red)!important;color:var(--red)!important;outline:none}
-.helpq::after{content:attr(data-tip);position:absolute;z-index:10000;left:0;top:calc(100% + 8px);width:max-content;max-width:min(360px,78vw);padding:10px 12px;border-radius:7px;background:#202124;color:#fff;font-size:12px;font-weight:400;line-height:1.55;text-align:left;white-space:pre-line;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-3px);transition:.14s ease}
-.helpq:hover::after,.helpq:focus::after{opacity:1;visibility:visible;transform:none}
-.pagehead>.helpq{margin-left:0!important}.toolbar>.helpq{margin-left:2px!important}
-/* Guidance is represented by ? only; never show long inline guidance cards. */
-.banner.help-source,.note.help-source,.chiphint.help-source,.hint.help-source{display:none!important}
+.helpq::after{content:attr(data-tip);position:absolute;z-index:10000;left:50%;top:calc(100% + 8px);transform:translate(-50%,-3px);width:max-content;max-width:min(360px,78vw);padding:10px 12px;border-radius:7px;background:#202124;color:#fff;font-size:12px;font-weight:400;line-height:1.55;text-align:left;white-space:pre-line;box-shadow:0 8px 24px rgba(0,0,0,.22);opacity:0;visibility:hidden;pointer-events:none;transition:.14s ease}
+.helpq:hover::after,.helpq:focus::after{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.help-source{display:none!important}
+.empty,.empty-state,td[colspan]{line-height:1.55}
 
 </style>
 </head>
@@ -868,7 +867,7 @@ const Training=(()=>{
       ${(lateN||cutN)?`<div class="tiles"><span class="tile alert"><b>${lateN}</b><span>รายการเสี่ยง</span></span><span class="tile wait"><b>${cutN}</b><span>ใกล้ cut off ทำจ่าย</span></span></div>`:''}
       <div class="tblwrap"><table><thead><tr><th>Code</th><th>หลักสูตร / สถาบัน</th><th>วันอบรม</th><th>คน</th><th>ขั้นตอน</th><th>สถานะล่าสุด</th></tr></thead><tbody id="tRows"></tbody></table></div>`;
     const tb=el.querySelector('#tRows');
-    if(!rows.length){tb.innerHTML=`<tr><td colspan="6" class="empty">ยังไม่มีหลักสูตร — กด "+ เพิ่มหลักสูตร" เพื่อเริ่ม</td></tr>`;return;}
+    if(!rows.length){tb.innerHTML=`<tr><td colspan="6" class="empty">ยังไม่มีหลักสูตร เพื่อเริ่ม</td></tr>`;return;}
     tb.innerHTML=rows.map(({c,g})=>{const st=lastStatus(c),late=isLate(c,g),co=cutoffInfo(c,g);
       const coChip=co&&co.days<=7?`<br><span class="chip ${co.days<=3?'alert':'wait'}" style="margin-top:3px">cut off ${fmtDM(co.target)} · ขาด ${co.miss.join(' + ')}</span>`:'';
       const dots=STEPS.map(s=>{let cl;if(s.k==='vendor')cl=vendorDone(c)?'ok':'wait';else if(s.k==='pr')cl=prDone(c)?'ok':'wait';else cl=c.steps[s.k]?'ok':(prevDone(c,s.k)?'wait':'');return`<span class="dot ${cl}" title="${s.nm}"></span>`;}).join('');
@@ -2028,7 +2027,7 @@ const Records=(()=>{
         <button class="btn btn-ghost" onclick="Records.openLegacy()">ย้ายข้อมูลเดิม</button>
         <button class="btn btn-ghost" onclick="Records.exportExcel()">Export Excel</button>
       </div>
-      ${miss.length?`<div class="banner"><b>ไฟล์ใหม่</b> <span class="note">${miss.map(g=>CO[g]).join(', ')} ยังไม่มีไฟล์ employees-/records- — ระบบจะสร้างเมื่อบันทึกครั้งแรก ถ้าบันทึกไม่ได้ ให้เพิ่มชื่อไฟล์นี้ในรายการที่ Worker อนุญาต</span></div>`:''}
+      
       <div class="tiles"><span class="tile"><b>${nEmp.toLocaleString()}</b><span>พนักงาน Active</span></span>
         <span class="tile ok"><b>${trained.toLocaleString()}</b><span>อบรมแล้วใน ${k} Ki${nEmp?` (${Math.round(trained/nEmp*100)}%)`:''}</span></span>
         <span class="tile"><b>${hrs(hSum)}</b><span>ชั่วโมงอบรมรวม</span></span>
@@ -2431,7 +2430,7 @@ const Survey=(()=>{
     const miss=scopeGenpos().filter(g=>state.missing.has('survey-'+g));
     el.innerHTML=`<div class="pagehead"><h2>Training Survey</h2><span class="note">โควต้าต่อฝ่าย → ผู้จัดการเลือกรายชื่อใน Excel → Pending list ของรอบอบรม → Training Record</span></div>
       <div class="toolbar"><button class="btn btn-red" onclick="Survey.openCreate()">+ สร้าง Survey</button><select onchange="Survey.setCo(this.value)">${genpoOptions(cofil,{all:true})}</select></div>
-      ${miss.length?`<div class="banner"><b>ไฟล์ใหม่</b> <span class="note">${miss.map(g=>'survey-'+g).join(', ')} จะถูกสร้างเมื่อบันทึกครั้งแรก — ถ้าบันทึกไม่ได้ ให้เพิ่มชื่อไฟล์ในรายการที่ Worker อนุญาต</span></div>`:''}
+      
       <div class="tiles">${[['ALL','ทั้งหมด','',L.length],['open','เปิดรับ','info',cnt.open],['closed','ปิดรับ · รอตรวจ','wait',cnt.closed],['draft','ร่าง','',cnt.draft],['final','เสร็จสิ้น','ok',cnt.final]]
         .map(([k,t,cl,n])=>`<button class="tile ${cl} ${stfil===k?'on':''}" onclick="Survey.setSt('${k}')"><b>${n}</b><span>${t}</span></button>`).join('')}</div>
       <div class="tblwrap"><table><thead><tr><th>Survey</th><th>หลักสูตร</th><th>รอบ</th><th>ปิดรับ</th><th class="num">ฝ่ายส่งกลับ</th><th class="num">รับแล้ว / โควต้า</th><th class="num">Pending</th><th>สถานะ</th></tr></thead><tbody>
@@ -2442,7 +2441,7 @@ const Survey=(()=>{
             <td class="cdate">${fmtDMY(s.closeDate)}${s.status==='open'&&dl!==null?`<br><span class="chip ${dl<0?'alert':dl<=3?'wait':''}">${dl<0?'เลย '+(-dl)+' วัน':'เหลือ '+dl+' วัน'}</span>`:''}</td>
             <td class="num">${s.status==='draft'?'—':`${ret} / ${qd.length}`}</td><td class="num">${act} / ${qTotal(s)}</td><td class="num">${pend?`<b style="color:var(--wait)">${pend}</b>`:''}</td>
             <td><span class="chip ${SST[s.status].cl}">${SST[s.status].t}</span></td></tr>`;}).join('')
-        :`<tr><td colspan="8" class="empty">ยังไม่มี Survey — กด "+ สร้าง Survey" (ต้องมีหลักสูตรใน Training Tracker และทะเบียนพนักงานในหน้า Records ก่อน)</td></tr>`}</tbody></table></div>`;}
+        :`<tr><td colspan="8" class="empty">ยังไม่มี Survey</td></tr>`}</tbody></table></div>`;}
   function setCo(v){cofil=v;App.render();}
   function setSt(v){stfil=v;App.render();}
   function openSurvey(g,id){view=id;viewG=g;tab='setup';sessTab=null;closeModal();if(state.view!=='survey')App.go('survey');else{closeDrawer();App.render();window.scrollTo(0,0);}}
